@@ -6,9 +6,10 @@ NewellAI is a turn-capture system with three primary surfaces:
 
 | Area | Path | Role |
 |------|------|------|
-| Chrome extension | `extension/` | Capture turns from the browser |
-| Worker | `worker/` | Ingest, validate, and serve APIs on Cloudflare |
-| Database | `database/` | D1 schema / migrations; local SQLite mirror |
+| Chrome extension | `apps/extension/` | Capture turns; **Durable Queue** (buffer, order, retry); sync to Worker |
+| Worker | `apps/worker/` | Authenticated ingest API, validation, and D1 persistence |
+| Contracts | `packages/contracts/` | Shared turn / API shapes |
+| Migrations | `migrations/` | D1 schema SQL |
 
 Documentation lives in `docs/` as an engineering notebook.
 
@@ -26,9 +27,9 @@ Even while Phase 1 is single-user, prefer practices that allow expansion:
 ```
 ChatGPT (browser)
     → Chrome extension (capture)
-    → Cloudflare Worker (ingest API)
-    → Durable Queue (order, retry, ack)   ← see docs/DurableQueue.md
-    → D1 (authoritative cloud store)
+    → Extension Durable Queue (order, retry, local durability)  ← docs/DurableQueue.md
+    → Cloudflare Worker (authenticated ingest, validation)
+    → D1 (persistence)
     → periodic sync → local SQLite (inspect / backup)
 ```
 
@@ -36,15 +37,15 @@ ChatGPT (browser)
 
 ### Extension
 
-Observe conversation UI, extract turn payloads, post to the Worker API.
+Observe conversation UI, extract turn payloads, enqueue into the local Durable Queue, and sync to the Worker when online.
 
 ### Worker
 
-Authenticate/authorize ingest (Phase 1 may be a shared secret), validate payloads, write to D1, expose read APIs for inspection.
+Provide an authenticated ingest API, validate payloads, and persist to D1. The Worker does **not** own the durable queue.
 
 ### Database
 
-Define schemas for users, sessions, and turns that can grow from one operator to many accounts.
+Define schemas for users, sessions, and turns that can grow from one operator to many accounts. Ingest must be idempotent on `client_turn_id`.
 
 ## Related
 

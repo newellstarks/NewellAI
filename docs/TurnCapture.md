@@ -22,20 +22,22 @@ Both halves share session context and are stored chronologically so recall and i
 ```
 ChatGPT UI (browser)
     → Chrome extension detects / normalizes turn
-    → POST Worker ingest API
-    → D1 (authoritative)
+    → Extension Durable Queue (local buffer + retry)
+    → POST Worker authenticated ingest API
+    → Worker validates + persists to D1
     → periodic sync → local SQLite (inspect / backup)
 ```
 
-Prior experiments used local Flask (`/log_turn` → `memory.db`), Custom GPT → Worker `/collect-turn` (R2 + Durable Object sequencing), and related bridges. Phase 1 standardizes on **extension + Worker + D1 + SQLite mirror**.
+Prior experiments used local Flask (`/log_turn` → `memory.db`), Custom GPT → Worker `/collect-turn` (R2 + Durable Object sequencing), and related bridges. Phase 1 standardizes on **extension (capture + durable queue) + Worker (ingest / validate / D1) + SQLite mirror**.
 
 ## Capture principles
 
 1. **Reliability over cleverness** — prefer stable selectors / payloads over fragile UI scraping tricks
 2. **Server-side timestamps** when the client omits them
-3. **Session-aware ordering** — sequence turns so recall returns last N in order
+3. **Session-aware ordering** — extension queue preserves order per session before sync
 4. **Multi-user-ready fields** — `user_id` / `client_id` even for customer zero
-5. **Silent continuous capture** during a session; surface errors to the operator when ingest fails
+5. **Local durability first** — enqueue succeeds on device; sync retries until Worker/D1 accept
+6. Failed sync is visible to the operator (not silent forever)
 
 ## Draft turn payload
 
@@ -45,7 +47,7 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 |-------|-------|
 | `user_id` | Account identity (Phase 1: single operator) |
 | `session_id` | Conversation / chat session |
-| `sequence` | Order within session (Worker may assign) |
+| `sequence` | Order within session (extension queue may assign) |
 | `speaker` | `user` \| `assistant` |
 | `turn_text` | Message body |
 | `timestamp` | ISO-8601; prefer server if missing |
@@ -58,9 +60,10 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 
 1. Operator opens ChatGPT in the browser and starts (or continues) a session
 2. Extension observes submitted user messages and assistant replies
-3. Each half-turn is normalized and posted to the Worker
-4. Worker validates, sequences, and writes to D1
-5. Local sync later mirrors rows into SQLite for inspection
+3. Each half-turn is normalized and **enqueued locally**
+4. Extension syncs the queue to the Worker authenticated ingest API
+5. Worker validates and writes to D1
+6. Local SQLite mirror later supports inspection / backup
 
 ## Success criteria (initial)
 
@@ -86,4 +89,5 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 - [Database](./Database.md)
 - [ADRs](./ADRs/)
 - Historical notes in [`source/`](./source/) (turn memory build log / session trace)
-- [DurableQueue](./DurableQueue.md) (ingest buffering / ordering before D1)
+- [DurableQueue](./DurableQueue.md) (extension-side buffer / sync — not the Worker)
+

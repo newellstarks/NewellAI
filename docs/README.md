@@ -45,7 +45,7 @@ Only then:
 | [API.md](./API.md) | Worker / HTTP contracts |
 | [ChromeExtension.md](./ChromeExtension.md) | Browser capture surface |
 | [TurnCapture.md](./TurnCapture.md) | Turn definition, capture pipeline, payload |
-| [DurableQueue.md](./DurableQueue.md) | Durable queue between ingest and D1 |
+| [DurableQueue.md](./DurableQueue.md) | Extension durable queue (buffer, order, sync) |
 | [SubsystemTemplate.md](./SubsystemTemplate.md) | Checklist before coding a subsystem |
 | [ADRs/](./ADRs/) | Architecture Decision Records |
 | [Diagrams/](./Diagrams/) | Visual references |
