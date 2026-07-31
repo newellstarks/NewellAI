@@ -6,17 +6,15 @@ The Cloudflare Worker exposes a **client-agnostic ingest API** over the [wire pr
 
 Full Phase 1 eventually includes authentication and D1 persistence. **This slice implements ingest skeleton only.**
 
-## Current slice — Worker ingest (no auth / no persistence)
+## Goals (this subsystem — modest)
 
-| In scope | Out of scope (later) |
-|----------|----------------------|
-| `GET /health` | Authentication |
-| `POST /v1/turns` routing | D1 / durable upload persistence |
-| Parse + validate `UploadRequest` | Retries / queue logic |
-| `UploadResponse` / `ApiError` envelopes | Session list / turn recall handlers |
-| Tests for request parsing / validation | Business rules beyond shape validation |
+1. **Accept** an upload request (`POST /v1/turns`)
+2. **Validate** its structure against the wire protocol
+3. **Return** appropriate success (`UploadResponse`) or error (`ApiError`) responses
+4. Leave **TODOs** where authentication and D1 persistence will be added later
+5. **Do not** write to the database yet
 
-After a valid `POST /v1/turns`, the Worker returns a **skeleton** `UploadResponse` (`accepted` = turn count, `duplicate` = 0) without writing storage. That proves the wire protocol end-to-end before auth and D1 land.
+That keeps a clean, testable API surface before adding complexity.
 
 ## Endpoints
 

@@ -4,7 +4,9 @@ import { handleIngestTurns } from "./routes/v1/turns";
 
 /**
  * Worker entry — ingest skeleton slice.
- * Auth, D1 persistence, and durable upload come in later roadmap steps.
+ *
+ * Goals (modest): accept upload → validate structure → success/error responses.
+ * Leave auth and D1 for later roadmap steps. No database writes yet.
  * Durable queue remains Capture Client v1 (extension), not here.
  */
 export default {
