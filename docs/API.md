@@ -1,6 +1,16 @@
 # API
 
-**Chapter 6** · [← Prev](./Contracts.md) · [TOC](./README.md#table-of-contents) · [Next →](./Database.md)
+**Chapter 6 — API**
+
+| | |
+|---|---|
+| **Status** | Active |
+| **Purpose** | Worker HTTP surface: ingest skeleton, validation, and error envelopes. |
+| **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md) |
+| **Related chapters** | [Architecture](./Architecture.md), [Database](./Database.md), [Roadmap](./Roadmap.md) |
+| **Nav** | [← Prev](./Contracts.md) · [TOC](./README.md#table-of-contents) · [Next →](./Database.md) |
+
+---
 
 ## Role
 

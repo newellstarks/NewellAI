@@ -1,6 +1,16 @@
 # Architecture
 
-**Chapter 4** · [← Prev](./Requirements.md) · [TOC](./README.md#table-of-contents) · [Next →](./Contracts.md)
+**Chapter 4 — Architecture**
+
+| | |
+|---|---|
+| **Status** | Active |
+| **Purpose** | System shape, ownership boundaries, and high-level data flow. |
+| **Prerequisites** | [Chapter 2 — Roadmap](./Roadmap.md), [Chapter 3 — Requirements](./Requirements.md) |
+| **Related chapters** | [Contracts](./Contracts.md), [API](./API.md), [Database](./Database.md), [CaptureClient](./CaptureClient.md), [ADRs](./ADRs/) |
+| **Nav** | [← Prev](./Requirements.md) · [TOC](./README.md#table-of-contents) · [Next →](./Contracts.md) |
+
+---
 
 ## Overview
 

@@ -1,6 +1,16 @@
 # Shared Contracts (Wire Protocol)
 
-**Chapter 5** · [← Prev](./Architecture.md) · [TOC](./README.md#table-of-contents) · [Next →](./API.md)
+**Chapter 5 — Shared Contracts (Wire Protocol)**
+
+| | |
+|---|---|
+| **Status** | Stable |
+| **Purpose** | The wire protocol every capture client and the Worker must speak. |
+| **Prerequisites** | [Chapter 4 — Architecture](./Architecture.md) |
+| **Related chapters** | [API](./API.md), [TurnCapture](./TurnCapture.md), [Database](./Database.md) |
+| **Nav** | [← Prev](./Architecture.md) · [TOC](./README.md#table-of-contents) · [Next →](./API.md) |
+
+---
 
 ## Purpose
 

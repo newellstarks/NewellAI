@@ -1,7 +1,16 @@
 # Requirements
 
-**Chapter 3** · [← Prev](./Roadmap.md) · [TOC](./README.md#table-of-contents) · [Next →](./Architecture.md)
+**Chapter 3 — Requirements**
 
+| | |
+|---|---|
+| **Status** | Active |
+| **Purpose** | Functional and non-functional requirements by phase. |
+| **Prerequisites** | [Chapter 1 — Vision](./Vision.md), [Chapter 2 — Roadmap](./Roadmap.md) |
+| **Related chapters** | [Architecture](./Architecture.md), [Contracts](./Contracts.md), [API](./API.md), [ADRs](./ADRs/) |
+| **Nav** | [← Prev](./Roadmap.md) · [TOC](./README.md#table-of-contents) · [Next →](./Architecture.md) |
+
+---
 Phases are defined in [Roadmap.md](./Roadmap.md). **Do not optimize capture before the foundation exists.**
 
 ## Phase 1 — Foundation (current)

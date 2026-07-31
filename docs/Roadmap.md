@@ -1,7 +1,16 @@
 # Roadmap
 
-**Chapter 2** · [← Prev](./Vision.md) · [TOC](./README.md#table-of-contents) · [Next →](./Requirements.md)
+**Chapter 2 — Roadmap**
 
+| | |
+|---|---|
+| **Status** | Active |
+| **Purpose** | Phases and the inside-out build sequence; what is done vs next. |
+| **Prerequisites** | [Chapter 0](./README.md), [Chapter 1 — Vision](./Vision.md) |
+| **Related chapters** | [Requirements](./Requirements.md), [Architecture](./Architecture.md), [API](./API.md), [CaptureClient](./CaptureClient.md) |
+| **Nav** | [← Prev](./Vision.md) · [TOC](./README.md#table-of-contents) · [Next →](./Requirements.md) |
+
+---
 The engineering notebook is authoritative. This page tracks **phases and the build order**—not implementation detail.
 
 ## Incremental stack (inside-out)

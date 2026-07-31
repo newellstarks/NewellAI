@@ -37,25 +37,27 @@ NewellAI/
 
 ## Table of Contents — Engineering notebook
 
-Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-of-contents)). Chapter numbers may change; filenames stay stable.
+Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-of-contents)). Each chapter page includes purpose, prerequisites, related chapters, and status.
 
-| Chapter | Title | Document |
-|---------|-------|----------|
-| Chapter 0 | Engineering Notebook (index) | [docs/README.md](./docs/README.md) |
-| Chapter 1 | Vision | [docs/Vision.md](./docs/Vision.md) |
-| Chapter 2 | Roadmap | [docs/Roadmap.md](./docs/Roadmap.md) |
-| Chapter 3 | Requirements | [docs/Requirements.md](./docs/Requirements.md) |
-| Chapter 4 | Architecture | [docs/Architecture.md](./docs/Architecture.md) |
-| Chapter 5 | Shared Contracts (Wire Protocol) | [docs/Contracts.md](./docs/Contracts.md) |
-| Chapter 6 | API | [docs/API.md](./docs/API.md) |
-| Chapter 7 | Database | [docs/Database.md](./docs/Database.md) |
-| Chapter 8 | Capture Client v1 (Chrome Extension) | [docs/CaptureClient.md](./docs/CaptureClient.md) |
-| Chapter 9 | Turn Capture | [docs/TurnCapture.md](./docs/TurnCapture.md) |
-| Chapter 10 | Durable Queue | [docs/DurableQueue.md](./docs/DurableQueue.md) |
-| Chapter 11 | Subsystem Template | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
-| — | Architecture Decision Records | [docs/ADRs/](./docs/ADRs/) |
+| Chapter | Title | Status | Document |
+|---------|-------|--------|----------|
+| Chapter 0 | Engineering Notebook (index) | Stable | [docs/README.md](./docs/README.md) |
+| Chapter 1 | Vision | Stable | [docs/Vision.md](./docs/Vision.md) |
+| Chapter 2 | Roadmap | Active | [docs/Roadmap.md](./docs/Roadmap.md) |
+| Chapter 3 | Requirements | Active | [docs/Requirements.md](./docs/Requirements.md) |
+| Chapter 4 | Architecture | Active | [docs/Architecture.md](./docs/Architecture.md) |
+| Chapter 5 | Shared Contracts (Wire Protocol) | Stable | [docs/Contracts.md](./docs/Contracts.md) |
+| Chapter 6 | API | Active | [docs/API.md](./docs/API.md) |
+| Chapter 7 | Database | Draft | [docs/Database.md](./docs/Database.md) |
+| Chapter 8 | Capture Client v1 (Chrome Extension) | Draft | [docs/CaptureClient.md](./docs/CaptureClient.md) |
+| Chapter 9 | Turn Capture | Active | [docs/TurnCapture.md](./docs/TurnCapture.md) |
+| Chapter 10 | Durable Queue | Draft | [docs/DurableQueue.md](./docs/DurableQueue.md) |
+| Chapter 11 | Subsystem Template | Stable | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
+| — | Architecture Decision Records | Active | [docs/ADRs/](./docs/ADRs/) |
 
-When the TOC changes, update **both** this file and `docs/README.md`, plus each page’s **Chapter N** / Prev / Next lines.
+**Status:** Draft · Active · Stable — see [docs/README.md](./docs/README.md#table-of-contents).
+
+When the TOC changes, update **both** this file and `docs/README.md`, plus each page’s chapter header block.
 
 ## Workflow
 

@@ -1,6 +1,16 @@
 # Vision
 
-**Chapter 1** · [← Prev](./README.md) · [TOC](./README.md#table-of-contents) · [Next →](./Roadmap.md)
+**Chapter 1 — Vision**
+
+| | |
+|---|---|
+| **Status** | Stable |
+| **Purpose** | Why NewellAI exists, platform framing, and guiding principles. |
+| **Prerequisites** | [Chapter 0 — Engineering Notebook](./README.md) |
+| **Related chapters** | [Roadmap](./Roadmap.md), [Requirements](./Requirements.md), [Architecture](./Architecture.md) |
+| **Nav** | [← Prev](./README.md) · [TOC](./README.md#table-of-contents) · [Next →](./Roadmap.md) |
+
+---
 
 ## Intent
 

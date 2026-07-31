@@ -30,7 +30,7 @@ Prefer incremental layers that do not force redesign of earlier work. Do **not**
 
 The **engineering notebook** (`docs/`) is the authoritative specification.
 
-**Table of Contents / reading order:** `docs/README.md`. Each chapter page has **Chapter N** plus Prev / TOC / Next. Chapters may be added, deleted, or reordered—update both READMEs’ TOCs and chapter nav lines together; never rename files merely for order.
+**Table of Contents / reading order:** `docs/README.md`. Each chapter opens with **Chapter N — title**, **Status** (Draft/Active/Stable), **Purpose**, **Prerequisites**, **Related chapters**, and Prev/TOC/Next. Update both READMEs’ TOCs and chapter headers when adding, deleting, or reordering; never rename files merely for order.
 
 When the repo scaffold changes:
 

@@ -1,7 +1,16 @@
 # Durable Queue
 
-**Chapter 10** · [← Prev](./TurnCapture.md) · [TOC](./README.md#table-of-contents) · [Next →](./SubsystemTemplate.md)
+**Chapter 10 — Durable Queue**
 
+| | |
+|---|---|
+| **Status** | Draft |
+| **Purpose** | Capture Client v1 local buffer, order, retry, and sync (not Worker-owned). |
+| **Prerequisites** | [Chapter 8 — Capture Client v1](./CaptureClient.md), [Chapter 9 — Turn Capture](./TurnCapture.md), [Chapter 6 — API](./API.md) |
+| **Related chapters** | [ADR-0002](./ADRs/0002-durable-queue-in-extension.md), [Contracts](./Contracts.md), [Roadmap](./Roadmap.md) |
+| **Nav** | [← Prev](./TurnCapture.md) · [TOC](./README.md#table-of-contents) · [Next →](./SubsystemTemplate.md) |
+
+---
 > **Status:** Notebook draft — **Phase 2** (Capture Client v1). Do not implement before Phase 1 Foundation is done.  
 > **Location:** Capture Client v1 / Chrome extension (`apps/extension`) — **not** the Cloudflare Worker.  
 > **Implement only after this page is accepted and Foundation exists.** Prompt: *Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).*
