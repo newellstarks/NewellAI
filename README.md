@@ -57,4 +57,4 @@ NewellAI/
 Idea → Engineering Notebook → Implement exactly that → Test → Git Commit → Repeat
 ```
 
-See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): wire protocol → Worker → auth → D1 → durable upload → **then** Capture Client v1.
+See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth → D1 → durable queue integration → **then** Capture Client v1. Increment without redesign.

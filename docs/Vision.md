@@ -19,9 +19,10 @@ The initial focus is reliability, clarity, and ease of development—not scale.
 ## Guiding principle
 
 > **Prototype narrowly. Architect broadly.**  
-> **Build inside-out.**
+> **Build inside-out.**  
+> **Increment without redesign.**
 
-Ship the wire protocol and backend first; attach Capture Client v1 last among the major Foundation→client steps. Do not optimize the extension before ingest, auth, D1, and durable upload exist.
+Each layer (contracts → ingest → auth → D1 → queue integration → Capture Client v1) extends the last. Prefer reliable incremental engineering over big rewrites.
 
 ## Development principles
 

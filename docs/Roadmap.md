@@ -2,21 +2,20 @@
 
 The engineering notebook is authoritative. This page tracks **phases and the build order**—not implementation detail.
 
-## Build inside-out
+## Incremental stack (inside-out)
 
-We build the **platform core first**. Capture Client v1 (Chrome extension) is the **last** major subsystem in this sequence—not the first.
+Each step builds on the previous one **without forcing a redesign** of earlier work. That is the process that tends to produce reliable systems instead of big rewrites.
 
 ```
-✅ Foundation scaffold (notebook, repo, monorepo) — tagged v0.1-foundation
-✅ Shared Contracts (wire protocol)              — done
-✅ Worker ingest endpoint (validate + skeleton) — done
-→  Authentication                                 ← next
-→  D1 schema
-→  Durable upload (idempotent, reliable ingest)
-→  Capture Client v1 (Chrome extension adapter)
+✅ Shared Contracts (wire protocol)
+✅ Worker ingest          — accept → validate → respond (no DB yet)
+→  Authentication
+→  D1 persistence
+→  Durable queue integration
+→  Capture Client v1 (Chrome extension)
 ```
 
-**What’s happening?** Inside-out development: wire protocol → Worker → auth → storage → durable ingest → then the first adapter. The extension stops being the center of gravity.
+Capture Client v1 remains the **last** major subsystem—not the first.
 
 ## Engineering sequence (detail)
 
@@ -24,23 +23,27 @@ We build the **platform core first**. Capture Client v1 (Chrome extension) is th
 |------|-----------|--------|------|
 | 0 | Foundation scaffold | Done (`v0.1-foundation`) | [Architecture](./Architecture.md) |
 | 1 | Shared Contracts (wire protocol) | Done | [Contracts.md](./Contracts.md) |
-| 2 | Worker ingest endpoint | Done (skeleton + validation; no auth/D1) | [API.md](./API.md) |
+| 2 | Worker ingest | Done | [API.md](./API.md) — modest: accept, validate, respond; TODOs for auth/D1 |
 | 3 | Authentication | **Next** | [API.md](./API.md) |
-| 4 | D1 schema | TBD | [Database.md](./Database.md) |
-| 5 | Durable upload | TBD | Idempotent ingest; see Contracts + API |
+| 4 | D1 persistence | TBD | [Database.md](./Database.md) — schema + idempotent writes |
+| 5 | Durable queue integration | TBD | Wire client queue → authenticated ingest; queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
 | 6 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
 
-### Durable upload (before Capture Client v1)
+### Layer notes
 
-Server-side: accept `UploadRequest`, validate, persist idempotently on `client_turn_id`, return `UploadResponse` / `ApiError`. Manual/`curl` tests count. This is **not** the extension Durable Queue (that remains Phase 2 / Capture Client v1 — [ADR-0002](./ADRs/0002-durable-queue-in-extension.md)).
+- **Worker ingest** — clean, testable API surface; no database writes yet.
+- **Authentication** — protect `/v1/turns` without changing the wire protocol shapes.
+- **D1 persistence** — fulfill `TODO(d1)`; set real `accepted` / `duplicate` from storage.
+- **Durable queue integration** — connect Capture Client v1’s local queue to auth + D1 ingest (still not a Worker-owned queue).
+- **Capture Client v1** — full adapter (observe ChatGPT, enqueue, sync, operator status).
 
 ## Phase map
 
 ### Phase 1 — Foundation (current)
 
-Goal: a working backend. Any authorized client can upload turns via the wire protocol.
+Goal: working backend (contracts → ingest → auth → D1). Any authorized client can upload turns.
 
-Non-goals: Capture Client v1 logic, DOM scraping, multi-client polish.
+Non-goals: DOM scraping, multi-client polish, treating the extension as the product.
 
 ### Phase 2 — Capture Client v1
 
@@ -59,7 +62,7 @@ Safari, Firefox, Cursor, Claude Desktop, ChatGPT Desktop, macOS app, OpenAI API 
 ## Related
 
 - [Contracts](./Contracts.md) — wire protocol
+- [API](./API.md) — Worker ingest
 - [Requirements](./Requirements.md)
 - [Architecture](./Architecture.md)
-- [API](./API.md)
 - [CaptureClient](./CaptureClient.md)

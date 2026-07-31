@@ -20,11 +20,11 @@ Idea
 
 Build **inside-out**:
 
-1. Foundation scaffold → Shared Contracts (wire protocol) → Worker ingest → Auth → D1 → Durable upload
+1. Foundation scaffold → Shared Contracts → Worker ingest → Auth → D1 → Durable queue integration
 2. **Then** Phase 2 — Capture Client v1 (Chrome extension adapter) — **last** major subsystem, not first
 3. Phase 3 — Additional clients on the same backend
 
-Do **not** optimize capture before Foundation ingest exists. NewellAI is a **platform**, not a browser add-on.
+Prefer incremental layers that do not force redesign of earlier work. Do **not** optimize capture before ingest + auth + D1 exist. NewellAI is a **platform**, not a browser add-on.
 
 ## Authoritative specification
 
@@ -47,4 +47,4 @@ See `docs/SubsystemTemplate.md`. Prefer prompts like:
 5. If tests change the design, update the notebook (and ADR if needed) first.
 6. Align notebook paths with the scaffold; never let scaffold convenience rewrite architectural intent.
 7. Call the Chrome extension **Capture Client v1**, not “the system.”
-8. Follow the inside-out sequence in `docs/Roadmap.md`; do not start Capture Client v1 before Worker ingest, auth, D1, and durable upload.
+8. Follow the inside-out sequence in `docs/Roadmap.md`; do not start Capture Client v1 before Worker ingest, auth, D1, and durable queue integration.
