@@ -19,9 +19,10 @@ Every client—Chrome today, Safari tomorrow, Cursor someday—must speak this l
 
 ### Non-requirements
 
-- Runtime validators (zod/io-ts) in this milestone — types first; validators may follow
 - Wire encryption
 - Client-specific queue envelopes (those stay in the client package)
+
+Runtime validation of these shapes lives in `apps/worker` (ingest slice).
 
 ## Types
 

@@ -4,11 +4,14 @@
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "lib": ["ES2022"],
-    "types": ["@cloudflare/workers-types"],
+    "types": ["@cloudflare/workers-types", "vitest/globals"],
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "@newellai/contracts": ["../../packages/contracts/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts"]
 }

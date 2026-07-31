@@ -9,8 +9,8 @@ We build the **platform core first**. Capture Client v1 (Chrome extension) is th
 ```
 ✅ Foundation scaffold (notebook, repo, monorepo) — tagged v0.1-foundation
 ✅ Shared Contracts (wire protocol)              — done
-→  Worker ingest endpoint                         ← next
-→  Authentication
+✅ Worker ingest endpoint (validate + skeleton) — done
+→  Authentication                                 ← next
 →  D1 schema
 →  Durable upload (idempotent, reliable ingest)
 →  Capture Client v1 (Chrome extension adapter)
@@ -24,10 +24,10 @@ We build the **platform core first**. Capture Client v1 (Chrome extension) is th
 |------|-----------|--------|------|
 | 0 | Foundation scaffold | Done (`v0.1-foundation`) | [Architecture](./Architecture.md) |
 | 1 | Shared Contracts (wire protocol) | Done | [Contracts.md](./Contracts.md) |
-| 2 | Worker ingest endpoint | **Next** | [API.md](./API.md) |
-| 3 | Authentication | TBD | [API.md](./API.md) |
+| 2 | Worker ingest endpoint | Done (skeleton + validation; no auth/D1) | [API.md](./API.md) |
+| 3 | Authentication | **Next** | [API.md](./API.md) |
 | 4 | D1 schema | TBD | [Database.md](./Database.md) |
-| 5 | Durable upload | TBD | Idempotent ingest, retries-safe; see Contracts + API |
+| 5 | Durable upload | TBD | Idempotent ingest; see Contracts + API |
 | 6 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
 
 ### Durable upload (before Capture Client v1)

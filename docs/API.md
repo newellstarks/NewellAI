@@ -2,37 +2,52 @@
 
 ## Role
 
-The Cloudflare Worker exposes an **authenticated ingest API**, performs **validation**, and handles **D1 persistence**.
+The Cloudflare Worker exposes a **client-agnostic ingest API** over the [wire protocol](./Contracts.md).
 
-This API is **client-agnostic**. Capture Client v1 (Chrome extension) is one caller; Phase 3 clients use the same contracts. The Worker does not run the durable queue (that is a Capture Client v1 concern — see [DurableQueue.md](./DurableQueue.md)).
+Full Phase 1 eventually includes authentication and D1 persistence. **This slice implements ingest skeleton only.**
+
+## Current slice — Worker ingest (no auth / no persistence)
+
+| In scope | Out of scope (later) |
+|----------|----------------------|
+| `GET /health` | Authentication |
+| `POST /v1/turns` routing | D1 / durable upload persistence |
+| Parse + validate `UploadRequest` | Retries / queue logic |
+| `UploadResponse` / `ApiError` envelopes | Session list / turn recall handlers |
+| Tests for request parsing / validation | Business rules beyond shape validation |
+
+After a valid `POST /v1/turns`, the Worker returns a **skeleton** `UploadResponse` (`accepted` = turn count, `duplicate` = 0) without writing storage. That proves the wire protocol end-to-end before auth and D1 land.
+
+## Endpoints
+
+| Method | Path | Status |
+|--------|------|--------|
+| `GET` | `/health` | Implemented (liveness) |
+| `POST` | `/v1/turns` | Implemented (validate + skeleton response) |
+| `GET` | `/v1/sessions` | Not yet |
+| `GET` | `/v1/sessions/:id/turns` | Not yet |
+
+## Error codes (this slice)
+
+| `error.code` | HTTP | When |
+|--------------|------|------|
+| `NOT_FOUND` | 404 | Unknown route |
+| `METHOD_NOT_ALLOWED` | 405 | Wrong method on known path |
+| `INVALID_JSON` | 400 | Body is not JSON |
+| `VALIDATION_ERROR` | 400 | Body fails `UploadRequest` shape rules |
+| `INTERNAL_ERROR` | 500 | Unexpected failure |
 
 ## Principles
 
-- Keep contracts small and versionable
-- Config / secrets via environment bindings—not hard-coded values
-- Validate payloads before writing to D1
-- Idempotent ingest on `client_turn_id` (any client may retry)
-- Design routes so multi-user auth can replace Phase 1 shared-secret auth later
-
-## Draft endpoints (to be implemented)
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| `POST` | `/v1/turns` | Authenticated ingest of one or more turns → validate → D1 |
-| `GET` | `/v1/sessions` | List sessions for the authenticated user |
-| `GET` | `/v1/sessions/:id/turns` | Retrieve turns for a session |
-| `GET` | `/health` | Liveness check |
-
-Payload shapes are the **wire protocol** defined in [Contracts.md](./Contracts.md) (`UploadRequest`, `UploadResponse`, `ApiError`, …). Every future client uses the same protocol.
+- Wire protocol from [Contracts.md](./Contracts.md) only
+- Validate before any future persist step
+- No hard-coded secrets in this slice (auth comes next)
+- Idempotent persist on `client_turn_id` comes with durable upload — not this slice
 
 ## Related
 
 - [Contracts](./Contracts.md)
+- [Roadmap](./Roadmap.md)
 - [Architecture](./Architecture.md)
 - [Database](./Database.md)
-- [TurnCapture](./TurnCapture.md)
-- [DurableQueue](./DurableQueue.md)
-- [CaptureClient](./CaptureClient.md)
-- [Roadmap](./Roadmap.md)
-- [ADR-0002](./ADRs/0002-durable-queue-in-extension.md)
 - Code: `apps/worker/`
