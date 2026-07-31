@@ -1,0 +1,19 @@
+{
+  "name": "newellai",
+  "private": true,
+  "version": "0.0.0",
+  "description": "NewellAI — Automatic Turn Capture & Sync",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@10"
+}

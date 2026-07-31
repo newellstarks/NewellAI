@@ -4,8 +4,10 @@
 
 | Store | Role |
 |-------|------|
-| Cloudflare **D1** | Authoritative cloud store for turns (via Worker) |
+| Cloudflare **D1** | Authoritative cloud store for turns (via Worker ingest) |
 | Local **SQLite** | Periodic mirror for inspection, backup, and offline review |
+
+Schema SQL lives in `migrations/`. Worker config: `apps/worker/wrangler.toml`.
 
 Users of a commercial service are expected to keep a paid Cloudflare account for reliability and scope.
 
@@ -36,4 +38,5 @@ Exact columns and indexes will be defined in migrations under `database/` and re
 - [API](./API.md)
 - [TurnCapture](./TurnCapture.md)
 - [ADRs](./ADRs/)
-- Code: `database/`
+- Code: `migrations/`
+- Worker: `apps/worker/`
