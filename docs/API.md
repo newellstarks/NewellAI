@@ -23,7 +23,7 @@ This API is **client-agnostic**. Capture Client v1 (Chrome extension) is one cal
 | `GET` | `/v1/sessions/:id/turns` | Retrieve turns for a session |
 | `GET` | `/health` | Liveness check |
 
-Payload shapes are defined in [Contracts.md](./Contracts.md) (`UploadRequest`, `UploadResponse`, `ApiError`, …).
+Payload shapes are the **wire protocol** defined in [Contracts.md](./Contracts.md) (`UploadRequest`, `UploadResponse`, `ApiError`, …). Every future client uses the same protocol.
 
 ## Related
 

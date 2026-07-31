@@ -15,13 +15,13 @@ Goal: a working backend. Any authorized client can upload turns.
 | Engineering notebook | Done |
 | Repository | Done |
 | Project scaffolding (npm workspaces) | Done |
-| Shared contracts (`packages/contracts`) | Done — see [Contracts.md](./Contracts.md) |
+| Shared contracts / wire protocol (`packages/contracts`) | Done — see [Contracts.md](./Contracts.md) |
 | Cloudflare Worker (`apps/worker`) | Scaffolded — logic TBD |
 | D1 schema (`migrations/`) | TBD |
 | Authentication | TBD |
 | End-to-end upload API (manual test OK) | TBD |
 
-When Phase 1 is complete: authenticated ingest → validation → D1 persistence, with contracts clients must obey.
+When Phase 1 is complete: authenticated ingest → validation → D1 persistence, with a shared **wire protocol** ([Contracts.md](./Contracts.md)) that every client must obey.
 
 ### Phase 1 non-goals
 

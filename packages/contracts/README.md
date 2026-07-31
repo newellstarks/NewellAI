@@ -1,6 +1,6 @@
 # Shared contracts (`@newellai/contracts`)
 
-Client-agnostic TypeScript vocabulary for **all** capture clients and the Cloudflare Worker.
+**Wire protocol** between every capture client and the Cloudflare Worker backend.
 
 Spec: [docs/Contracts.md](../../docs/Contracts.md)
 

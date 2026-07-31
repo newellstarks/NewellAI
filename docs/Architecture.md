@@ -14,7 +14,7 @@ See [Roadmap.md](./Roadmap.md).
 |------|------|------|-------|
 | Capture Client v1 | `apps/extension/` | First capture adapter + Durable Queue (Chrome extension) | 2 |
 | Worker | `apps/worker/` | Authenticated ingest API, validation, and D1 persistence | 1 |
-| Contracts | `packages/contracts/` | Shared turn / API shapes | 1 |
+| Contracts | `packages/contracts/` | **Wire protocol** — shared turn / API shapes for all clients | 1 |
 | Migrations | `migrations/` | D1 schema SQL | 1 |
 
 Documentation lives in `docs/` as an engineering notebook — the **authoritative specification**. Repo folders implement that intent; path updates must not rewrite ownership or behavior without an ADR.
@@ -24,7 +24,7 @@ Documentation lives in `docs/` as an engineering notebook — the **authoritativ
 ```
 apps/extension/      → Phase 2: Capture Client v1 (Chrome extension) + Durable Queue
 apps/worker/         → Phase 1: authenticated ingest, validation, D1 persistence
-packages/contracts/  → Phase 1: shared types
+packages/contracts/  → Phase 1: wire protocol (all clients ↔ Worker)
 migrations/          → Phase 1: D1 SQL
 docs/                → authoritative notebook
 ```

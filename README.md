@@ -20,7 +20,7 @@ NewellAI/
 │   ├── extension/     # Phase 2: Capture Client v1 (Chrome extension)
 │   └── worker/        # Phase 1: Authenticated ingest, validation, D1 persistence
 ├── packages/
-│   └── contracts/     # Shared turn / API types
+│   └── contracts/     # Wire protocol (all clients ↔ backend)
 ├── migrations/        # D1 SQL
 ├── docs/              # Engineering notebook
 ├── package.json       # npm workspaces root
@@ -44,7 +44,7 @@ NewellAI/
 | [docs/Requirements.md](./docs/Requirements.md) | Phase requirements |
 | [docs/Architecture.md](./docs/Architecture.md) | System shape |
 | [docs/Database.md](./docs/Database.md) | D1 + SQLite |
-| [docs/Contracts.md](./docs/Contracts.md) | Shared contracts |
+| [docs/Contracts.md](./docs/Contracts.md) | Wire protocol (all clients ↔ backend) |
 | [docs/API.md](./docs/API.md) | Worker contracts (client-agnostic) |
 | [docs/CaptureClient.md](./docs/CaptureClient.md) | Capture Client v1 (Chrome Extension) |
 | [docs/TurnCapture.md](./docs/TurnCapture.md) | Turn capture pipeline |

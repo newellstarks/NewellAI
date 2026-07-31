@@ -1,6 +1,6 @@
 /**
- * Shared contracts — client-agnostic vocabulary for all capture clients
- * and the Cloudflare Worker. Spec: docs/Contracts.md
+ * Wire protocol — shared contracts between every capture client and the backend.
+ * Spec: docs/Contracts.md
  */
 
 /** One half-turn (user or assistant). */

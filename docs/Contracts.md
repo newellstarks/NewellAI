@@ -1,10 +1,10 @@
-# Shared Contracts
+# Shared Contracts (Wire Protocol)
 
 ## Purpose
 
-Every capture client—Chrome today, Safari tomorrow, Cursor someday—must speak the **same language** with the Worker.
+`packages/contracts` defines the **wire protocol** between every capture client and the backend.
 
-`packages/contracts` is the shared TypeScript vocabulary for Phase 1 Foundation and all later clients. The Worker validates against these shapes; clients must not invent private upload schemas.
+Every client—Chrome today, Safari tomorrow, Cursor someday—must speak this language on the wire. The Worker accepts and returns these shapes; clients must not invent private upload schemas.
 
 ## Requirements
 

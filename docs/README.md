@@ -47,7 +47,7 @@ Only then:
 | [Requirements.md](./Requirements.md) | Phase goals, functional and non-functional needs |
 | [Architecture.md](./Architecture.md) | System shape, modules, and data flow |
 | [Database.md](./Database.md) | D1, SQLite, schemas, and retention |
-| [Contracts.md](./Contracts.md) | Shared TypeScript contracts (all clients) |
+| [Contracts.md](./Contracts.md) | Wire protocol — shared contracts (all clients ↔ backend) |
 | [API.md](./API.md) | Worker / HTTP contracts (client-agnostic) |
 | [CaptureClient.md](./CaptureClient.md) | Capture Client v1 (Chrome Extension) |
 | [ChromeExtension.md](./ChromeExtension.md) | Redirect → CaptureClient.md |
