@@ -1,5 +1,7 @@
 # Architecture
 
+**Chapter 4** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Overview
 
 NewellAI is a **platform**: a client-agnostic backend plus pluggable **capture clients**.

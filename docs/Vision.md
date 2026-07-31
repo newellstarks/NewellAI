@@ -1,5 +1,7 @@
 # Vision
 
+**Chapter 1** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Intent
 
 NewellAI captures, stores, and organizes conversational **turns** between a user and AI systems in a structured, searchable format.

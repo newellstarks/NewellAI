@@ -1,5 +1,7 @@
 # Shared Contracts (Wire Protocol)
 
+**Chapter 6** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Purpose
 
 `packages/contracts` defines the **wire protocol** between every capture client and the backend.

@@ -1,5 +1,7 @@
 # API
 
+**Chapter 5** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Role
 
 The Cloudflare Worker exposes a **client-agnostic ingest API** over the [wire protocol](./Contracts.md).

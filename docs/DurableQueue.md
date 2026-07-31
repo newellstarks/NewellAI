@@ -1,5 +1,7 @@
 # Durable Queue
 
+**Chapter 10** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 > **Status:** Notebook draft — **Phase 2** (Capture Client v1). Do not implement before Phase 1 Foundation is done.  
 > **Location:** Capture Client v1 / Chrome extension (`apps/extension`) — **not** the Cloudflare Worker.  
 > **Implement only after this page is accepted and Foundation exists.** Prompt: *Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).*

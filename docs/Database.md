@@ -1,5 +1,7 @@
 # Database
 
+**Chapter 7** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Strategy
 
 | Store | Role |

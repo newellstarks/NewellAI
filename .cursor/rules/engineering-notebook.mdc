@@ -30,7 +30,7 @@ Prefer incremental layers that do not force redesign of earlier work. Do **not**
 
 The **engineering notebook** (`docs/`) is the authoritative specification.
 
-**Reading order:** follow the numbered table in `docs/README.md` (“Read in this order”). Do not rely on filename prefixes or explorer sort. To change order, edit that table only.
+**Reading order:** follow the numbered table in `docs/README.md` (“Read in this order”). Each notebook page also starts with a **Chapter N** line. Do not rely on filename prefixes or explorer sort. To change order, edit the README table and the Chapter lines together.
 
 When the repo scaffold changes:
 

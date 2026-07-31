@@ -1,5 +1,7 @@
 # Turn Capture
 
+**Chapter 9** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Purpose
 
 Turn Capture describes the **turn** domain: what we store and how halves relate.  

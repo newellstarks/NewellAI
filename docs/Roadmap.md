@@ -1,5 +1,7 @@
 # Roadmap
 
+**Chapter 2** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 The engineering notebook is authoritative. This page tracks **phases and the build order**—not implementation detail.
 
 ## Incremental stack (inside-out)

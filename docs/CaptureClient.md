@@ -1,5 +1,7 @@
 # Capture Client v1 (Chrome Extension)
 
+**Chapter 8** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+
 ## Role
 
 **Phase 2 — first capture client** (not Phase 1 Foundation, not the product itself).
