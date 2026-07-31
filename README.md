@@ -35,21 +35,27 @@ NewellAI/
 | `migrations` | D1 migrations |
 | `docs` | Engineering notebook |
 
-## Engineering notebook
+## Table of Contents — Engineering notebook
 
-| Doc | Role |
-|-----|------|
-| [docs/Roadmap.md](./docs/Roadmap.md) | Phases 1–3 |
-| [docs/Vision.md](./docs/Vision.md) | Product intent |
-| [docs/Requirements.md](./docs/Requirements.md) | Phase requirements |
-| [docs/Architecture.md](./docs/Architecture.md) | System shape |
-| [docs/Database.md](./docs/Database.md) | D1 + SQLite |
-| [docs/Contracts.md](./docs/Contracts.md) | Wire protocol (all clients ↔ backend) |
-| [docs/API.md](./docs/API.md) | Worker contracts (client-agnostic) |
-| [docs/CaptureClient.md](./docs/CaptureClient.md) | Capture Client v1 (Chrome Extension) |
-| [docs/TurnCapture.md](./docs/TurnCapture.md) | Turn capture pipeline |
-| [docs/DurableQueue.md](./docs/DurableQueue.md) | Capture Client v1 durable queue |
-| [docs/ADRs/](./docs/ADRs/) | Decision records |
+Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-of-contents)). Chapter numbers may be added, deleted, or reordered over time without renaming files.
+
+| Chapter | Title | Document |
+|---------|-------|----------|
+| Chapter 0 | Engineering Notebook (index) | [docs/README.md](./docs/README.md) |
+| Chapter 1 | Vision | [docs/Vision.md](./docs/Vision.md) |
+| Chapter 2 | Roadmap | [docs/Roadmap.md](./docs/Roadmap.md) |
+| Chapter 3 | Requirements | [docs/Requirements.md](./docs/Requirements.md) |
+| Chapter 4 | Architecture | [docs/Architecture.md](./docs/Architecture.md) |
+| Chapter 5 | API | [docs/API.md](./docs/API.md) |
+| Chapter 6 | Shared Contracts (Wire Protocol) | [docs/Contracts.md](./docs/Contracts.md) |
+| Chapter 7 | Database | [docs/Database.md](./docs/Database.md) |
+| Chapter 8 | Capture Client v1 (Chrome Extension) | [docs/CaptureClient.md](./docs/CaptureClient.md) |
+| Chapter 9 | Turn Capture | [docs/TurnCapture.md](./docs/TurnCapture.md) |
+| Chapter 10 | Durable Queue | [docs/DurableQueue.md](./docs/DurableQueue.md) |
+| Chapter 11 | Subsystem Template | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
+| — | Architecture Decision Records | [docs/ADRs/](./docs/ADRs/) |
+
+When the TOC changes, update **both** this README and `docs/README.md`, plus each file’s **Chapter N** line.
 
 ## Workflow
 

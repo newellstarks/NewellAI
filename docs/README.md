@@ -40,7 +40,7 @@ Chapter numbers are **navigation labels**, not permanent identity. Over time we 
 | **Delete** | Remove or move the file to `source/` if archival → delete its TOC row → renumber remaining **Chapter** lines so the sequence is contiguous |
 | **Reorder** | Move TOC rows → update each affected file’s **Chapter N** line to match → leave filenames unchanged |
 
-Keep this **Table of Contents** and the in-file **Chapter N** lines in sync. Prefer one small commit when the reading order changes (“Renumber notebook chapters after …”).
+Keep this **Table of Contents** and the in-file **Chapter N** lines in sync. Mirror the same TOC in the repo root [`README.md`](../README.md). Prefer one small commit when the reading order changes (“Renumber notebook chapters after …”).
 
 ## Development loop
 
