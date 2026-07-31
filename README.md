@@ -33,3 +33,6 @@ Original design Word docs are archived in [`docs/source/`](./docs/source/).
 ## Status
 
 Scaffold + notebook seeded from Project Direction / Introduction. Runtime assets under `~/Vault/NewellAI` remain separate until migrated.
+
+**Workflow:** update the [engineering notebook](./docs/README.md) before implementing a new subsystem; one logical milestone per commit.
+

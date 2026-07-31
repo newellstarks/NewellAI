@@ -1,0 +1,19 @@
+---
+description: Update the engineering notebook before implementing new subsystems; one logical milestone per commit
+alwaysApply: true
+---
+
+# Engineering notebook first
+
+Before writing a **new subsystem** (or a major expansion of one), update the engineering notebook under `docs/` first:
+
+1. Add or revise the focused page (e.g. `TurnCapture.md`, `Database.md`, `API.md`)
+2. Link it from `docs/README.md` (and related pages) when it is new
+3. Add an ADR under `docs/ADRs/` when the choice is non-obvious
+4. Only then implement code under `extension/`, `worker/`, `database/`, etc.
+
+Do not invent subsystem behavior only in code. The notebook is the source Cursor should index and follow.
+
+# Commits as milestones
+
+Each commit represents one logical milestone (docs update, then implementation, then tests—not mixed unrelated work). Prefer a notebook/docs commit before the matching code commit when both are needed.
