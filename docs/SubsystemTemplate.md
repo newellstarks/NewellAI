@@ -20,7 +20,7 @@ Only after the page is accepted:
 
 > Implement the &lt;Subsystem&gt; exactly as specified in the engineering notebook (`docs/&lt;Page&gt;.md`).
 
-Add a **Chapter N** line under the title (and register it in [README.md](./README.md) reading order) when the page joins the notebook sequence.
+Add a **Chapter N** line under the title and register it in [README.md](./README.md) reading order when the page joins the notebook sequence. Chapter numbers are expected to change as we add, delete, or reorder chapters—see README “Maintaining chapters.”
 
 That keeps **architecture driving the code**, not the code driving the architecture.
 

@@ -28,7 +28,19 @@ Stable filenames; **this list** is the reading order (no `01_` prefixes required
 
 Also: [Diagrams/](./Diagrams/), [source/](./source/) (archives), [ChromeExtension.md](./ChromeExtension.md) (redirect → CaptureClient).
 
-**Humans and Cursor:** start here, then follow the table top-to-bottom. To change order, edit **this table only**—do not rename files.
+**Humans and Cursor:** start here, then follow the table top-to-bottom. Filenames stay stable (`Vision.md`, not `01_Vision.md`).
+
+## Maintaining chapters (expected over time)
+
+Chapter numbers are **navigation labels**, not permanent identity. Over time we will **add**, **delete**, or **reorder** chapters. That is normal.
+
+| Change | What to do |
+|--------|------------|
+| **Add** | Create `SomeTopic.md` with a stable name → insert a row in the table above → set its **Chapter N** line → renumber later chapters if needed |
+| **Delete** | Remove or move the file to `source/` if archival → delete its table row → renumber remaining **Chapter** lines and table `#` values so the sequence is contiguous |
+| **Reorder** | Move rows in this table → update each affected file’s **Chapter N** line to match → leave filenames unchanged |
+
+Keep the table and the in-file **Chapter N** lines in sync. Prefer one small commit when the reading order changes (“Renumber notebook chapters after …”).
 
 ## Development loop
 
