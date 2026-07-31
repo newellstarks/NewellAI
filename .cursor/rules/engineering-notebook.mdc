@@ -1,19 +1,25 @@
 ---
-description: Update the engineering notebook before implementing new subsystems; one logical milestone per commit
+description: Idea → notebook → implement exactly that → test → commit; never code first and document later
 alwaysApply: true
 ---
 
-# Engineering notebook first
+# Development loop
 
-Before writing a **new subsystem** (or a major expansion of one), update the engineering notebook under `docs/` first:
+Never code first and document later. For every subsystem slice:
 
-1. Add or revise the focused page (e.g. `TurnCapture.md`, `Database.md`, `API.md`)
-2. Link it from `docs/README.md` (and related pages) when it is new
-3. Add an ADR under `docs/ADRs/` when the choice is non-obvious
-4. Only then implement code under `extension/`, `worker/`, `database/`, etc.
+```
+Idea
+  → Engineering Notebook (requirements, architecture, interfaces)
+  → Cursor implements exactly that subsystem
+  → Test
+  → Git Commit (one logical milestone)
+  → Repeat
+```
 
-Do not invent subsystem behavior only in code. The notebook is the source Cursor should index and follow.
+## Rules
 
-# Commits as milestones
-
-Each commit represents one logical milestone (docs update, then implementation, then tests—not mixed unrelated work). Prefer a notebook/docs commit before the matching code commit when both are needed.
+1. Update `docs/` (and an ADR when the choice is non-obvious) before writing new subsystem code.
+2. Implement only what the notebook specifies—no silent scope expansion.
+3. Test before committing.
+4. Each commit is one logical milestone for that loop pass.
+5. If tests reveal a design change, update the notebook before the next implementation pass.
