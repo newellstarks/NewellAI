@@ -49,11 +49,12 @@ When the repo layout changes: update paths here, but **do not change architectur
 | 4 | Architecture | Active | [Architecture.md](./Architecture.md) |
 | 5 | Shared Contracts (Wire Protocol) | Stable | [Contracts.md](./Contracts.md) |
 | 6 | API | Active | [API.md](./API.md) |
-| 7 | Database | Draft | [Database.md](./Database.md) |
-| 8 | Capture Client v1 (Chrome Extension) | Draft | [CaptureClient.md](./CaptureClient.md) |
-| 9 | Turn Capture | Active | [TurnCapture.md](./TurnCapture.md) |
-| 10 | Durable Queue | Draft | [DurableQueue.md](./DurableQueue.md) |
-| 11 | Subsystem Template | Stable | [SubsystemTemplate.md](./SubsystemTemplate.md) |
+| 7 | Authentication | Active | [Authentication.md](./Authentication.md) |
+| 8 | Database | Draft | [Database.md](./Database.md) |
+| 9 | Capture Client v1 (Chrome Extension) | Draft | [CaptureClient.md](./CaptureClient.md) |
+| 10 | Turn Capture | Active | [TurnCapture.md](./TurnCapture.md) |
+| 11 | Durable Queue | Draft | [DurableQueue.md](./DurableQueue.md) |
+| 12 | Subsystem Template | Stable | [SubsystemTemplate.md](./SubsystemTemplate.md) |
 | — | Architecture Decision Records | Active | [ADRs/](./ADRs/) |
 
 **Status key:** **Draft** = direction not implemented · **Active** = in use, still evolving · **Stable** = rely on it; change deliberately (often via ADR)
@@ -69,7 +70,7 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 ```
 ✅ Contracts (wire protocol)
 ✅ Worker ingest (accept → validate → respond; no DB yet)
-→  Authentication
+✅ Authentication (shared bearer — see Authentication.md)
 →  D1 persistence
 →  Durable queue integration
 →  Capture Client v1

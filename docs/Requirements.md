@@ -7,7 +7,7 @@
 | **Status** | Active |
 | **Purpose** | Functional and non-functional requirements by phase. |
 | **Prerequisites** | [Chapter 1 — Vision](./Vision.md), [Chapter 2 — Roadmap](./Roadmap.md) |
-| **Related chapters** | [Architecture](./Architecture.md), [Contracts](./Contracts.md), [API](./API.md), [ADRs](./ADRs/) |
+| **Related chapters** | [Architecture](./Architecture.md), [Contracts](./Contracts.md), [API](./API.md), [Authentication](./Authentication.md), [ADRs](./ADRs/) |
 | **Nav** | [← Prev](./Roadmap.md) · [TOC](./README.md#table-of-contents) · [Next →](./Architecture.md) |
 
 ---

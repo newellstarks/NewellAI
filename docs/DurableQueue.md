@@ -1,12 +1,12 @@
 # Durable Queue
 
-**Chapter 10 — Durable Queue**
+**Chapter 11 — Durable Queue**
 
 | | |
 |---|---|
 | **Status** | Draft |
 | **Purpose** | Capture Client v1 local buffer, order, retry, and sync (not Worker-owned). |
-| **Prerequisites** | [Chapter 8 — Capture Client v1](./CaptureClient.md), [Chapter 9 — Turn Capture](./TurnCapture.md), [Chapter 6 — API](./API.md) |
+| **Prerequisites** | [Chapter 9 — Capture Client v1](./CaptureClient.md), [Chapter 10 — Turn Capture](./TurnCapture.md), [Chapter 6 — API](./API.md), [Chapter 7 — Authentication](./Authentication.md) |
 | **Related chapters** | [ADR-0002](./ADRs/0002-durable-queue-in-extension.md), [Contracts](./Contracts.md), [Roadmap](./Roadmap.md) |
 | **Nav** | [← Prev](./TurnCapture.md) · [TOC](./README.md#table-of-contents) · [Next →](./SubsystemTemplate.md) |
 

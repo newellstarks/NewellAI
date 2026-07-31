@@ -18,7 +18,7 @@ npm install
 NewellAI/
 ├── apps/
 │   ├── extension/     # Phase 2: Capture Client v1 (Chrome extension)
-│   └── worker/        # Phase 1: ingest skeleton now; auth + D1 next
+│   └── worker/        # Phase 1: ingest + auth now; D1 next
 ├── packages/
 │   └── contracts/     # Wire protocol (all clients ↔ backend)
 ├── migrations/        # D1 SQL
@@ -30,7 +30,7 @@ NewellAI/
 | Path | Role |
 |------|------|
 | `apps/extension` | **Capture Client v1** (Chrome extension) — capture + Durable Queue |
-| `apps/worker` | Target: authenticated ingest, validation, D1. **Now:** ingest skeleton (validate + respond) |
+| `apps/worker` | Target: authenticated ingest, validation, D1. **Now:** ingest + shared Bearer auth |
 | `packages/contracts` | Shared contracts |
 | `migrations` | D1 migrations |
 | `docs` | Engineering notebook |
@@ -48,11 +48,12 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 | Chapter 4 | Architecture | Active | [docs/Architecture.md](./docs/Architecture.md) |
 | Chapter 5 | Shared Contracts (Wire Protocol) | Stable | [docs/Contracts.md](./docs/Contracts.md) |
 | Chapter 6 | API | Active | [docs/API.md](./docs/API.md) |
-| Chapter 7 | Database | Draft | [docs/Database.md](./docs/Database.md) |
-| Chapter 8 | Capture Client v1 (Chrome Extension) | Draft | [docs/CaptureClient.md](./docs/CaptureClient.md) |
-| Chapter 9 | Turn Capture | Active | [docs/TurnCapture.md](./docs/TurnCapture.md) |
-| Chapter 10 | Durable Queue | Draft | [docs/DurableQueue.md](./docs/DurableQueue.md) |
-| Chapter 11 | Subsystem Template | Stable | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
+| Chapter 7 | Authentication | Active | [docs/Authentication.md](./docs/Authentication.md) |
+| Chapter 8 | Database | Draft | [docs/Database.md](./docs/Database.md) |
+| Chapter 9 | Capture Client v1 (Chrome Extension) | Draft | [docs/CaptureClient.md](./docs/CaptureClient.md) |
+| Chapter 10 | Turn Capture | Active | [docs/TurnCapture.md](./docs/TurnCapture.md) |
+| Chapter 11 | Durable Queue | Draft | [docs/DurableQueue.md](./docs/DurableQueue.md) |
+| Chapter 12 | Subsystem Template | Stable | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
 | — | Architecture Decision Records | Active | [docs/ADRs/](./docs/ADRs/) |
 
 **Status:** Draft · Active · Stable — see [docs/README.md](./docs/README.md#table-of-contents).
@@ -65,4 +66,4 @@ When the TOC changes, update **both** this file and `docs/README.md`, plus each 
 Idea → Engineering Notebook → Implement exactly that → Test → Git Commit → Repeat
 ```
 
-See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth → D1 → durable queue integration → **then** Capture Client v1. Increment without redesign.
+See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 → durable queue integration → **then** Capture Client v1. Increment without redesign.

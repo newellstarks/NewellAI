@@ -1,13 +1,13 @@
 # Turn Capture
 
-**Chapter 9 — Turn Capture**
+**Chapter 10 — Turn Capture**
 
 | | |
 |---|---|
 | **Status** | Active |
 | **Purpose** | Domain definition of turns and how they flow through the system. |
 | **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md) |
-| **Related chapters** | [API](./API.md), [Database](./Database.md), [CaptureClient](./CaptureClient.md), [DurableQueue](./DurableQueue.md) |
+| **Related chapters** | [API](./API.md), [Authentication](./Authentication.md), [Database](./Database.md), [CaptureClient](./CaptureClient.md), [DurableQueue](./DurableQueue.md) |
 | **Nav** | [← Prev](./CaptureClient.md) · [TOC](./README.md#table-of-contents) · [Next →](./DurableQueue.md) |
 
 ---

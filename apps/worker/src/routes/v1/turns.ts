@@ -1,22 +1,27 @@
 import type { UploadRequest, UploadResponse } from "@newellai/contracts";
+import { requireCaptureApiToken } from "../../auth";
+import type { Env } from "../../env";
 import { HttpError, jsonResponse } from "../../errors";
 import { parseUploadRequest } from "../../validate/uploadRequest";
 
 /**
- * POST /v1/turns — modest ingest surface:
- * 1. Accept an upload request
- * 2. Validate its structure (wire protocol)
+ * POST /v1/turns — authenticated ingest surface:
+ * 1. Authenticate (Bearer / CAPTURE_API_TOKEN) before reading the body
+ * 2. Accept + validate upload structure (wire protocol)
  * 3. Return UploadResponse / ApiError
  *
  * Do not write to the database in this slice.
+ * Caller creates X-Request-Id before invoking this handler.
  */
-export async function handleIngestTurns(request: Request): Promise<Response> {
+export async function handleIngestTurns(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   if (request.method !== "POST") {
     throw new HttpError("METHOD_NOT_ALLOWED", "Use POST for /v1/turns");
   }
 
-  // TODO(auth): Authenticate the caller before accepting uploads.
-  // See roadmap step "Authentication" — shared-secret or better; do not hard-code identity.
+  await requireCaptureApiToken(request, env.CAPTURE_API_TOKEN);
 
   let raw: unknown;
   try {

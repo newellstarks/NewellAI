@@ -7,7 +7,7 @@
 | **Status** | Active |
 | **Purpose** | System shape, ownership boundaries, and high-level data flow. |
 | **Prerequisites** | [Chapter 2 — Roadmap](./Roadmap.md), [Chapter 3 — Requirements](./Requirements.md) |
-| **Related chapters** | [Contracts](./Contracts.md), [API](./API.md), [Database](./Database.md), [CaptureClient](./CaptureClient.md), [ADRs](./ADRs/) |
+| **Related chapters** | [Contracts](./Contracts.md), [API](./API.md), [Authentication](./Authentication.md), [Database](./Database.md), [CaptureClient](./CaptureClient.md), [ADRs](./ADRs/) |
 | **Nav** | [← Prev](./Requirements.md) · [TOC](./README.md#table-of-contents) · [Next →](./Contracts.md) |
 
 ---
@@ -16,7 +16,7 @@
 
 NewellAI is a **platform**: a client-agnostic backend plus pluggable **capture clients**.
 
-**Phase 1 (in progress)** — Foundation goal: contracts, Worker ingest, auth, D1, upload API. Contracts and Worker ingest skeleton are done; auth and D1 are next.  
+**Phase 1 (in progress)** — Foundation goal: contracts, Worker ingest, auth, D1, upload API. Contracts, Worker ingest skeleton, and shared-secret auth are done; D1 is next.  
 **Phase 2** — Capture Client v1 (Chrome Extension): first adapter only.  
 **Phase 3** — Additional clients against the same backend.
 
@@ -25,7 +25,7 @@ See [Roadmap.md](./Roadmap.md).
 | Area | Path | Role | Phase |
 |------|------|------|-------|
 | Capture Client v1 | `apps/extension/` | First capture adapter + Durable Queue (Chrome extension) | 2 |
-| Worker | `apps/worker/` | Target: authenticated ingest, validation, D1 persistence. **Now:** ingest skeleton (validate + respond; no auth/D1) | 1 |
+| Worker | `apps/worker/` | Target: authenticated ingest, validation, D1 persistence. **Now:** ingest + shared Bearer auth; D1 next | 1 |
 | Contracts | `packages/contracts/` | **Wire protocol** — shared turn / API shapes for all clients | 1 |
 | Migrations | `migrations/` | D1 schema SQL | 1 |
 
@@ -35,7 +35,7 @@ Documentation lives in `docs/` as an engineering notebook — the **authoritativ
 
 ```
 apps/extension/      → Phase 2: Capture Client v1 (Chrome extension) + Durable Queue
-apps/worker/         → Phase 1: ingest skeleton now; auth + D1 next
+apps/worker/         → Phase 1: ingest + auth now; D1 next
 packages/contracts/  → Phase 1: wire protocol (all clients ↔ Worker)
 migrations/          → Phase 1: D1 SQL (scaffold; no migrations yet)
 docs/                → authoritative notebook
@@ -84,7 +84,7 @@ Chrome extension implementation of the first capture adapter. Observe UI, enqueu
 
 **Role:** Authenticated ingest API, validation, and D1 persistence. Does **not** own the durable queue. Any authorized client may call ingest.
 
-**Current slice:** ingest skeleton — accept → validate → respond ([API.md](./API.md)). Auth and D1 are next on the [Roadmap](./Roadmap.md).
+**Current slice:** ingest + shared Bearer auth ([Authentication.md](./Authentication.md); route summary in [API.md](./API.md)). D1 is next on the [Roadmap](./Roadmap.md).
 
 ### Database
 
@@ -97,6 +97,7 @@ Schemas for users, sessions, and turns. Ingest idempotent on `client_turn_id`.
 - [Requirements](./Requirements.md)
 - [Database](./Database.md)
 - [API](./API.md)
+- [Authentication](./Authentication.md)
 - [CaptureClient](./CaptureClient.md)
 - [TurnCapture](./TurnCapture.md)
 - [DurableQueue](./DurableQueue.md)

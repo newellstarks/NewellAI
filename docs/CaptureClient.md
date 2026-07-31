@@ -1,12 +1,12 @@
 # Capture Client v1 (Chrome Extension)
 
-**Chapter 8 — Capture Client v1 (Chrome Extension)**
+**Chapter 9 — Capture Client v1 (Chrome Extension)**
 
 | | |
 |---|---|
 | **Status** | Draft |
 | **Purpose** | First capture adapter (Chrome extension)—not the product architecture. |
-| **Prerequisites** | [Chapter 2 — Roadmap](./Roadmap.md), [Chapter 4 — Architecture](./Architecture.md), [Chapter 6 — API](./API.md) |
+| **Prerequisites** | [Chapter 2 — Roadmap](./Roadmap.md), [Chapter 4 — Architecture](./Architecture.md), [Chapter 6 — API](./API.md), [Chapter 7 — Authentication](./Authentication.md) |
 | **Related chapters** | [TurnCapture](./TurnCapture.md), [DurableQueue](./DurableQueue.md), [ADR-0004](./ADRs/0004-why-browser-extension-capture.md) |
 | **Nav** | [← Prev](./Database.md) · [TOC](./README.md#table-of-contents) · [Next →](./TurnCapture.md) |
 

@@ -1,14 +1,14 @@
 # Database
 
-**Chapter 7 — Database**
+**Chapter 8 — Database**
 
 | | |
 |---|---|
 | **Status** | Draft |
 | **Purpose** | D1 and local SQLite strategy; schema direction before migrations land. |
-| **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md), [Chapter 6 — API](./API.md) |
+| **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md), [Chapter 6 — API](./API.md), [Chapter 7 — Authentication](./Authentication.md) |
 | **Related chapters** | [Architecture](./Architecture.md), [TurnCapture](./TurnCapture.md), [Roadmap](./Roadmap.md) |
-| **Nav** | [← Prev](./API.md) · [TOC](./README.md#table-of-contents) · [Next →](./CaptureClient.md) |
+| **Nav** | [← Prev](./Authentication.md) · [TOC](./README.md#table-of-contents) · [Next →](./CaptureClient.md) |
 
 ---
 
