@@ -18,9 +18,10 @@ The initial focus is reliability, clarity, and ease of development—not scale.
 
 ## Guiding principle
 
-> **Prototype narrowly. Architect broadly.**
+> **Prototype narrowly. Architect broadly.**  
+> **Build inside-out.**
 
-Ship a minimal working foundation, then attach capture clients. Do not optimize capture before the backend exists.
+Ship the wire protocol and backend first; attach Capture Client v1 last among the major Foundation→client steps. Do not optimize the extension before ingest, auth, D1, and durable upload exist.
 
 ## Development principles
 
