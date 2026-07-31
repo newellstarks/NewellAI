@@ -35,4 +35,5 @@ The Cloudflare Worker is only the authenticated ingest / validation / D1 persist
 - [DurableQueue](./DurableQueue.md)
 - [API](./API.md)
 - [ADR-0002](./ADRs/0002-durable-queue-in-extension.md)
+- [ADR-0004](./ADRs/0004-why-browser-extension-capture.md)
 - Code: `apps/extension/`

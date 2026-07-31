@@ -70,4 +70,5 @@ Define schemas for users, sessions, and turns that can grow from one operator to
 - [TurnCapture](./TurnCapture.md)
 - [DurableQueue](./DurableQueue.md)
 - [ADRs](./ADRs/)
+- [ADR-0004](./ADRs/0004-why-browser-extension-capture.md) — why extension capture (and when to replace it)
 - [Diagrams](./Diagrams/)
