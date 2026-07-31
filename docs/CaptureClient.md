@@ -1,6 +1,6 @@
 # Capture Client v1 (Chrome Extension)
 
-**Chapter 8** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 8** · [← Prev](./Database.md) · [TOC](./README.md#table-of-contents) · [Next →](./TurnCapture.md)
 
 ## Role
 

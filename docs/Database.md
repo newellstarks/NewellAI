@@ -1,6 +1,6 @@
 # Database
 
-**Chapter 7** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 7** · [← Prev](./API.md) · [TOC](./README.md#table-of-contents) · [Next →](./CaptureClient.md)
 
 ## Strategy
 

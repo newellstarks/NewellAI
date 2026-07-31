@@ -1,6 +1,6 @@
 # Roadmap
 
-**Chapter 2** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 2** · [← Prev](./Vision.md) · [TOC](./README.md#table-of-contents) · [Next →](./Requirements.md)
 
 The engineering notebook is authoritative. This page tracks **phases and the build order**—not implementation detail.
 

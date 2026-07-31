@@ -1,6 +1,6 @@
 # Turn Capture
 
-**Chapter 9** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 9** · [← Prev](./CaptureClient.md) · [TOC](./README.md#table-of-contents) · [Next →](./DurableQueue.md)
 
 ## Purpose
 

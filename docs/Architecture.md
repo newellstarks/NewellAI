@@ -1,6 +1,6 @@
 # Architecture
 
-**Chapter 4** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 4** · [← Prev](./Requirements.md) · [TOC](./README.md#table-of-contents) · [Next →](./Contracts.md)
 
 ## Overview
 

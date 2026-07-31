@@ -1,6 +1,6 @@
 # Durable Queue
 
-**Chapter 10** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 10** · [← Prev](./TurnCapture.md) · [TOC](./README.md#table-of-contents) · [Next →](./SubsystemTemplate.md)
 
 > **Status:** Notebook draft — **Phase 2** (Capture Client v1). Do not implement before Phase 1 Foundation is done.  
 > **Location:** Capture Client v1 / Chrome extension (`apps/extension`) — **not** the Cloudflare Worker.  

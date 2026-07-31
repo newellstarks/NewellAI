@@ -37,7 +37,7 @@ NewellAI/
 
 ## Table of Contents — Engineering notebook
 
-Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-of-contents)). Chapter numbers may be added, deleted, or reordered over time without renaming files.
+Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-of-contents)). Chapter numbers may change; filenames stay stable.
 
 | Chapter | Title | Document |
 |---------|-------|----------|
@@ -46,8 +46,8 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 | Chapter 2 | Roadmap | [docs/Roadmap.md](./docs/Roadmap.md) |
 | Chapter 3 | Requirements | [docs/Requirements.md](./docs/Requirements.md) |
 | Chapter 4 | Architecture | [docs/Architecture.md](./docs/Architecture.md) |
-| Chapter 5 | API | [docs/API.md](./docs/API.md) |
-| Chapter 6 | Shared Contracts (Wire Protocol) | [docs/Contracts.md](./docs/Contracts.md) |
+| Chapter 5 | Shared Contracts (Wire Protocol) | [docs/Contracts.md](./docs/Contracts.md) |
+| Chapter 6 | API | [docs/API.md](./docs/API.md) |
 | Chapter 7 | Database | [docs/Database.md](./docs/Database.md) |
 | Chapter 8 | Capture Client v1 (Chrome Extension) | [docs/CaptureClient.md](./docs/CaptureClient.md) |
 | Chapter 9 | Turn Capture | [docs/TurnCapture.md](./docs/TurnCapture.md) |
@@ -55,7 +55,7 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 | Chapter 11 | Subsystem Template | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
 | — | Architecture Decision Records | [docs/ADRs/](./docs/ADRs/) |
 
-When the TOC changes, update **both** this README and `docs/README.md`, plus each file’s **Chapter N** line.
+When the TOC changes, update **both** this file and `docs/README.md`, plus each page’s **Chapter N** / Prev / Next lines.
 
 ## Workflow
 

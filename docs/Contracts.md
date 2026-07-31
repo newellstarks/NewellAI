@@ -1,6 +1,6 @@
 # Shared Contracts (Wire Protocol)
 
-**Chapter 6** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
+**Chapter 5** · [← Prev](./Architecture.md) · [TOC](./README.md#table-of-contents) · [Next →](./API.md)
 
 ## Purpose
 
