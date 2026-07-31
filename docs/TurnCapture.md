@@ -4,7 +4,7 @@
 
 Turn Capture is the core Phase 1 capability: record each conversational **turn** between a user and ChatGPT in a structured, searchable store.
 
-This page is the engineering notebook for *what* we capture, *when*, and *how* it flows through the system. Implementation details live in `extension/`, `worker/`, and `database/`.
+This page is the engineering notebook for *what* we capture, *when*, and *how* it flows through the system. Implementation details live in `apps/extension/`, `apps/worker/`, `packages/contracts/`, and `migrations/`.
 
 ## What is a Turn?
 

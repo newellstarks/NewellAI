@@ -1,5 +1,5 @@
 ---
-description: Architecture drives code — notebook first, implement exactly as specified, then test and commit
+description: Notebook is authoritative — match scaffold paths without changing architectural intent
 alwaysApply: true
 ---
 
@@ -16,6 +16,16 @@ Idea
   → Repeat
 ```
 
+## Authoritative specification
+
+The **engineering notebook** (`docs/`) is the authoritative specification.
+
+When the repo scaffold or file layout changes:
+
+> Update the engineering notebook to match the scaffold, but **do not change architectural intent**. The notebook remains the authoritative specification.
+
+Path renames and folder moves are bookkeeping. Ownership and behavior (e.g. Durable Queue in the extension; Worker = authenticated ingest, validation, D1 persistence) must not drift unless an ADR changes them first.
+
 ## Before a new subsystem
 
 Spend time on the notebook (see `docs/SubsystemTemplate.md`): Purpose, Requirements, Inputs/Outputs, Failure modes, Performance goals, Test cases, Open questions.
@@ -30,4 +40,5 @@ Do **not** start with prompts like “write a queue.” First update the page (e
 2. Implement only what the notebook specifies—no silent scope expansion.
 3. Test against the notebook’s test cases before committing.
 4. Each commit is one logical milestone for that loop pass.
-5. If tests change the design, update the notebook before the next implementation pass.
+5. If tests change the design, update the notebook (and ADR if needed) before the next implementation pass.
+6. Align notebook paths with the scaffold; never let scaffold convenience rewrite architectural intent.

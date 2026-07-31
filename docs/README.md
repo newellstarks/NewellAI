@@ -2,7 +2,11 @@
 
 Keep design knowledge next to the code so Cursor can index and apply it while implementing features.
 
+**The engineering notebook is the authoritative specification.**  
 **Do not code first and document later.** Follow the development loop below.
+
+When the repo scaffold changes: update the notebook to match paths and layout, but **do not change architectural intent** unless an ADR says so.
+
 
 ## Development loop
 
@@ -60,3 +64,4 @@ Only then:
 5. Test the result against the documented test cases.
 6. Commit one logical milestone, then repeat for the next slice.
 7. If tests reveal a design change, update the notebook before the next implementation pass.
+8. When aligning docs to a new scaffold: match paths only—**architectural intent stays authoritative in the notebook**.

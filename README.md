@@ -2,7 +2,7 @@
 
 Automatic Turn Capture & Sync — local project on Macintosh HD (`~/Documents/NewellAI`).
 
-Design knowledge lives in the **engineering notebook** under [`docs/`](./docs/README.md). **Architecture drives code** — never code first and document later.
+Design knowledge lives in the **engineering notebook** under [`docs/`](./docs/README.md). The notebook is the **authoritative specification**. Update it to match the scaffold when paths change, but **do not change architectural intent** without an ADR. **Architecture drives code** — never code first and document later.
 
 ## Package manager
 

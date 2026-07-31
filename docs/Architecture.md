@@ -11,7 +11,20 @@ NewellAI is a turn-capture system with three primary surfaces:
 | Contracts | `packages/contracts/` | Shared turn / API shapes |
 | Migrations | `migrations/` | D1 schema SQL |
 
-Documentation lives in `docs/` as an engineering notebook.
+Documentation lives in `docs/` as an engineering notebook — the **authoritative specification**. Repo folders implement that intent; path updates must not rewrite ownership or behavior without an ADR.
+
+## Repository layout (scaffold)
+
+```
+apps/extension/      → capture + Durable Queue
+apps/worker/         → authenticated ingest, validation, D1 persistence
+packages/contracts/  → shared types
+migrations/          → D1 SQL
+docs/                → authoritative notebook
+```
+
+npm workspaces only ([ADR-0003](./ADRs/0003-npm-workspaces-only.md)).
+
 
 ## Design direction
 
