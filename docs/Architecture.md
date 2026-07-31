@@ -2,25 +2,55 @@
 
 ## Overview
 
-NewellAI is organized as:
+NewellAI is a turn-capture system with three primary surfaces:
 
 | Area | Path | Role |
 |------|------|------|
-| Docs | `docs/` | Architecture, requirements, ADRs, diagrams |
-| Extension | `extension/` | Client / browser surface |
-| Worker | `worker/` | Edge and background processing |
-| Database | `database/` | Schema, migrations, data layer |
+| Chrome extension | `extension/` | Capture turns from the browser |
+| Worker | `worker/` | Ingest, validate, and serve APIs on Cloudflare |
+| Database | `database/` | D1 schema / migrations; local SQLite mirror |
 
-## Components
+Documentation lives in `docs/` as an engineering notebook.
 
-_To be filled in as the system is defined._
+## Design direction
 
-## Data flow
+Even while Phase 1 is single-user, prefer practices that allow expansion:
 
-_To be filled in._
+- Configuration through env / config files
+- Modular capture, storage, and retrieval
+- Multi-user-capable schemas and naming
+- Docs that keep AI assistants aligned with intent
+
+## High-level data flow
+
+```
+ChatGPT (browser)
+    → Chrome extension (capture)
+    → Cloudflare Worker (ingest API)
+    → D1 (authoritative cloud store)
+    → periodic sync → local SQLite (inspect / backup)
+```
+
+## Component responsibilities
+
+### Extension
+
+Observe conversation UI, extract turn payloads, post to the Worker API.
+
+### Worker
+
+Authenticate/authorize ingest (Phase 1 may be a shared secret), validate payloads, write to D1, expose read APIs for inspection.
+
+### Database
+
+Define schemas for users, sessions, and turns that can grow from one operator to many accounts.
 
 ## Related
 
+- [Vision](./Vision.md)
 - [Requirements](./Requirements.md)
+- [Database](./Database.md)
+- [API](./API.md)
+- [ChromeExtension](./ChromeExtension.md)
 - [ADRs](./ADRs/)
 - [Diagrams](./Diagrams/)

@@ -2,17 +2,33 @@
 
 Local project home on Macintosh HD (`~/Documents/NewellAI`).
 
+Design knowledge lives in the **engineering notebook** under [`docs/`](./docs/README.md)—not a single large design document.
+
 ## Layout
 
 ```
 NewellAI/
-├── docs/           # Architecture, requirements, ADRs, diagrams
-├── extension/      # Browser / client extension
-├── worker/         # Edge / background workers
-├── database/       # Schema, migrations, SQL
+├── docs/           # Engineering notebook (Vision, Requirements, Architecture, …)
+├── extension/      # Chrome extension (capture)
+├── worker/         # Cloudflare Worker (API)
+├── database/       # Schema / migrations
 └── README.md
 ```
 
+## Engineering notebook
+
+| Doc | Role |
+|-----|------|
+| [docs/Vision.md](./docs/Vision.md) | Product intent |
+| [docs/Requirements.md](./docs/Requirements.md) | Phase requirements |
+| [docs/Architecture.md](./docs/Architecture.md) | System shape |
+| [docs/Database.md](./docs/Database.md) | D1 + SQLite |
+| [docs/API.md](./docs/API.md) | Worker contracts |
+| [docs/ChromeExtension.md](./docs/ChromeExtension.md) | Browser capture |
+| [docs/ADRs/](./docs/ADRs/) | Decision records |
+
+Original design Word docs are archived in [`docs/source/`](./docs/source/).
+
 ## Status
 
-Scaffold only. Existing runtime and knowledge assets live under `~/Vault/NewellAI` until migrated or linked here.
+Scaffold + notebook seeded from Project Direction / Introduction. Runtime assets under `~/Vault/NewellAI` remain separate until migrated.
