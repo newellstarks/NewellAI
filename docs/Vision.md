@@ -1,6 +1,6 @@
 # Vision
 
-**Chapter 1** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+**Chapter 1** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
 
 ## Intent
 

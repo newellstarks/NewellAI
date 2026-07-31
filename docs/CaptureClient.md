@@ -1,6 +1,6 @@
 # Capture Client v1 (Chrome Extension)
 
-**Chapter 8** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+**Chapter 8** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
 
 ## Role
 

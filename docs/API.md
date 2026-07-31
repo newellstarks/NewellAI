@@ -1,6 +1,6 @@
 # API
 
-**Chapter 5** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+**Chapter 5** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
 
 ## Role
 

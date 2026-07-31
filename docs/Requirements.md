@@ -1,6 +1,6 @@
 # Requirements
 
-**Chapter 3** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+**Chapter 3** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
 
 Phases are defined in [Roadmap.md](./Roadmap.md). **Do not optimize capture before the foundation exists.**
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Chapter 2** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+**Chapter 2** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
 
 The engineering notebook is authoritative. This page tracks **phases and the build order**—not implementation detail.
 

@@ -1,6 +1,6 @@
 # Shared Contracts (Wire Protocol)
 
-**Chapter 6** · Engineering notebook · [Reading order](./README.md#read-in-this-order)
+**Chapter 6** · Engineering notebook · [Table of Contents](./README.md#table-of-contents)
 
 ## Purpose
 

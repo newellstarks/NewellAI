@@ -1,34 +1,34 @@
 # Engineering Notebook
 
-**Chapter 0** · Engineering notebook · [Reading order](#read-in-this-order)
+**Chapter 0** · Engineering notebook · [Table of Contents](#table-of-contents)
 
 **Authoritative specification** for NewellAI. Do not code first and document later.
 
 When the repo scaffold changes: update the notebook to match paths, but **do not change architectural intent** unless an ADR says so.
 
-## Read in this order
+## Table of Contents
 
-Stable filenames; **this list** is the reading order (no `01_` prefixes required). Each doc also carries a **Chapter N** heading so you always know where you are in the sequence.
+This is the **reading order** for humans and Cursor. Stable filenames (no `01_` prefixes). Each chapter page also starts with a **Chapter N** heading.
 
-| # | Chapter | Document | Purpose |
-|---|---------|----------|---------|
-| 0 | Chapter 0 | [README.md](./README.md) (this page) | How to use the notebook |
-| 1 | Chapter 1 | [Vision.md](./Vision.md) | Why NewellAI exists |
-| 2 | Chapter 2 | [Roadmap.md](./Roadmap.md) | Phases and inside-out build sequence |
-| 3 | Chapter 3 | [Requirements.md](./Requirements.md) | What we must build |
-| 4 | Chapter 4 | [Architecture.md](./Architecture.md) | System shape and ownership |
-| 5 | Chapter 5 | [API.md](./API.md) | Worker ingest surface |
-| 6 | Chapter 6 | [Contracts.md](./Contracts.md) | Wire protocol (all clients ↔ backend) |
-| 7 | Chapter 7 | [Database.md](./Database.md) | D1 / SQLite |
-| 8 | Chapter 8 | [CaptureClient.md](./CaptureClient.md) | Capture Client v1 (Chrome Extension) |
-| 9 | Chapter 9 | [TurnCapture.md](./TurnCapture.md) | Turn domain |
-| 10 | Chapter 10 | [DurableQueue.md](./DurableQueue.md) | Client durable queue |
-| 11 | Chapter 11 | [SubsystemTemplate.md](./SubsystemTemplate.md) | Checklist before coding a subsystem |
-| — | — | [ADRs/](./ADRs/) | Decision records (read when referenced) |
+| Chapter | Title | Document |
+|---------|-------|----------|
+| [Chapter 0](#table-of-contents) | Engineering Notebook (this page) | [README.md](./README.md) |
+| Chapter 1 | Vision | [Vision.md](./Vision.md) |
+| Chapter 2 | Roadmap | [Roadmap.md](./Roadmap.md) |
+| Chapter 3 | Requirements | [Requirements.md](./Requirements.md) |
+| Chapter 4 | Architecture | [Architecture.md](./Architecture.md) |
+| Chapter 5 | API | [API.md](./API.md) |
+| Chapter 6 | Shared Contracts (Wire Protocol) | [Contracts.md](./Contracts.md) |
+| Chapter 7 | Database | [Database.md](./Database.md) |
+| Chapter 8 | Capture Client v1 (Chrome Extension) | [CaptureClient.md](./CaptureClient.md) |
+| Chapter 9 | Turn Capture | [TurnCapture.md](./TurnCapture.md) |
+| Chapter 10 | Durable Queue | [DurableQueue.md](./DurableQueue.md) |
+| Chapter 11 | Subsystem Template | [SubsystemTemplate.md](./SubsystemTemplate.md) |
+| — | Architecture Decision Records | [ADRs/](./ADRs/) |
 
-Also: [Diagrams/](./Diagrams/), [source/](./source/) (archives), [ChromeExtension.md](./ChromeExtension.md) (redirect → CaptureClient).
+**Also:** [Diagrams/](./Diagrams/) · [source/](./source/) (archives) · [ChromeExtension.md](./ChromeExtension.md) (redirect → Capture Client)
 
-**Humans and Cursor:** start here, then follow the table top-to-bottom. Filenames stay stable (`Vision.md`, not `01_Vision.md`).
+**Start here, then follow the TOC top-to-bottom.**
 
 ## Maintaining chapters (expected over time)
 
@@ -36,11 +36,11 @@ Chapter numbers are **navigation labels**, not permanent identity. Over time we 
 
 | Change | What to do |
 |--------|------------|
-| **Add** | Create `SomeTopic.md` with a stable name → insert a row in the table above → set its **Chapter N** line → renumber later chapters if needed |
-| **Delete** | Remove or move the file to `source/` if archival → delete its table row → renumber remaining **Chapter** lines and table `#` values so the sequence is contiguous |
-| **Reorder** | Move rows in this table → update each affected file’s **Chapter N** line to match → leave filenames unchanged |
+| **Add** | Create `SomeTopic.md` with a stable name → insert a row in the TOC → set its **Chapter N** line → renumber later chapters if needed |
+| **Delete** | Remove or move the file to `source/` if archival → delete its TOC row → renumber remaining **Chapter** lines so the sequence is contiguous |
+| **Reorder** | Move TOC rows → update each affected file’s **Chapter N** line to match → leave filenames unchanged |
 
-Keep the table and the in-file **Chapter N** lines in sync. Prefer one small commit when the reading order changes (“Renumber notebook chapters after …”).
+Keep this **Table of Contents** and the in-file **Chapter N** lines in sync. Prefer one small commit when the reading order changes (“Renumber notebook chapters after …”).
 
 ## Development loop
 
@@ -54,7 +54,7 @@ Architecture drives code. Prefer prompts like:
 
 ## How to use
 
-1. Open docs in the **Read in this order** sequence above.
+1. Use the **Table of Contents** above as the reading sequence.
 2. For a new subsystem: fill [SubsystemTemplate.md](./SubsystemTemplate.md) first.
 3. Resolve open questions with an ADR when needed.
 4. Implement only what the notebook specifies.
