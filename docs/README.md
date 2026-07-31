@@ -42,7 +42,7 @@ When the repo layout changes: update paths here, but **do not change architectur
 
 | Chapter | Title | Status | Document |
 |---------|-------|--------|----------|
-| 0 | Engineering Notebook (this page) | Stable | [README.md](./README.md) |
+| 0 | Engineering Notebook | Stable | [README.md](./README.md) |
 | 1 | Vision | Stable | [Vision.md](./Vision.md) |
 | 2 | Roadmap | Active | [Roadmap.md](./Roadmap.md) |
 | 3 | Requirements | Active | [Requirements.md](./Requirements.md) |

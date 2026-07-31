@@ -10,7 +10,7 @@ NewellAI needs a working Phase 1 for a single operator, but the long-term path i
 
 ## Decision
 
-- Implement the smallest reliable capture → Worker → D1 → local SQLite loop first
+- Build **inside-out**: smallest reliable foundation first (contracts → Worker ingest → auth → D1), then Capture Client v1; optional local SQLite mirror later
 - Keep modules, config, and schemas multi-user capable from day one
 - Document decisions in this engineering notebook and ADRs rather than one monolithic design file
 

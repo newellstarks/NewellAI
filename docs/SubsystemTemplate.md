@@ -1,4 +1,4 @@
-# Subsystem notebook template
+# Subsystem Template
 
 **Chapter 11 — Subsystem Template**
 

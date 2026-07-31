@@ -1,5 +1,5 @@
-# NewellAI Worker — scaffold only (no application logic yet)
-# D1 binding name is a placeholder; wire after migrations exist.
+# NewellAI Worker — ingest skeleton (accept → validate → respond).
+# D1 binding remains commented until migrations exist; wire then.
 name = "newellai-worker"
 main = "src/index.ts"
 compatibility_date = "2025-03-01"

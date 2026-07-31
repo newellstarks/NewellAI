@@ -6,8 +6,5 @@
   "scripts": {
     "build": "echo \"extension build not implemented yet\"",
     "test": "echo \"extension tests not implemented yet\""
-  },
-  "dependencies": {
-    "@newellai/contracts": "0.0.0"
   }
 }

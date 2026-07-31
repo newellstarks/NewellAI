@@ -18,7 +18,7 @@ npm install
 NewellAI/
 ├── apps/
 │   ├── extension/     # Phase 2: Capture Client v1 (Chrome extension)
-│   └── worker/        # Phase 1: Authenticated ingest, validation, D1 persistence
+│   └── worker/        # Phase 1: ingest skeleton now; auth + D1 next
 ├── packages/
 │   └── contracts/     # Wire protocol (all clients ↔ backend)
 ├── migrations/        # D1 SQL
@@ -30,7 +30,7 @@ NewellAI/
 | Path | Role |
 |------|------|
 | `apps/extension` | **Capture Client v1** (Chrome extension) — capture + Durable Queue |
-| `apps/worker` | Authenticated ingest API, validation, and D1 persistence |
+| `apps/worker` | Target: authenticated ingest, validation, D1. **Now:** ingest skeleton (validate + respond) |
 | `packages/contracts` | Shared contracts |
 | `migrations` | D1 migrations |
 | `docs` | Engineering notebook |
@@ -41,7 +41,7 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 
 | Chapter | Title | Status | Document |
 |---------|-------|--------|----------|
-| Chapter 0 | Engineering Notebook (index) | Stable | [docs/README.md](./docs/README.md) |
+| Chapter 0 | Engineering Notebook | Stable | [docs/README.md](./docs/README.md) |
 | Chapter 1 | Vision | Stable | [docs/Vision.md](./docs/Vision.md) |
 | Chapter 2 | Roadmap | Active | [docs/Roadmap.md](./docs/Roadmap.md) |
 | Chapter 3 | Requirements | Active | [docs/Requirements.md](./docs/Requirements.md) |

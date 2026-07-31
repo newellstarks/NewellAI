@@ -16,7 +16,7 @@
 
 NewellAI is a **platform**: a client-agnostic backend plus pluggable **capture clients**.
 
-**Phase 1 (current)** — Foundation: contracts, Worker, auth, D1, upload API.  
+**Phase 1 (in progress)** — Foundation goal: contracts, Worker ingest, auth, D1, upload API. Contracts and Worker ingest skeleton are done; auth and D1 are next.  
 **Phase 2** — Capture Client v1 (Chrome Extension): first adapter only.  
 **Phase 3** — Additional clients against the same backend.
 
@@ -25,7 +25,7 @@ See [Roadmap.md](./Roadmap.md).
 | Area | Path | Role | Phase |
 |------|------|------|-------|
 | Capture Client v1 | `apps/extension/` | First capture adapter + Durable Queue (Chrome extension) | 2 |
-| Worker | `apps/worker/` | Authenticated ingest API, validation, and D1 persistence | 1 |
+| Worker | `apps/worker/` | Target: authenticated ingest, validation, D1 persistence. **Now:** ingest skeleton (validate + respond; no auth/D1) | 1 |
 | Contracts | `packages/contracts/` | **Wire protocol** — shared turn / API shapes for all clients | 1 |
 | Migrations | `migrations/` | D1 schema SQL | 1 |
 
@@ -35,9 +35,9 @@ Documentation lives in `docs/` as an engineering notebook — the **authoritativ
 
 ```
 apps/extension/      → Phase 2: Capture Client v1 (Chrome extension) + Durable Queue
-apps/worker/         → Phase 1: authenticated ingest, validation, D1 persistence
+apps/worker/         → Phase 1: ingest skeleton now; auth + D1 next
 packages/contracts/  → Phase 1: wire protocol (all clients ↔ Worker)
-migrations/          → Phase 1: D1 SQL
+migrations/          → Phase 1: D1 SQL (scaffold; no migrations yet)
 docs/                → authoritative notebook
 ```
 
@@ -82,7 +82,9 @@ Chrome extension implementation of the first capture adapter. Observe UI, enqueu
 
 ### Worker (Phase 1)
 
-Authenticated ingest API, validation, and D1 persistence. Does **not** own the durable queue. Any authorized client may call ingest.
+**Role:** Authenticated ingest API, validation, and D1 persistence. Does **not** own the durable queue. Any authorized client may call ingest.
+
+**Current slice:** ingest skeleton — accept → validate → respond ([API.md](./API.md)). Auth and D1 are next on the [Roadmap](./Roadmap.md).
 
 ### Database
 

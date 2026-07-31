@@ -6,6 +6,7 @@ Spec: [docs/Contracts.md](../../docs/Contracts.md)
 
 ## Exports
 
+- `Speaker`
 - `TurnPayload`
 - `ConversationMetadata`
 - `CaptureMetadata`

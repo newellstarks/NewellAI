@@ -6,8 +6,8 @@
 |---|---|
 | **Status** | Active |
 | **Purpose** | Domain definition of turns and how they flow through the system. |
-| **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md), [Chapter 8 — Capture Client v1](./CaptureClient.md) |
-| **Related chapters** | [API](./API.md), [Database](./Database.md), [DurableQueue](./DurableQueue.md) |
+| **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md) |
+| **Related chapters** | [API](./API.md), [Database](./Database.md), [CaptureClient](./CaptureClient.md), [DurableQueue](./DurableQueue.md) |
 | **Nav** | [← Prev](./CaptureClient.md) · [TOC](./README.md#table-of-contents) · [Next →](./DurableQueue.md) |
 
 ---
