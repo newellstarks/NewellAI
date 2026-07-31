@@ -12,6 +12,7 @@ Keep design knowledge next to the code so Cursor can index and apply it while im
 | [Database.md](./Database.md) | D1, SQLite, schemas, and retention |
 | [API.md](./API.md) | Worker / HTTP contracts |
 | [ChromeExtension.md](./ChromeExtension.md) | Browser capture surface |
+| [TurnCapture.md](./TurnCapture.md) | Turn definition, capture pipeline, payload |
 | [ADRs/](./ADRs/) | Architecture Decision Records |
 | [Diagrams/](./Diagrams/) | Visual references |
 | [source/](./source/) | Archived original design documents |

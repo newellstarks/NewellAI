@@ -25,6 +25,7 @@ NewellAI/
 | [docs/Database.md](./docs/Database.md) | D1 + SQLite |
 | [docs/API.md](./docs/API.md) | Worker contracts |
 | [docs/ChromeExtension.md](./docs/ChromeExtension.md) | Browser capture |
+| [docs/TurnCapture.md](./docs/TurnCapture.md) | Turn capture pipeline |
 | [docs/ADRs/](./docs/ADRs/) | Decision records |
 
 Original design Word docs are archived in [`docs/source/`](./docs/source/).

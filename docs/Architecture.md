@@ -52,5 +52,6 @@ Define schemas for users, sessions, and turns that can grow from one operator to
 - [Database](./Database.md)
 - [API](./API.md)
 - [ChromeExtension](./ChromeExtension.md)
+- [TurnCapture](./TurnCapture.md)
 - [ADRs](./ADRs/)
 - [Diagrams](./Diagrams/)

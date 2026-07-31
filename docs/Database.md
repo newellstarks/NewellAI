@@ -34,5 +34,6 @@ Exact columns and indexes will be defined in migrations under `database/` and re
 
 - [Architecture](./Architecture.md)
 - [API](./API.md)
+- [TurnCapture](./TurnCapture.md)
 - [ADRs](./ADRs/)
 - Code: `database/`

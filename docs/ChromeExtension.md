@@ -26,5 +26,6 @@ Browser capture surface for ChatGPT conversations. Observes the page, extracts t
 
 - [Requirements](./Requirements.md)
 - [Architecture](./Architecture.md)
+- [TurnCapture](./TurnCapture.md)
 - [API](./API.md)
 - Code: `extension/`
