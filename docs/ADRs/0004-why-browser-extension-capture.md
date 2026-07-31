@@ -1,4 +1,4 @@
-# ADR-0004: Why initial capture is a browser extension (and when to replace it)
+# ADR-0004: Why Capture Client v1 is a browser extension (and when to replace it)
 
 ## Status
 
@@ -6,81 +6,67 @@ Accepted
 
 ## Context
 
-Phase 1 must capture ChatGPT Plus conversational turns for customer zero on desktop/browser, buffer them durably when sync fails, and persist them via an authenticated Worker to D1.
+**Phase 1** builds the foundation: contracts, authenticated Worker ingest, validation, and D1 persistence. That work does **not** depend on how turns are observed.
 
-Several capture mechanisms are conceivable:
+**Phase 2** adds **Capture Client v1** — the first adapter that calls that backend. Several mechanisms are conceivable (extension, native apps, export polling, official APIs, …).
 
-- Browser extension (observe ChatGPT web UI; local durable queue; sync)
-- Custom GPT / server-side hooks only (no local buffer)
-- Official ChatGPT export / API polling (batch, not real-time)
-- Native desktop or mobile apps
-- OS-level accessibility / automation agents
-
-We need a recorded choice for the **initial** mechanism, plus explicit conditions under which that choice should be revisited—so the architecture can evolve without pretending the extension is permanent dogma.
+We record why v1 is a Chromium extension, and when to replace or supplement it. NewellAI is a **platform**; the extension is not the product.
 
 ## Decision
 
-**Initial capture mechanism: a Chromium browser extension** (`apps/extension`).
+**Capture Client v1 (Phase 2): Chrome / Chromium extension** (`apps/extension`).
 
-It owns:
+In Phase 2 (after Foundation), it owns:
 
 1. Observing the ChatGPT web conversation UI
 2. Normalizing turns to shared contracts
-3. The **Durable Queue** (local buffer, order, retry, sync) — see [ADR-0002](./0002-durable-queue-in-extension.md)
+3. This client’s **Durable Queue** — see [ADR-0002](./0002-durable-queue-in-extension.md)
 4. Calling the Worker authenticated ingest API
 
-The Worker remains ingest / validation / D1 persistence only.
+The Worker remains ingest / validation / D1 persistence only. **Any Phase 3 client uses the same API.**
 
-### Why this choice (Phase 1)
+### Why this as Capture Client v1
 
 | Force | How the extension addresses it |
 |-------|--------------------------------|
-| Turns happen in ChatGPT **web** for customer zero | Extension sits on that surface |
-| Need **real-time** capture, not only periodic export | Can observe turns as they appear |
-| Need **local durability** when offline or Worker is down | Queue must live on the device |
-| Prove the loop quickly | Smallest reliable browser-native host for capture + queue |
+| Customer-zero turns happen in ChatGPT **web** | Fastest adapter on that surface |
+| Need **real-time** capture | Can observe turns as they appear |
+| Need **local durability** when offline | Queue lives on the device for this client |
 | Keep cloud simple | Avoid making the Worker a queue runtime |
 
-This is **not** “Chrome forever.” It is the narrowest Phase 1 prototype that still architects for multi-surface growth (shared contracts, Worker ingest, multi-user-ready schema).
+Do not optimize this client before Phase 1 Foundation exists.
 
 ## Consequences
 
 ### Positive
 
-- Clear ownership: extension = capture + queue; Worker = authenticated persist
-- Offline / flaky-network capture is first-class
-- Notebook and code paths stay aligned (`apps/extension`)
+- Backend stays client-agnostic
+- Fastest path to a working end-to-end demo after Foundation
+- Offline capture can be added without redesigning D1
 
 ### Negative / costs
 
-- UI scraping / DOM observation is brittle when ChatGPT changes its front end
-- Chromium-first; Safari / Firefox / iOS need separate work
-- Store / enterprise policy friction for distributing extensions later
-- Not a substitute for an official turn stream if OpenAI provides one
+- UI scraping is brittle
+- Chromium-first; Phase 3 covers other surfaces
+- Extension distribution friction later
 
-## When to replace (or supplement) the extension
+## When to replace (or supplement) Capture Client v1
 
-Revisit this ADR and update the notebook **before** changing the capture architecture if any of the following become true:
+Revisit this ADR before changing capture architecture if:
 
-1. **Official real-time API** — OpenAI (or equivalent) offers a supported, authenticated turn stream that makes DOM observation unnecessary for the target product.
-2. **Primary surface leaves the browser** — Customer usage shifts to desktop/mobile native ChatGPT (or another host) where an extension cannot run; then add a native capture client that still talks to the same Worker ingest + contracts.
-3. **Multi-browser product requirement** — Paying users need Firefox/Safari/iOS Safari parity; evaluate WebExtensions port, bookmarklet/userscript (weaker), or non-extension clients rather than Chromium-only.
-4. **Brittle capture cost exceeds value** — ChatGPT UI churn makes extension maintenance the dominant cost; prefer API/export-based ingest or a vendor-supported integration.
-5. **Enterprise / distribution blockers** — Extension install policies block adoption; ship a companion app or server-side import path as the primary capture mechanism.
-6. **Queue must leave the device** — Regulatory or multi-device sync requirements demand a server-side durable buffer *in addition to* or *instead of* the extension queue; record a new ADR (do not silently move the queue into the Worker).
+1. **Official real-time API** makes DOM observation unnecessary
+2. **Primary surface leaves the browser** — add another Phase 3 client to the same ingest API
+3. **Multi-browser product requirement** — Safari / Firefox / etc. as additional clients
+4. **Brittle capture cost exceeds value** — prefer API/export-based clients
+5. **Enterprise / distribution blockers** — companion app or import path as primary client
+6. **Queue must leave the device** — new ADR; do not silently move the queue into the Worker
 
-Replacement should preserve:
-
-- Shared contracts (`packages/contracts`)
-- Authenticated Worker ingest + idempotent D1 persistence
-- Engineering notebook as authoritative spec
-
-Prefer **adding** a capture adapter alongside the extension before deleting the extension path, unless the extension is proven obsolete.
+Preserve shared contracts, authenticated Worker ingest, and the notebook as authoritative spec. Prefer **adding** Phase 3 clients alongside v1 before removing it.
 
 ## Related
 
-- [ADR-0002](./0002-durable-queue-in-extension.md) — Durable Queue lives in the extension
-- [ChromeExtension.md](../ChromeExtension.md)
-- [TurnCapture.md](../TurnCapture.md)
+- [Roadmap](../Roadmap.md)
+- [CaptureClient.md](../CaptureClient.md)
+- [ADR-0002](./0002-durable-queue-in-extension.md)
 - [Architecture.md](../Architecture.md)
 - [Requirements.md](../Requirements.md)

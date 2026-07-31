@@ -2,9 +2,13 @@
 
 ## Purpose
 
-Turn Capture is the core Phase 1 capability: record each conversational **turn** between a user and ChatGPT in a structured, searchable store.
+Turn Capture describes the **turn** domain: what we store and how halves relate.  
 
-This page is the engineering notebook for *what* we capture, *when*, and *how* it flows through the system. Implementation details live in `apps/extension/`, `apps/worker/`, `packages/contracts/`, and `migrations/`.
+- **Phase 1** delivers the backend that accepts and persists turns.  
+- **Phase 2** Capture Client v1 (Chrome extension) observes ChatGPT and syncs.  
+- **Phase 3** additional clients use the same ingest path.
+
+Implementation: `apps/extension/` (v1 client), `apps/worker/`, `packages/contracts/`, `migrations/`.
 
 ## What is a Turn?
 
@@ -17,26 +21,26 @@ A **full turn** is both sides of an exchange within a session:
 
 Both halves share session context and are stored chronologically so recall and inspection stay ordered.
 
-## Phase 1 capture path
+## Capture path (Phase 2+ with Capture Client v1)
 
 ```
 ChatGPT UI (browser)
-    → Chrome extension detects / normalizes turn
-    → Extension Durable Queue (local buffer + retry)
+    → Capture Client v1 (Chrome extension) detects / normalizes turn
+    → Client Durable Queue (local buffer + retry)
     → POST Worker authenticated ingest API
     → Worker validates + persists to D1
-    → periodic sync → local SQLite (inspect / backup)
+    → optional: local SQLite mirror (inspect / backup)
 ```
 
-Prior experiments used local Flask (`/log_turn` → `memory.db`), Custom GPT → Worker `/collect-turn` (R2 + Durable Object sequencing), and related bridges. Phase 1 standardizes on **extension (capture + durable queue) + Worker (ingest / validate / D1) + SQLite mirror**.
+Phase 1 alone only requires the Worker ingest path (manual or any authorized client). Phase 3 clients substitute a different adapter above the same Worker.
 
 ## Capture principles
 
 1. **Reliability over cleverness** — prefer stable selectors / payloads over fragile UI scraping tricks
 2. **Server-side timestamps** when the client omits them
-3. **Session-aware ordering** — extension queue preserves order per session before sync
+3. **Session-aware ordering** — Capture Client v1 queue preserves order per session before sync
 4. **Multi-user-ready fields** — `user_id` / `client_id` even for customer zero
-5. **Local durability first** — enqueue succeeds on device; sync retries until Worker/D1 accept
+5. **Local durability first** (v1) — enqueue succeeds on device; sync retries until Worker/D1 accept
 6. Failed sync is visible to the operator (not silent forever)
 
 ## Draft turn payload
@@ -47,7 +51,7 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 |-------|-------|
 | `user_id` | Account identity (Phase 1: single operator) |
 | `session_id` | Conversation / chat session |
-| `sequence` | Order within session (extension queue may assign) |
+| `sequence` | Order within session (Capture Client v1 may assign) |
 | `speaker` | `user` \| `assistant` |
 | `turn_text` | Message body |
 | `timestamp` | ISO-8601; prefer server if missing |
@@ -56,16 +60,16 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 | `parent_turn_id` | Optional link request ↔ response |
 | `context_blob` | Optional structured extras (JSON) |
 
-## Lifecycle (operator view)
+## Lifecycle (operator view — Capture Client v1)
 
 1. Operator opens ChatGPT in the browser and starts (or continues) a session
-2. Extension observes submitted user messages and assistant replies
+2. Capture Client v1 observes submitted user messages and assistant replies
 3. Each half-turn is normalized and **enqueued locally**
-4. Extension syncs the queue to the Worker authenticated ingest API
+4. Client syncs the queue to the Worker authenticated ingest API
 5. Worker validates and writes to D1
-6. Local SQLite mirror later supports inspection / backup
+6. Optional local SQLite mirror later supports inspection / backup
 
-## Success criteria (initial)
+## Success criteria (Capture Client v1)
 
 - [ ] User and assistant halves for the same session land in D1 in order
 - [ ] Missing client timestamp does not drop the turn
@@ -73,21 +77,22 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 - [ ] Local SQLite mirror can list last N turns for a session
 - [ ] Capture works for customer-zero ChatGPT browser sessions without hard-coded identity in code
 
-## Non-goals (this page / Phase 1)
+## Non-goals (this domain page)
 
-- iPhone capture
-- Non-ChatGPT surfaces
+- Treating the Chrome extension as the only client
+- Phase 3 client implementations (document separately when started)
 - Snowflake / analytics export (future)
 - Mandatory client-side encryption
 
 ## Related
 
+- [Roadmap](./Roadmap.md)
 - [Requirements](./Requirements.md)
 - [Architecture](./Architecture.md)
-- [ChromeExtension](./ChromeExtension.md)
+- [CaptureClient](./CaptureClient.md)
 - [API](./API.md)
 - [Database](./Database.md)
 - [ADRs](./ADRs/)
 - Historical notes in [`source/`](./source/) (turn memory build log / session trace)
-- [DurableQueue](./DurableQueue.md) (extension-side buffer / sync — not the Worker)
+- [DurableQueue](./DurableQueue.md) (Capture Client v1 buffer / sync — not the Worker)
 

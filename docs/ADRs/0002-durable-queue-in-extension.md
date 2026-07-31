@@ -10,9 +10,10 @@ Early notebook drafts described a cloud-side durable queue between Worker ingest
 
 ## Decision
 
-- The **Durable Queue** lives in the **Chrome extension**
+- The **Durable Queue** for Capture Client v1 lives in the **Chrome extension** implementation (`apps/extension`)
 - The **Cloudflare Worker** provides an **authenticated ingest API, validation, and D1 persistence** only
-- The extension buffers, orders, and retries; the Worker does not own the primary queue
+- The extension buffers, orders, and retries for **this client**; the Worker does not own the primary queue
+- Phase 3 clients may use their own local buffering strategy but must still call the same ingest API
 
 ## Consequences
 

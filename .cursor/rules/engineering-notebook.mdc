@@ -1,11 +1,11 @@
 ---
-description: Notebook is authoritative — match scaffold paths without changing architectural intent
+description: Platform with capture clients — Phase 1 Foundation first; Capture Client v1 is an adapter; notebook is authoritative
 alwaysApply: true
 ---
 
 # Development loop
 
-Never code first and document later. Architecture drives the code.
+Never code first and document later. Architecture drives the code. The notebook is authoritative.
 
 ```
 Idea
@@ -16,29 +16,32 @@ Idea
   → Repeat
 ```
 
+## Phases (do not invert)
+
+1. **Phase 1 — Foundation** (current): contracts, Worker, D1, auth, upload API — working backend
+2. **Phase 2 — Capture Client v1**: Chrome extension adapter + its durable queue — **one client**, not the product
+3. **Phase 3 — Additional clients**: Safari, Firefox, Cursor, Claude Desktop, ChatGPT Desktop, macOS app, OpenAI API, … — same backend
+
+Do **not** optimize capture before Foundation exists. NewellAI is a **platform**, not a browser add-on.
+
 ## Authoritative specification
 
-The **engineering notebook** (`docs/`) is the authoritative specification.
-
-When the repo scaffold or file layout changes:
+When the repo scaffold changes:
 
 > Update the engineering notebook to match the scaffold, but **do not change architectural intent**. The notebook remains the authoritative specification.
 
-Path renames and folder moves are bookkeeping. Ownership and behavior (e.g. Durable Queue in the extension; Worker = authenticated ingest, validation, D1 persistence) must not drift unless an ADR changes them first.
-
 ## Before a new subsystem
 
-Spend time on the notebook (see `docs/SubsystemTemplate.md`): Purpose, Requirements, Inputs/Outputs, Failure modes, Performance goals, Test cases, Open questions.
+See `docs/SubsystemTemplate.md`. Prefer prompts like:
 
-Do **not** start with prompts like “write a queue.” First update the page (e.g. `docs/DurableQueue.md`), resolve open questions via ADR when needed, then prompt:
-
-> Implement the &lt;Subsystem&gt; exactly as specified in the engineering notebook (`docs/&lt;Page&gt;.md`).
+> Implement &lt;Subsystem&gt; exactly as specified in the engineering notebook (`docs/&lt;Page&gt;.md`).
 
 ## Rules
 
 1. Update `docs/` before writing new subsystem code.
 2. Implement only what the notebook specifies—no silent scope expansion.
 3. Test against the notebook’s test cases before committing.
-4. Each commit is one logical milestone for that loop pass.
-5. If tests change the design, update the notebook (and ADR if needed) before the next implementation pass.
+4. Each commit is one logical milestone.
+5. If tests change the design, update the notebook (and ADR if needed) first.
 6. Align notebook paths with the scaffold; never let scaffold convenience rewrite architectural intent.
+7. Call the Chrome extension **Capture Client v1**, not “the system.”

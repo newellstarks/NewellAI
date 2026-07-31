@@ -1,6 +1,6 @@
 # Shared contracts (`@newellai/contracts`)
 
-TypeScript types and API shapes shared by the Chrome extension and Cloudflare Worker.
+TypeScript types and API shapes shared by capture clients and the Cloudflare Worker.
 
 Keeps turn payloads and ingest DTOs from drifting between `apps/extension` and `apps/worker`.
 

@@ -1,8 +1,10 @@
-# Chrome Extension (`@newellai/extension`)
+# Capture Client v1 — Chrome Extension (`@newellai/extension`)
 
-Capture surface for ChatGPT turns. Owns **capture** and the **Durable Queue** (buffer, order, retry, sync).
+**This package is an adapter, not the product.** NewellAI’s core is the Phase 1 backend; this is the first capture client.
 
-The Worker is only authenticated ingest, validation, and D1 persistence — see [ADR-0002](../../docs/ADRs/0002-durable-queue-in-extension.md).
+Owns **capture** and the **Durable Queue** for Capture Client v1 only. See [CaptureClient.md](../../docs/CaptureClient.md) and [ADR-0004](../../docs/ADRs/0004-why-browser-extension-capture.md).
+
+Do not implement capture logic until Phase 1 Foundation is complete ([Roadmap](../../docs/Roadmap.md)).
 
 ## Status
 
@@ -10,9 +12,10 @@ Scaffold only. No application logic yet.
 
 ## Docs
 
-- [ChromeExtension.md](../../docs/ChromeExtension.md)
+- [CaptureClient.md](../../docs/CaptureClient.md)
 - [DurableQueue.md](../../docs/DurableQueue.md)
 - [TurnCapture.md](../../docs/TurnCapture.md)
+- [Roadmap.md](../../docs/Roadmap.md)
 
 ## Develop
 
@@ -21,4 +24,4 @@ Scaffold only. No application logic yet.
 npm install
 ```
 
-Load `apps/extension` as an unpacked extension after build steps exist.
+Load `apps/extension` as an unpacked extension after build steps exist (Phase 2).

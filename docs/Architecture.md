@@ -2,73 +2,90 @@
 
 ## Overview
 
-NewellAI is a turn-capture system with three primary surfaces:
+NewellAI is a **platform**: a client-agnostic backend plus pluggable **capture clients**.
 
-| Area | Path | Role |
-|------|------|------|
-| Chrome extension | `apps/extension/` | Capture turns; **Durable Queue** (buffer, order, retry); sync to Worker |
-| Worker | `apps/worker/` | Authenticated ingest API, validation, and D1 persistence |
-| Contracts | `packages/contracts/` | Shared turn / API shapes |
-| Migrations | `migrations/` | D1 schema SQL |
+**Phase 1 (current)** — Foundation: contracts, Worker, auth, D1, upload API.  
+**Phase 2** — Capture Client v1 (Chrome Extension): first adapter only.  
+**Phase 3** — Additional clients against the same backend.
+
+See [Roadmap.md](./Roadmap.md).
+
+| Area | Path | Role | Phase |
+|------|------|------|-------|
+| Capture Client v1 | `apps/extension/` | First capture adapter + Durable Queue (Chrome extension) | 2 |
+| Worker | `apps/worker/` | Authenticated ingest API, validation, and D1 persistence | 1 |
+| Contracts | `packages/contracts/` | Shared turn / API shapes | 1 |
+| Migrations | `migrations/` | D1 schema SQL | 1 |
 
 Documentation lives in `docs/` as an engineering notebook — the **authoritative specification**. Repo folders implement that intent; path updates must not rewrite ownership or behavior without an ADR.
 
 ## Repository layout (scaffold)
 
 ```
-apps/extension/      → capture + Durable Queue
-apps/worker/         → authenticated ingest, validation, D1 persistence
-packages/contracts/  → shared types
-migrations/          → D1 SQL
+apps/extension/      → Phase 2: Capture Client v1 (Chrome extension) + Durable Queue
+apps/worker/         → Phase 1: authenticated ingest, validation, D1 persistence
+packages/contracts/  → Phase 1: shared types
+migrations/          → Phase 1: D1 SQL
 docs/                → authoritative notebook
 ```
 
 npm workspaces only ([ADR-0003](./ADRs/0003-npm-workspaces-only.md)).
 
-
 ## Design direction
 
-Even while Phase 1 is single-user, prefer practices that allow expansion:
-
 - Configuration through env / config files
-- Modular capture, storage, and retrieval
+- Modular capture clients vs shared ingest / storage
 - Multi-user-capable schemas and naming
 - Docs that keep AI assistants aligned with intent
+- **Do not** treat any single capture client as the system
 
 ## High-level data flow
 
+### Phase 1 (foundation — no capture client required)
+
 ```
-ChatGPT (browser)
-    → Chrome extension (capture)
-    → Extension Durable Queue (order, retry, local durability)  ← docs/DurableQueue.md
+Authorized client (manual test / curl / future adapter)
     → Cloudflare Worker (authenticated ingest, validation)
     → D1 (persistence)
-    → periodic sync → local SQLite (inspect / backup)
+```
+
+### Phase 2+ (capture clients)
+
+```
+AI surface (e.g. ChatGPT web)
+    → Capture Client v1 (Chrome extension): capture + local Durable Queue
+    → Cloudflare Worker (authenticated ingest, validation)
+    → D1 (persistence)
+    → optional: local SQLite mirror (inspect / backup)
+
+Phase 3 clients (Safari, Firefox, Cursor, Claude Desktop, …)
+    → same Worker ingest + contracts + D1
 ```
 
 ## Component responsibilities
 
-### Extension
+### Capture Client v1 (Phase 2)
 
-Observe conversation UI, extract turn payloads, enqueue into the local Durable Queue, and sync to the Worker when online.
+Chrome extension implementation of the first capture adapter. Observe UI, enqueue locally, sync to Worker. Not required to complete Phase 1.
 
-### Worker
+### Worker (Phase 1)
 
-Provide an authenticated ingest API, validate payloads, and persist to D1. The Worker does **not** own the durable queue.
+Authenticated ingest API, validation, and D1 persistence. Does **not** own the durable queue. Any authorized client may call ingest.
 
 ### Database
 
-Define schemas for users, sessions, and turns that can grow from one operator to many accounts. Ingest must be idempotent on `client_turn_id`.
+Schemas for users, sessions, and turns. Ingest idempotent on `client_turn_id`.
 
 ## Related
 
+- [Roadmap](./Roadmap.md)
 - [Vision](./Vision.md)
 - [Requirements](./Requirements.md)
 - [Database](./Database.md)
 - [API](./API.md)
-- [ChromeExtension](./ChromeExtension.md)
+- [CaptureClient](./CaptureClient.md)
 - [TurnCapture](./TurnCapture.md)
 - [DurableQueue](./DurableQueue.md)
 - [ADRs](./ADRs/)
-- [ADR-0004](./ADRs/0004-why-browser-extension-capture.md) — why extension capture (and when to replace it)
+- [ADR-0004](./ADRs/0004-why-browser-extension-capture.md)
 - [Diagrams](./Diagrams/)

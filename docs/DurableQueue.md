@@ -1,17 +1,17 @@
 # Durable Queue
 
-> **Status:** Notebook draft — not implemented yet.  
-> **Location:** Chrome extension (`apps/extension`) — **not** the Cloudflare Worker.  
-> **Implement only after this page is accepted.** Prompt: *Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).*
+> **Status:** Notebook draft — **Phase 2** (Capture Client v1). Do not implement before Phase 1 Foundation is done.  
+> **Location:** Capture Client v1 / Chrome extension (`apps/extension`) — **not** the Cloudflare Worker.  
+> **Implement only after this page is accepted and Foundation exists.** Prompt: *Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).*
 
 ## Purpose
 
 Why does this queue exist?
 
-Turn capture must not lose messages when the network drops, the Worker is briefly unavailable, or ChatGPT fires turns faster than sync can complete. The Durable Queue lives **in the extension** so that:
+Turn capture must not lose messages when the network drops, the Worker is briefly unavailable, or ChatGPT fires turns faster than sync can complete. For **Capture Client v1**, the Durable Queue lives **in the Chrome extension** so that:
 
 1. Captured turns are stored on the device immediately (survive browser restarts where storage allows)
-2. The extension can retry authenticated ingest without asking the operator to re-speak the conversation
+2. This client can retry authenticated ingest without asking the operator to re-speak the conversation
 3. Per-session order is preserved on the client before sync
 4. The Worker stays a simple, reliable **ingest + validate + D1 persist** service—not a queue runtime
 
@@ -19,10 +19,10 @@ Turn capture must not lose messages when the network drops, the Worker is briefl
 
 | Component | Owns |
 |-----------|------|
-| Extension Durable Queue | Buffer, order, retry, local durability |
+| Capture Client v1 Durable Queue | Buffer, order, retry, local durability (this adapter) |
 | Cloudflare Worker | Authenticated ingest API, validation, and D1 persistence |
 
-Without an extension-side durable queue, failed syncs become silent gaps in conversation history—the opposite of Phase 1’s reliability goal.
+Without a client-side durable queue for v1, failed syncs become silent gaps in conversation history.
 
 ## Requirements
 
@@ -39,7 +39,7 @@ What must it do?
 | DQ-7 | Work for customer zero first; remain multi-user-ready (`user_id` on every item) |
 | DQ-8 | Config via extension options / env-backed build—no hard-coded credentials |
 
-### Non-requirements (Phase 1)
+### Non-requirements (for Capture Client v1 queue)
 
 - Server-side / Cloudflare Queues or Durable Object as the primary buffer
 - Exactly-once delivery (idempotent ingest instead)
@@ -95,7 +95,7 @@ Local backing store (chrome.storage / IndexedDB / etc.) is an open question—re
 
 ## Performance goals
 
-| Goal | Target (Phase 1) |
+| Goal | Target (Capture Client v1) |
 |------|------------------|
 | Local enqueue latency | p95 &lt; 50 ms |
 | Sync to Worker (happy path) | p95 &lt; 2 s after enqueue when online |
@@ -122,7 +122,7 @@ Local backing store (chrome.storage / IndexedDB / etc.) is an open question—re
 1. **Local store:** `chrome.storage.local` vs IndexedDB vs both?
 2. **Service worker lifetime:** How do we guarantee sync continues when the SW is suspended?
 3. **Batch size:** One turn per request vs batched `POST`?
-4. **Dead-letter UX:** Badge only vs options-page list for Phase 1?
+4. **Dead-letter UX:** Badge only vs options-page list for Capture Client v1?
 5. **Sequence authority:** Extension-assigned sequence vs Worker-assigned on ingest?
 
 Resolve via ADR under `docs/ADRs/` before implementation.
@@ -130,9 +130,9 @@ Resolve via ADR under `docs/ADRs/` before implementation.
 ## Related
 
 - [TurnCapture](./TurnCapture.md)
-- [ChromeExtension](./ChromeExtension.md)
+- [CaptureClient](./CaptureClient.md)
 - [Architecture](./Architecture.md)
 - [API](./API.md)
 - [Database](./Database.md)
 - [ADRs](./ADRs/)
-- Code (future): `apps/extension` (queue + sync), `apps/worker` (ingest only—no queue)
+- Code (future): `apps/extension` (Capture Client v1 queue + sync), `apps/worker` (ingest only—no queue)

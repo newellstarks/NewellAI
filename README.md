@@ -17,8 +17,8 @@ npm install
 ```
 NewellAI/
 ├── apps/
-│   ├── extension/     # Capture + Durable Queue
-│   └── worker/        # Authenticated ingest, validation, D1 persistence
+│   ├── extension/     # Phase 2: Capture Client v1 (Chrome extension)
+│   └── worker/        # Phase 1: Authenticated ingest, validation, D1 persistence
 ├── packages/
 │   └── contracts/     # Shared turn / API types
 ├── migrations/        # D1 SQL
@@ -29,7 +29,7 @@ NewellAI/
 
 | Path | Role |
 |------|------|
-| `apps/extension` | Capture + **Durable Queue** (buffer, order, retry, sync) |
+| `apps/extension` | **Capture Client v1** (Chrome extension) — capture + Durable Queue |
 | `apps/worker` | Authenticated ingest API, validation, and D1 persistence |
 | `packages/contracts` | Shared contracts |
 | `migrations` | D1 migrations |
@@ -39,14 +39,15 @@ NewellAI/
 
 | Doc | Role |
 |-----|------|
+| [docs/Roadmap.md](./docs/Roadmap.md) | Phases 1–3 |
 | [docs/Vision.md](./docs/Vision.md) | Product intent |
 | [docs/Requirements.md](./docs/Requirements.md) | Phase requirements |
 | [docs/Architecture.md](./docs/Architecture.md) | System shape |
 | [docs/Database.md](./docs/Database.md) | D1 + SQLite |
-| [docs/API.md](./docs/API.md) | Worker contracts |
-| [docs/ChromeExtension.md](./docs/ChromeExtension.md) | Browser capture + queue |
+| [docs/API.md](./docs/API.md) | Worker contracts (client-agnostic) |
+| [docs/CaptureClient.md](./docs/CaptureClient.md) | Capture Client v1 (Chrome Extension) |
 | [docs/TurnCapture.md](./docs/TurnCapture.md) | Turn capture pipeline |
-| [docs/DurableQueue.md](./docs/DurableQueue.md) | Extension durable queue |
+| [docs/DurableQueue.md](./docs/DurableQueue.md) | Capture Client v1 durable queue |
 | [docs/ADRs/](./docs/ADRs/) | Decision records |
 
 ## Workflow

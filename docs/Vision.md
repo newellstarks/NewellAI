@@ -6,17 +6,21 @@ NewellAI captures, stores, and organizes conversational **turns** between a user
 
 The initial focus is reliability, clarity, and ease of development—not scale.
 
+**NewellAI is a platform, not a browser add-on.** Capture clients are adapters to a shared backend.
+
 ## Product direction
 
-1. **Phase 1 (customer zero):** Record real-time ChatGPT turns for a single operator across desktop and browser (iPhone later).
-2. **Commercial path:** Once reliable, extend to other users in a paid environment, typically with their own Cloudflare account for speed and durability.
-3. **History ownership:** Retain a complete turn-by-turn history per user. Later options include preload from export and optional user-held encryption so erased history has no recoverable copy.
+1. **Phase 1 — Foundation:** Build the core architecture: notebook, repo, contracts, Cloudflare Worker, D1 schema, authentication, and an end-to-end upload API. Result: a **working backend**.
+2. **Phase 2 — Capture Client v1:** First client that feeds the backend — implemented as a **Chrome extension** because it is the fastest path to a working system. It is **just one client**, not the architecture.
+3. **Phase 3 — Additional clients:** Safari, Firefox, Cursor, Claude Desktop, ChatGPT Desktop, macOS app, OpenAI API (if available), etc. — all use the same backend.
+4. **Commercial path:** Extend to other users in a paid environment, typically with their own Cloudflare account.
+5. **History ownership:** Complete turn-by-turn history per user; later export preload and optional user-held encryption.
 
 ## Guiding principle
 
 > **Prototype narrowly. Architect broadly.**
 
-Ship a minimal working system while keeping the design flexible enough for multi-user commercialization.
+Ship a minimal working foundation, then attach capture clients. Do not optimize capture before the backend exists.
 
 ## Development principles
 
@@ -24,8 +28,11 @@ Ship a minimal working system while keeping the design flexible enough for multi
 - Centralized logic; avoid scattered duplicates
 - Structured documentation that AI tools can navigate
 - Separate source, config, runtime outputs, and docs
+- Engineering notebook remains the authoritative specification
 
 ## Related
 
+- [Roadmap](./Roadmap.md)
 - [Requirements](./Requirements.md)
 - [Architecture](./Architecture.md)
+- [CaptureClient](./CaptureClient.md)

@@ -43,13 +43,15 @@ Only then:
 | Document | Purpose |
 |----------|---------|
 | [Vision.md](./Vision.md) | Why NewellAI exists and where it is going |
+| [Roadmap.md](./Roadmap.md) | Phase 1 Foundation → Phase 2 Capture Client v1 → Phase 3 clients |
 | [Requirements.md](./Requirements.md) | Phase goals, functional and non-functional needs |
 | [Architecture.md](./Architecture.md) | System shape, modules, and data flow |
 | [Database.md](./Database.md) | D1, SQLite, schemas, and retention |
-| [API.md](./API.md) | Worker / HTTP contracts |
-| [ChromeExtension.md](./ChromeExtension.md) | Browser capture surface |
+| [API.md](./API.md) | Worker / HTTP contracts (client-agnostic) |
+| [CaptureClient.md](./CaptureClient.md) | Capture Client v1 (Chrome Extension) |
+| [ChromeExtension.md](./ChromeExtension.md) | Redirect → CaptureClient.md |
 | [TurnCapture.md](./TurnCapture.md) | Turn definition, capture pipeline, payload |
-| [DurableQueue.md](./DurableQueue.md) | Extension durable queue (buffer, order, sync) |
+| [DurableQueue.md](./DurableQueue.md) | Capture Client v1 durable queue |
 | [SubsystemTemplate.md](./SubsystemTemplate.md) | Checklist before coding a subsystem |
 | [ADRs/](./ADRs/) | Architecture Decision Records |
 | [Diagrams/](./Diagrams/) | Visual references |

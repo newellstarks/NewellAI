@@ -4,14 +4,14 @@
 
 The Cloudflare Worker exposes an **authenticated ingest API**, performs **validation**, and handles **D1 persistence**.
 
-The Chrome extension is the write client and owns the **Durable Queue**. The Worker does not run the primary queue.
+This API is **client-agnostic**. Capture Client v1 (Chrome extension) is one caller; Phase 3 clients use the same contracts. The Worker does not run the durable queue (that is a Capture Client v1 concern — see [DurableQueue.md](./DurableQueue.md)).
 
 ## Principles
 
 - Keep contracts small and versionable
 - Config / secrets via environment bindings—not hard-coded values
 - Validate payloads before writing to D1
-- Idempotent ingest on `client_turn_id` (extension may retry)
+- Idempotent ingest on `client_turn_id` (any client may retry)
 - Design routes so multi-user auth can replace Phase 1 shared-secret auth later
 
 ## Draft endpoints (to be implemented)
@@ -31,6 +31,7 @@ Payload shapes and auth headers will be locked in ADRs as implementation starts.
 - [Database](./Database.md)
 - [TurnCapture](./TurnCapture.md)
 - [DurableQueue](./DurableQueue.md)
-- [ChromeExtension](./ChromeExtension.md)
+- [CaptureClient](./CaptureClient.md)
+- [Roadmap](./Roadmap.md)
 - [ADR-0002](./ADRs/0002-durable-queue-in-extension.md)
 - Code: `apps/worker/`

@@ -22,4 +22,4 @@ That keeps **architecture driving the code**, not the code driving the architect
 
 ## Example
 
-See [DurableQueue.md](./DurableQueue.md).
+See [CaptureClient.md](./CaptureClient.md) (Capture Client v1 — Chrome Extension).

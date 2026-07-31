@@ -1,44 +1,73 @@
 # Requirements
 
-## Phase 1 goals
+Phases are defined in [Roadmap.md](./Roadmap.md). **Do not optimize capture before the foundation exists.**
 
-Proof of functionality for a single user:
+## Phase 1 — Foundation (current)
 
-- Capture AI conversation turns
-- Store turns in a structured format
-- Retrieve and inspect stored conversations
-- Operate for one user initially (customer zero)
-- Focus on desktop / browser usage first
+Prove a working backend for customer zero (and future clients):
 
-## Functional requirements
+- Shared contracts for turn / ingest shapes
+- Cloudflare Worker with authenticated upload API
+- Validation of ingest payloads
+- D1 persistence (schema + migrations)
+- Manual end-to-end upload test is enough to exit Phase 1
 
-| ID | Requirement |
-|----|-------------|
-| FR-1 | Capture turns from ChatGPT sessions in the browser |
-| FR-2 | Persist turns to Cloudflare Worker + D1 |
-| FR-3 | Periodically sync / save to local SQLite |
-| FR-4 | Retrieve and inspect stored conversations by session / time |
-| FR-5 | Support later preload from a user’s exported ChatGPT history |
-
-## Non-functional requirements
+### Functional requirements (Phase 1)
 
 | ID | Requirement |
 |----|-------------|
-| NFR-1 | Config via environment / variables—no hard-coded secrets or user identity |
-| NFR-2 | Modular separation of capture, storage, and retrieval |
+| FR-F1 | Define shared contracts used by Worker and future clients |
+| FR-F2 | Authenticated `POST` ingest of turns to the Worker |
+| FR-F3 | Validate payloads before D1 writes |
+| FR-F4 | Persist turns in D1 with multi-user-ready schema |
+| FR-F5 | Idempotent ingest on `client_turn_id` (clients will retry) |
+| FR-F6 | Retrieve/inspect stored turns (minimal API or query path) |
+
+### Non-functional requirements
+
+| ID | Requirement |
+|----|-------------|
+| NFR-1 | Config via environment / bindings—no hard-coded secrets or user identity |
+| NFR-2 | Modular separation of client capture, ingest API, and storage |
 | NFR-3 | Naming and schemas that do not assume a single permanent user |
 | NFR-4 | Clear docs so humans and Cursor can reason about the system |
-| NFR-5 | Prefer maintainability over premature optimization |
+| NFR-5 | Prefer maintainability over premature optimization of capture |
 
-## Out of scope (Phase 1)
+### Out of scope (Phase 1)
 
+- Implementing Capture Client v1 (Chrome extension) capture logic
+- Extension Durable Queue behavior
+- DOM observation / ChatGPT UI scraping
+- iPhone or multi-browser capture
 - Full multi-tenant commercial onboarding
-- iPhone capture (planned after desktop/browser is reliable)
-- Mandatory end-to-end encryption (optional later)
-- Full platform coverage beyond ChatGPT capture path
+- Mandatory end-to-end encryption
+
+## Phase 2 — Capture Client v1
+
+Once the backend works, add **Capture Client v1 (Chrome Extension)**:
+
+| ID | Requirement |
+|----|-------------|
+| FR-C1 | Capture turns from ChatGPT in the browser |
+| FR-C2 | Local durable queue + sync to the Phase 1 upload API |
+| FR-C3 | Surface sync errors to the operator |
+
+This client is an **adapter**—not the architecture. See [CaptureClient.md](./CaptureClient.md).
+
+## Phase 3 — Additional clients
+
+Additional adapters (Safari, Firefox, Cursor, Claude Desktop, ChatGPT Desktop, macOS app, OpenAI API if available, …) must:
+
+| ID | Requirement |
+|----|-------------|
+| FR-P3-1 | Use the same contracts and authenticated upload API |
+| FR-P3-2 | Not require a forked Worker or per-client D1 schema |
+| FR-P3-3 | Document client-specific behavior in the notebook / ADR when it diverges from v1 |
 
 ## Related
 
+- [Roadmap](./Roadmap.md)
 - [Vision](./Vision.md)
 - [Architecture](./Architecture.md)
+- [CaptureClient](./CaptureClient.md)
 - [ADRs](./ADRs/)
