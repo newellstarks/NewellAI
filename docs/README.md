@@ -1,70 +1,48 @@
 # Engineering Notebook
 
-Keep design knowledge next to the code so Cursor can index and apply it while implementing features.
+**Authoritative specification** for NewellAI. Do not code first and document later.
 
-**The engineering notebook is the authoritative specification.**  
-**Do not code first and document later.** Follow the development loop below.
+When the repo scaffold changes: update the notebook to match paths, but **do not change architectural intent** unless an ADR says so.
 
-When the repo scaffold changes: update the notebook to match paths and layout, but **do not change architectural intent** unless an ADR says so.
+## Read in this order
 
+Stable filenames; **this list** is the reading order (no `01_` prefixes required).
+
+| # | Document | Purpose |
+|---|----------|---------|
+| 0 | [README.md](./README.md) (this page) | How to use the notebook |
+| 1 | [Vision.md](./Vision.md) | Why NewellAI exists |
+| 2 | [Roadmap.md](./Roadmap.md) | Phases and inside-out build sequence |
+| 3 | [Requirements.md](./Requirements.md) | What we must build |
+| 4 | [Architecture.md](./Architecture.md) | System shape and ownership |
+| 5 | [API.md](./API.md) | Worker ingest surface |
+| 6 | [Contracts.md](./Contracts.md) | Wire protocol (all clients ↔ backend) |
+| 7 | [Database.md](./Database.md) | D1 / SQLite |
+| 8 | [CaptureClient.md](./CaptureClient.md) | Capture Client v1 (Chrome Extension) |
+| 9 | [TurnCapture.md](./TurnCapture.md) | Turn domain |
+| 10 | [DurableQueue.md](./DurableQueue.md) | Client durable queue |
+| 11 | [SubsystemTemplate.md](./SubsystemTemplate.md) | Checklist before coding a subsystem |
+| — | [ADRs/](./ADRs/) | Decision records (read when referenced) |
+
+Also: [Diagrams/](./Diagrams/), [source/](./source/) (archives), [ChromeExtension.md](./ChromeExtension.md) (redirect → CaptureClient).
+
+**Humans and Cursor:** start here, then follow the table top-to-bottom. To change order, edit **this table only**—do not rename files.
 
 ## Development loop
 
 ```
-Idea
-  ↓
-Engineering Notebook (requirements, architecture, interfaces)
-  ↓
-Cursor implements exactly that subsystem
-  ↓
-Test
-  ↓
-Git Commit (one logical milestone)
-  ↓
-Repeat
+Idea → Engineering Notebook → Implement exactly that → Test → Git Commit → Repeat
 ```
 
-Each pass through the loop is one focused slice: document the subsystem, implement only what the notebook specifies, verify it, then commit.
+Architecture drives code. Prefer prompts like:
 
-That keeps **architecture driving the code**, rather than the code driving the architecture.
-
-### Example (Durable Queue)
-
-Do **not** start with: “Cursor, write a queue.”
-
-Instead, first update the notebook (Purpose, Requirements, Inputs/Outputs, Failure modes, Performance goals, Test cases, Open questions)—see [SubsystemTemplate.md](./SubsystemTemplate.md) and [DurableQueue.md](./DurableQueue.md).
-
-Only then:
-
-> Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).
-
-## Index
-
-| Document | Purpose |
-|----------|---------|
-| [Vision.md](./Vision.md) | Why NewellAI exists and where it is going |
-| [Roadmap.md](./Roadmap.md) | Phase 1 Foundation → Phase 2 Capture Client v1 → Phase 3 clients |
-| [Requirements.md](./Requirements.md) | Phase goals, functional and non-functional needs |
-| [Architecture.md](./Architecture.md) | System shape, modules, and data flow |
-| [Database.md](./Database.md) | D1, SQLite, schemas, and retention |
-| [Contracts.md](./Contracts.md) | Wire protocol — shared contracts (all clients ↔ backend) |
-| [API.md](./API.md) | Worker / HTTP contracts (client-agnostic) |
-| [CaptureClient.md](./CaptureClient.md) | Capture Client v1 (Chrome Extension) |
-| [ChromeExtension.md](./ChromeExtension.md) | Redirect → CaptureClient.md |
-| [TurnCapture.md](./TurnCapture.md) | Turn definition, capture pipeline, payload |
-| [DurableQueue.md](./DurableQueue.md) | Capture Client v1 durable queue |
-| [SubsystemTemplate.md](./SubsystemTemplate.md) | Checklist before coding a subsystem |
-| [ADRs/](./ADRs/) | Architecture Decision Records |
-| [Diagrams/](./Diagrams/) | Visual references |
-| [source/](./source/) | Archived original design documents |
+> Implement the &lt;Subsystem&gt; exactly as specified in the engineering notebook (`docs/&lt;Page&gt;.md`).
 
 ## How to use
 
-1. Prefer these focused docs over one large design file.
-2. For a new idea or subsystem: fill [SubsystemTemplate.md](./SubsystemTemplate.md) in a new notebook page first (≈10–15 minutes).
+1. Open docs in the **Read in this order** sequence above.
+2. For a new subsystem: fill [SubsystemTemplate.md](./SubsystemTemplate.md) first.
 3. Resolve open questions with an ADR when needed.
-4. Ask Cursor to implement **exactly** what that notebook page describes—no silent scope expansion.
-5. Test the result against the documented test cases.
-6. Commit one logical milestone, then repeat for the next slice.
-7. If tests reveal a design change, update the notebook before the next implementation pass.
-8. When aligning docs to a new scaffold: match paths only—**architectural intent stays authoritative in the notebook**.
+4. Implement only what the notebook specifies.
+5. Test, then one logical milestone commit.
+6. If design changes after tests, update the notebook before the next implementation pass.

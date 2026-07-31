@@ -28,6 +28,10 @@ Prefer incremental layers that do not force redesign of earlier work. Do **not**
 
 ## Authoritative specification
 
+The **engineering notebook** (`docs/`) is the authoritative specification.
+
+**Reading order:** follow the numbered table in `docs/README.md` (“Read in this order”). Do not rely on filename prefixes or explorer sort. To change order, edit that table only.
+
 When the repo scaffold changes:
 
 > Update the engineering notebook to match the scaffold, but **do not change architectural intent**. The notebook remains the authoritative specification.
