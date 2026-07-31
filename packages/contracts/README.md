@@ -1,14 +1,26 @@
 # Shared contracts (`@newellai/contracts`)
 
-TypeScript types and API shapes shared by capture clients and the Cloudflare Worker.
+Client-agnostic TypeScript vocabulary for **all** capture clients and the Cloudflare Worker.
 
-Keeps turn payloads and ingest DTOs from drifting between `apps/extension` and `apps/worker`.
+Spec: [docs/Contracts.md](../../docs/Contracts.md)
 
-## Status
+## Exports
 
-Scaffold only — empty barrel export. Real contracts land after notebook lock-in.
+- `TurnPayload`
+- `ConversationMetadata`
+- `CaptureMetadata`
+- `UploadRequest`
+- `UploadResponse`
+- `ApiError`
 
-## Docs
+```ts
+import type { UploadRequest } from "@newellai/contracts";
+```
 
-- [TurnCapture.md](../../docs/TurnCapture.md)
-- [API.md](../../docs/API.md)
+## Develop
+
+```bash
+# from repo root
+npm install
+npm test -w @newellai/contracts
+```

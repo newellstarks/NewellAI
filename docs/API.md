@@ -23,10 +23,11 @@ This API is **client-agnostic**. Capture Client v1 (Chrome extension) is one cal
 | `GET` | `/v1/sessions/:id/turns` | Retrieve turns for a session |
 | `GET` | `/health` | Liveness check |
 
-Payload shapes and auth headers will be locked in ADRs as implementation starts.
+Payload shapes are defined in [Contracts.md](./Contracts.md) (`UploadRequest`, `UploadResponse`, `ApiError`, …).
 
 ## Related
 
+- [Contracts](./Contracts.md)
 - [Architecture](./Architecture.md)
 - [Database](./Database.md)
 - [TurnCapture](./TurnCapture.md)

@@ -44,6 +44,7 @@ NewellAI/
 | [docs/Requirements.md](./docs/Requirements.md) | Phase requirements |
 | [docs/Architecture.md](./docs/Architecture.md) | System shape |
 | [docs/Database.md](./docs/Database.md) | D1 + SQLite |
+| [docs/Contracts.md](./docs/Contracts.md) | Shared contracts |
 | [docs/API.md](./docs/API.md) | Worker contracts (client-agnostic) |
 | [docs/CaptureClient.md](./docs/CaptureClient.md) | Capture Client v1 (Chrome Extension) |
 | [docs/TurnCapture.md](./docs/TurnCapture.md) | Turn capture pipeline |

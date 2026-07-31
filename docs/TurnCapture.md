@@ -45,20 +45,7 @@ Phase 1 alone only requires the Worker ingest path (manual or any authorized cli
 
 ## Draft turn payload
 
-Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
-
-| Field | Notes |
-|-------|-------|
-| `user_id` | Account identity (Phase 1: single operator) |
-| `session_id` | Conversation / chat session |
-| `sequence` | Order within session (Capture Client v1 may assign) |
-| `speaker` | `user` \| `assistant` |
-| `turn_text` | Message body |
-| `timestamp` | ISO-8601; prefer server if missing |
-| `message_type` | Optional classification |
-| `topic` | Optional label |
-| `parent_turn_id` | Optional link request ↔ response |
-| `context_blob` | Optional structured extras (JSON) |
+Canonical fields: [Contracts.md](./Contracts.md) (`TurnPayload`, `ConversationMetadata`, `CaptureMetadata`).
 
 ## Lifecycle (operator view — Capture Client v1)
 
@@ -90,6 +77,7 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 - [Requirements](./Requirements.md)
 - [Architecture](./Architecture.md)
 - [CaptureClient](./CaptureClient.md)
+- [Contracts](./Contracts.md)
 - [API](./API.md)
 - [Database](./Database.md)
 - [ADRs](./ADRs/)

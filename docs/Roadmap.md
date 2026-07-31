@@ -15,7 +15,7 @@ Goal: a working backend. Any authorized client can upload turns.
 | Engineering notebook | Done |
 | Repository | Done |
 | Project scaffolding (npm workspaces) | Done |
-| Shared contracts (`packages/contracts`) | Scaffolded — types TBD |
+| Shared contracts (`packages/contracts`) | Done — see [Contracts.md](./Contracts.md) |
 | Cloudflare Worker (`apps/worker`) | Scaffolded — logic TBD |
 | D1 schema (`migrations/`) | TBD |
 | Authentication | TBD |

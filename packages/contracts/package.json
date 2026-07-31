@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "echo \"contracts are TypeScript source for now\"",
-    "test": "echo \"contracts tests not implemented yet\""
+    "test": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.smoke.json --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.8.2"
