@@ -86,3 +86,4 @@ Minimum fields for ingest (names may evolve; lock via ADR + schema migration):
 - [Database](./Database.md)
 - [ADRs](./ADRs/)
 - Historical notes in [`source/`](./source/) (turn memory build log / session trace)
+- [DurableQueue](./DurableQueue.md) (ingest buffering / ordering before D1)

@@ -1,11 +1,11 @@
 ---
-description: Idea → notebook → implement exactly that → test → commit; never code first and document later
+description: Architecture drives code — notebook first, implement exactly as specified, then test and commit
 alwaysApply: true
 ---
 
 # Development loop
 
-Never code first and document later. For every subsystem slice:
+Never code first and document later. Architecture drives the code.
 
 ```
 Idea
@@ -16,10 +16,18 @@ Idea
   → Repeat
 ```
 
+## Before a new subsystem
+
+Spend time on the notebook (see `docs/SubsystemTemplate.md`): Purpose, Requirements, Inputs/Outputs, Failure modes, Performance goals, Test cases, Open questions.
+
+Do **not** start with prompts like “write a queue.” First update the page (e.g. `docs/DurableQueue.md`), resolve open questions via ADR when needed, then prompt:
+
+> Implement the &lt;Subsystem&gt; exactly as specified in the engineering notebook (`docs/&lt;Page&gt;.md`).
+
 ## Rules
 
-1. Update `docs/` (and an ADR when the choice is non-obvious) before writing new subsystem code.
+1. Update `docs/` before writing new subsystem code.
 2. Implement only what the notebook specifies—no silent scope expansion.
-3. Test before committing.
+3. Test against the notebook’s test cases before committing.
 4. Each commit is one logical milestone for that loop pass.
-5. If tests reveal a design change, update the notebook before the next implementation pass.
+5. If tests change the design, update the notebook before the next implementation pass.

@@ -27,5 +27,6 @@ Payload shapes and auth headers will be locked in ADRs as implementation starts.
 - [Architecture](./Architecture.md)
 - [Database](./Database.md)
 - [TurnCapture](./TurnCapture.md)
+- [DurableQueue](./DurableQueue.md)
 - [ChromeExtension](./ChromeExtension.md)
 - Code: `worker/`

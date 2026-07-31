@@ -27,6 +27,7 @@ Even while Phase 1 is single-user, prefer practices that allow expansion:
 ChatGPT (browser)
     → Chrome extension (capture)
     → Cloudflare Worker (ingest API)
+    → Durable Queue (order, retry, ack)   ← see docs/DurableQueue.md
     → D1 (authoritative cloud store)
     → periodic sync → local SQLite (inspect / backup)
 ```
@@ -53,5 +54,6 @@ Define schemas for users, sessions, and turns that can grow from one operator to
 - [API](./API.md)
 - [ChromeExtension](./ChromeExtension.md)
 - [TurnCapture](./TurnCapture.md)
+- [DurableQueue](./DurableQueue.md)
 - [ADRs](./ADRs/)
 - [Diagrams](./Diagrams/)

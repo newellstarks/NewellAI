@@ -26,6 +26,7 @@ NewellAI/
 | [docs/API.md](./docs/API.md) | Worker contracts |
 | [docs/ChromeExtension.md](./docs/ChromeExtension.md) | Browser capture |
 | [docs/TurnCapture.md](./docs/TurnCapture.md) | Turn capture pipeline |
+| [docs/DurableQueue.md](./docs/DurableQueue.md) | Durable queue (notebook draft) |
 | [docs/ADRs/](./docs/ADRs/) | Decision records |
 
 Original design Word docs are archived in [`docs/source/`](./docs/source/).
