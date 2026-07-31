@@ -8,6 +8,7 @@ ADRs capture **why** we chose a path—not just what we built.
 |-----|-------|--------|
 | [0001](./0001-prototype-narrowly-architect-broadly.md) | Prototype narrowly, architect broadly | Accepted |
 | [0002](./0002-durable-queue-in-extension.md) | Durable Queue lives in the extension | Accepted |
+| [0003](./0003-npm-workspaces-only.md) | npm workspaces only | Accepted |
 
 ## Template
 
