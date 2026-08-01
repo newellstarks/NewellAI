@@ -50,7 +50,7 @@ When the repo layout changes: update paths here, but **do not change architectur
 | 5 | Shared Contracts (Wire Protocol) | Stable | [Contracts.md](./Contracts.md) |
 | 6 | API | Active | [API.md](./API.md) |
 | 7 | Authentication | Active | [Authentication.md](./Authentication.md) |
-| 8 | Database | Draft | [Database.md](./Database.md) |
+| 8 | Database | Active | [Database.md](./Database.md) |
 | 9 | Capture Client v1 (Chrome Extension) | Draft | [CaptureClient.md](./CaptureClient.md) |
 | 10 | Turn Capture | Active | [TurnCapture.md](./TurnCapture.md) |
 | 11 | Durable Queue | Draft | [DurableQueue.md](./DurableQueue.md) |
@@ -69,9 +69,9 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 
 ```
 ✅ Contracts (wire protocol)
-✅ Worker ingest (accept → validate → respond; no DB yet)
+✅ Worker ingest (accept → validate → respond)
 ✅ Authentication (shared bearer — see Authentication.md)
-→  D1 persistence
+✅ D1 persistence (conversations + turns — see Database.md)
 →  Durable queue integration
 →  Capture Client v1
 ```

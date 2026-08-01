@@ -19,9 +19,9 @@ Each step builds on the previous one **without forcing a redesign** of earlier w
 
 ```
 ✅ Shared Contracts (wire protocol)
-✅ Worker ingest          — accept → validate → respond (no DB yet)
+✅ Worker ingest          — accept → validate → respond
 ✅ Authentication         — shared Bearer / CAPTURE_API_TOKEN
-→  D1 persistence
+✅ D1 persistence         — conversations + turns, idempotent on client_turn_id
 →  Durable queue integration
 →  Capture Client v1 (Chrome extension)
 ```
@@ -34,17 +34,17 @@ Capture Client v1 remains the **last** major subsystem—not the first.
 |------|-----------|--------|------|
 | 0 | Foundation scaffold | Done (`v0.1-foundation`) | [Architecture](./Architecture.md) |
 | 1 | Shared Contracts (wire protocol) | Done | [Contracts.md](./Contracts.md) |
-| 2 | Worker ingest | Done | [API.md](./API.md) — accept, validate, respond; D1 still TODO |
+| 2 | Worker ingest | Done | [API.md](./API.md) — accept, validate, respond |
 | 3 | Authentication | Done | [Authentication.md](./Authentication.md) — shared Bearer; route summary in [API.md](./API.md) |
-| 4 | D1 persistence | **Next** | [Database.md](./Database.md) — schema + idempotent writes |
-| 5 | Durable queue integration | TBD | Wire client queue → authenticated ingest; queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
+| 4 | D1 persistence | Done | [Database.md](./Database.md) — schema + idempotent writes (`0001_init.sql`) |
+| 5 | Durable queue integration | **Next** | Wire client queue → authenticated ingest; queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
 | 6 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
 
 ### Layer notes
 
 - **Worker ingest** — clean, testable API surface; no database writes yet.
 - **Authentication** — protect `/v1/turns` with shared Bearer (`CAPTURE_API_TOKEN`); policy in [Authentication.md](./Authentication.md).
-- **D1 persistence** — fulfill `TODO(d1)`; set real `accepted` / `duplicate` from storage.
+- **D1 persistence** — conversations + turns persisted; real `accepted` / `duplicate` from storage; no queue or retries ([Database.md](./Database.md)).
 - **Durable queue integration** — connect Capture Client v1’s local queue to auth + D1 ingest (still not a Worker-owned queue).
 - **Capture Client v1** — full adapter (observe ChatGPT, enqueue, sync, operator status).
 

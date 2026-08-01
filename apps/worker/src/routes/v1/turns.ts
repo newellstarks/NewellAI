@@ -1,16 +1,18 @@
 import type { UploadRequest, UploadResponse } from "@newellai/contracts";
 import { requireCaptureApiToken } from "../../auth";
+import { persistUpload } from "../../db/turns";
 import type { Env } from "../../env";
 import { HttpError, jsonResponse } from "../../errors";
 import { parseUploadRequest } from "../../validate/uploadRequest";
 
 /**
- * POST /v1/turns — authenticated ingest surface:
+ * POST /v1/turns — authenticated, persisted ingest (docs/Database.md):
  * 1. Authenticate (Bearer / CAPTURE_API_TOKEN) before reading the body
- * 2. Accept + validate upload structure (wire protocol)
- * 3. Return UploadResponse / ApiError
+ * 2. Validate upload structure (wire protocol)
+ * 3. Persist conversation + turns to D1 (idempotent on client_turn_id)
+ * 4. Return UploadResponse with real accepted/duplicate counts
  *
- * Do not write to the database in this slice.
+ * No queue logic, no retries — clients retry against the idempotent path.
  * Caller creates X-Request-Id before invoking this handler.
  */
 export async function handleIngestTurns(
@@ -32,13 +34,11 @@ export async function handleIngestTurns(
 
   const upload: UploadRequest = parseUploadRequest(raw);
 
-  // TODO(d1): Persist turns idempotently (client_turn_id) and set `duplicate` from real writes.
-  // TODO(durable-upload): Replace skeleton counts with durable upload results.
-  // Do not write to the database yet — keep a clean, testable API surface first.
+  const { accepted, duplicate } = await persistUpload(env.DB, upload);
 
   const response: UploadResponse = {
-    accepted: upload.turns.length,
-    duplicate: 0,
+    accepted,
+    duplicate,
     conversation_id: upload.conversation.conversation_id,
     server_time: new Date().toISOString(),
   };

@@ -16,7 +16,7 @@
 
 The Cloudflare Worker exposes a **client-agnostic ingest API** over the [wire protocol](./Contracts.md).
 
-**Current slices:** ingest skeleton + shared-secret authentication. D1 persistence remains next.
+**Current slices:** authenticated ingest + D1 persistence ([Database.md](./Database.md)). Read APIs remain "not yet".
 
 **Authentication design and policy** live in [Chapter 7 — Authentication](./Authentication.md). This page only summarizes route-level behavior.
 
@@ -25,9 +25,8 @@ The Cloudflare Worker exposes a **client-agnostic ingest API** over the [wire pr
 1. **Accept** an upload request (`POST /v1/turns`)
 2. **Authenticate** callers of protected routes per [Authentication.md](./Authentication.md) before touching the body
 3. **Validate** structure against the wire protocol
-4. **Return** appropriate success (`UploadResponse`) or error (`ApiError`) responses
-5. Leave **TODOs** where D1 persistence will be added later
-6. **Do not** write to the database yet
+4. **Persist** conversation + turns to D1 per [Database.md](./Database.md) (idempotent on `client_turn_id`)
+5. **Return** `UploadResponse` with real `accepted` / `duplicate` counts, or `ApiError`
 
 ## Authentication (route-level)
 
@@ -45,7 +44,7 @@ Full policy (header parsing, timing-safe compare, request-id rules, misconfigura
 | Method | Path | Auth | Status |
 |--------|------|------|--------|
 | `GET` | `/health` | Public | Implemented (liveness) |
-| `POST` | `/v1/turns` | Bearer — see [Authentication](./Authentication.md) | Implemented (auth + validate + skeleton response) |
+| `POST` | `/v1/turns` | Bearer — see [Authentication](./Authentication.md) | Implemented (auth + validate + D1 persist) |
 | `GET` | `/v1/sessions` | — | Not yet |
 | `GET` | `/v1/sessions/:id/turns` | — | Not yet |
 
@@ -58,14 +57,14 @@ Full policy (header parsing, timing-safe compare, request-id rules, misconfigura
 | `METHOD_NOT_ALLOWED` | 405 | Wrong method on known path |
 | `INVALID_JSON` | 400 | Body is not JSON (only after successful auth) |
 | `VALIDATION_ERROR` | 400 | Body fails `UploadRequest` shape rules (only after successful auth) |
-| `INTERNAL_ERROR` | 500 | Unexpected failure or auth misconfiguration — see [Authentication](./Authentication.md) |
+| `INTERNAL_ERROR` | 500 | Unexpected failure, auth misconfiguration ([Authentication](./Authentication.md)), or DB misconfiguration / failure ([Database](./Database.md)) |
 
 ## Principles
 
 - Wire protocol from [Contracts.md](./Contracts.md) only
 - Auth policy from [Authentication.md](./Authentication.md) — do not re-specify it here
-- Validate before any future persist step
-- Idempotent persist on `client_turn_id` comes with durable upload / D1 — not this slice
+- Persistence behavior from [Database.md](./Database.md) — validate before persist; idempotent on `client_turn_id`
+- No queue logic or retries in the Worker (queue stays in the client — [ADR-0002](./ADRs/0002-durable-queue-in-extension.md))
 
 ## Related
 

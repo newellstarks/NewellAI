@@ -1,15 +1,16 @@
 # Cloudflare Worker (`@newellai/worker`)
 
-**Authenticated ingest API, validation, and D1 persistence** (roadmap).
+**Authenticated ingest API, validation, and D1 persistence.**
 
-Current slices: **ingest skeleton** + **shared-secret authentication** (`CAPTURE_API_TOKEN`). No D1 writes yet.
+`POST /v1/turns`: authenticate → validate → persist conversation + turns to D1 (idempotent on `client_turn_id`) → real `accepted` / `duplicate` counts. No queue logic, no retries.
 
 Does **not** own the durable queue — Capture Client v1 ([ADR-0002](../../docs/ADRs/0002-durable-queue-in-extension.md)).
 
 ## Docs
 
 - [Authentication.md](../../docs/Authentication.md) — auth design and test cases
-- [API.md](../../docs/API.md) — routes (links to Authentication)
+- [Database.md](../../docs/Database.md) — schema and persistence behavior
+- [API.md](../../docs/API.md) — routes (links to Authentication / Database)
 - [Contracts.md](../../docs/Contracts.md)
 - [Roadmap.md](../../docs/Roadmap.md)
 
@@ -31,5 +32,11 @@ Protected route: `POST /v1/turns` with `Authorization: Bearer <token>`.
 # from repo root
 npm install
 npm test -w @newellai/worker
-cd apps/worker && npx wrangler dev
+
+# local dev (D1 binding runs against a local SQLite automatically)
+cd apps/worker
+npx wrangler d1 migrations apply newellai --local
+npx wrangler dev
 ```
+
+For production: `npx wrangler d1 create newellai`, put the id in `wrangler.toml`, then `npx wrangler d1 migrations apply newellai --remote`.

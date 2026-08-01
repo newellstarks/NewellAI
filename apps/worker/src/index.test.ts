@@ -1,9 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createTestD1 } from "./db/testD1";
 import type { Env } from "./env";
 import worker from "./index";
 
 const TOKEN = "test-capture-token";
-const env: Env = { CAPTURE_API_TOKEN: TOKEN };
+let env: Env;
+
+beforeEach(() => {
+  env = { CAPTURE_API_TOKEN: TOKEN, DB: createTestD1().d1 };
+});
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -174,7 +179,7 @@ describe("Worker fetch — authentication + ingest", () => {
   it("AUTH-10: missing CAPTURE_API_TOKEN fails closed with sanitized 500", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const res = await postTurns({
-      env: { CAPTURE_API_TOKEN: "" },
+      env: { CAPTURE_API_TOKEN: "", DB: env.DB },
       body: "{not-json",
     });
     expect(res.status).toBe(500);
@@ -234,6 +239,29 @@ describe("Worker fetch — authentication + ingest", () => {
       headers: authHeaders(TOKEN, `Bearer ${TOKEN}, Bearer other`),
     });
     expectSanitizedUnauthorized(res);
+  });
+
+  it("DB-2 (route): re-uploading the same batch reports duplicates", async () => {
+    const first = await postTurns();
+    expect(first.status).toBe(200);
+    const firstBody = (await first.json()) as { accepted: number; duplicate: number };
+    expect(firstBody).toMatchObject({ accepted: 1, duplicate: 0 });
+
+    const second = await postTurns();
+    expect(second.status).toBe(200);
+    const secondBody = (await second.json()) as { accepted: number; duplicate: number };
+    expect(secondBody).toMatchObject({ accepted: 0, duplicate: 1 });
+  });
+
+  it("DB-7 (route): missing DB binding returns sanitized 500 after auth", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await postTurns({ env: { CAPTURE_API_TOKEN: TOKEN } });
+    expect(res.status).toBe(500);
+    expectServerRequestId(res);
+    const body = (await res.json()) as { error: { code: string; message: string } };
+    expect(body.error.code).toBe("INTERNAL_ERROR");
+    expect(body.error.message).toBe("Unexpected server error");
+    expect(spy).toHaveBeenCalledWith("DB_CONFIGURATION_MISSING");
   });
 
   it("GET /v1/turns returns 405 with X-Request-Id", async () => {
