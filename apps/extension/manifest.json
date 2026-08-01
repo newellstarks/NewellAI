@@ -1,14 +1,19 @@
 {
   "manifest_version": 3,
   "name": "NewellAI Turn Capture",
-  "version": "0.0.0",
-  "description": "Capture ChatGPT turns and sync via a local durable queue. Scaffold only.",
-  "permissions": [],
-  "host_permissions": [],
+  "version": "0.1.0",
+  "description": "Capture Client v1 — durable queue + sync to the NewellAI Worker. No DOM capture yet.",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://*.workers.dev/*"
+  ],
   "background": {
-    "service_worker": "src/background.js",
+    "service_worker": "dist/background.js",
     "type": "module"
   },
+  "options_page": "options.html",
   "action": {
     "default_title": "NewellAI Turn Capture"
   }

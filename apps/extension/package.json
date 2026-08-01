@@ -2,9 +2,20 @@
   "name": "@newellai/extension",
   "version": "0.0.0",
   "private": true,
-  "description": "NewellAI Chrome extension — capture and durable queue",
+  "description": "NewellAI Chrome extension — Capture Client v1 durable queue + sync",
   "scripts": {
-    "build": "echo \"extension build not implemented yet\"",
-    "test": "echo \"extension tests not implemented yet\""
+    "build": "esbuild src/background.ts src/options.ts --bundle --format=esm --outdir=dist --sourcemap",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@newellai/contracts": "0.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.25.0",
+    "fake-indexeddb": "^6.0.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
   }
 }

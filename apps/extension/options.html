@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>NewellAI Turn Capture — Options</title>
+    <style>
+      body { font: 14px/1.5 system-ui, sans-serif; margin: 2rem auto; max-width: 40rem; color: #1d2733; }
+      h1 { font-size: 1.2rem; }
+      fieldset { border: 1px solid #cdd6df; border-radius: 6px; margin-bottom: 1.25rem; padding: 1rem; }
+      legend { font-weight: 600; padding: 0 0.4rem; }
+      label { display: block; margin: 0.6rem 0 0.2rem; font-weight: 600; }
+      input[type="text"], input[type="password"] { width: 100%; padding: 0.45rem; border: 1px solid #9fb0c0; border-radius: 4px; box-sizing: border-box; }
+      button { margin: 0.75rem 0.5rem 0 0; padding: 0.45rem 0.9rem; border: 1px solid #2c6e49; border-radius: 4px; background: #2c6e49; color: #fff; cursor: pointer; }
+      button.secondary { background: #fff; color: #2c6e49; }
+      button.danger { border-color: #c0392b; background: #fff; color: #c0392b; }
+      dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; margin: 0; }
+      dt { font-weight: 600; }
+      #save-note, #action-note { color: #2c6e49; margin-left: 0.5rem; }
+      .error { color: #c0392b; }
+    </style>
+  </head>
+  <body>
+    <h1>NewellAI Turn Capture — Capture Client v1</h1>
+
+    <fieldset>
+      <legend>Worker connection</legend>
+      <label for="base-url">Worker base URL</label>
+      <input id="base-url" type="text" placeholder="http://localhost:8787" autocomplete="off" />
+      <label for="token">Capture API token</label>
+      <input id="token" type="password" placeholder="Stored locally; never displayed" autocomplete="off" />
+      <div><button id="save">Save</button><span id="save-note"></span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Queue status</legend>
+      <dl>
+        <dt>Pending</dt><dd id="st-pending">–</dd>
+        <dt>Auth-blocked</dt><dd id="st-auth">–</dd>
+        <dt>In flight</dt><dd id="st-inflight">–</dd>
+        <dt>Dead letters</dt><dd id="st-dead">–</dd>
+        <dt>Last error</dt><dd id="st-error">–</dd>
+        <dt>Last success</dt><dd id="st-success">–</dd>
+      </dl>
+      <div>
+        <button id="refresh" class="secondary">Refresh</button>
+        <button id="sync-now" class="secondary">Sync now</button>
+        <button id="test-enqueue" class="secondary">Enqueue test turn</button>
+        <button id="clear-dead" class="danger">Clear dead letters</button>
+        <span id="action-note"></span>
+      </div>
+    </fieldset>
+
+    <script type="module" src="dist/options.js"></script>
+  </body>
+</html>
