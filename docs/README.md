@@ -55,6 +55,7 @@ When the repo layout changes: update paths here, but **do not change architectur
 | 10 | Turn Capture | Active | [TurnCapture.md](./TurnCapture.md) |
 | 11 | Durable Queue | Draft | [DurableQueue.md](./DurableQueue.md) |
 | 12 | Subsystem Template | Stable | [SubsystemTemplate.md](./SubsystemTemplate.md) |
+| 13 | Architecture Governance | Stable | [ArchitectureGovernance.md](./ArchitectureGovernance.md) |
 | — | Architecture Decision Records | Active | [ADRs/](./ADRs/) |
 
 **Status key:** **Draft** = direction not implemented · **Active** = in use, still evolving · **Stable** = rely on it; change deliberately (often via ADR)

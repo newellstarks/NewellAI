@@ -54,6 +54,7 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 | Chapter 10 | Turn Capture | Active | [docs/TurnCapture.md](./docs/TurnCapture.md) |
 | Chapter 11 | Durable Queue | Draft | [docs/DurableQueue.md](./docs/DurableQueue.md) |
 | Chapter 12 | Subsystem Template | Stable | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
+| Chapter 13 | Architecture Governance | Stable | [docs/ArchitectureGovernance.md](./docs/ArchitectureGovernance.md) |
 | — | Architecture Decision Records | Active | [docs/ADRs/](./docs/ADRs/) |
 
 **Status:** Draft · Active · Stable — see [docs/README.md](./docs/README.md#table-of-contents).

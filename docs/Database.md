@@ -151,5 +151,6 @@ npx wrangler d1 migrations apply newellai --remote  # production
 - [API](./API.md)
 - [Authentication](./Authentication.md)
 - [TurnCapture](./TurnCapture.md)
+- [ADR-0005](./ADRs/0005-use-cloudflare-d1-for-turn-persistence.md) — why D1
 - [ADRs](./ADRs/)
 - Code: `migrations/`, `apps/worker/src/db/`

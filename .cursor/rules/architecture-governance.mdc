@@ -1,0 +1,28 @@
+---
+description: Architecture and implementation governance
+alwaysApply: true
+---
+
+Before making changes:
+
+1. Read docs/ArchitectureGovernance.md.
+2. Read the relevant requirements and design documents.
+3. Identify the requirement being implemented.
+4. Do not materially redesign the architecture without explicit approval.
+5. Prefer minimal, localized changes.
+6. Preserve existing interfaces unless the task explicitly changes them.
+7. Run relevant tests after implementation.
+8. Report:
+   - files changed
+   - requirement implemented
+   - tests run
+   - known limitations
+   - any architectural issue discovered
+
+If implementation appears to require an architectural change:
+
+- stop before making the architectural change
+- explain the conflict
+- propose options
+- identify whether an ADR is required
+- wait for approval
