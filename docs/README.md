@@ -73,6 +73,7 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 ✅ Worker ingest (accept → validate → respond)
 ✅ Authentication (shared bearer — see Authentication.md)
 ✅ D1 persistence (conversations + turns — see Database.md)
+✅ Read API — GET /v1/conversations, GET /v1/conversations/:id/turns (see API.md)
 →  Durable queue integration
 →  Capture Client v1
 ```

@@ -2,7 +2,7 @@
  * Test-only D1 stand-in backed by better-sqlite3, so tests exercise real
  * SQLite semantics (UNIQUE constraints, ON CONFLICT DO NOTHING, change counts)
  * against the actual migration SQL. Implements only the D1 surface the
- * persistence layer uses: prepare().bind().run() / .first().
+ * persistence and read layers use: prepare().bind().run() / .first() / .all().
  */
 import Database from "better-sqlite3";
 import { readFileSync } from "node:fs";
@@ -32,6 +32,11 @@ class TestD1Statement {
   async first<T>(): Promise<T | null> {
     const row = this.db.prepare(this.sql).get(...(this.params as never[]));
     return (row as T | undefined) ?? null;
+  }
+
+  async all<T>(): Promise<{ results: T[]; success: boolean }> {
+    const rows = this.db.prepare(this.sql).all(...(this.params as never[]));
+    return { results: rows as T[], success: true };
   }
 }
 

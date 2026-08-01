@@ -16,7 +16,7 @@
 
 NewellAI is a **platform**: a client-agnostic backend plus pluggable **capture clients**.
 
-**Phase 1 (in progress)** — Foundation goal: contracts, Worker ingest, auth, D1, upload API. Contracts, Worker ingest, shared-secret auth, and D1 persistence are done; durable queue integration is next.  
+**Phase 1 (in progress)** — Foundation goal: contracts, Worker ingest, auth, D1, upload + read API. Contracts, Worker ingest, shared-secret auth, D1 persistence, and the minimal read API are done; durable queue integration is next.  
 **Phase 2** — Capture Client v1 (Chrome Extension): first adapter only.  
 **Phase 3** — Additional clients against the same backend.
 
@@ -84,11 +84,11 @@ Chrome extension implementation of the first capture adapter. Observe UI, enqueu
 
 **Role:** Authenticated ingest API, validation, and D1 persistence. Does **not** own the durable queue. Any authorized client may call ingest.
 
-**Current slice:** authenticated ingest + D1 persistence ([Authentication.md](./Authentication.md), [Database.md](./Database.md); route summary in [API.md](./API.md)). Durable queue integration is next on the [Roadmap](./Roadmap.md).
+**Current slice:** authenticated ingest + D1 persistence + minimal read API ([Authentication.md](./Authentication.md), [Database.md](./Database.md); routes in [API.md](./API.md)). Durable queue integration is next on the [Roadmap](./Roadmap.md).
 
 ### Database
 
-Schemas for users, sessions, and turns. Ingest idempotent on `client_turn_id`.
+Schemas for users, conversations, and turns. Ingest idempotent on `client_turn_id`.
 
 ## Related
 

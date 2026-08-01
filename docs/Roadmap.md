@@ -22,6 +22,7 @@ Each step builds on the previous one **without forcing a redesign** of earlier w
 ✅ Worker ingest          — accept → validate → respond
 ✅ Authentication         — shared Bearer / CAPTURE_API_TOKEN
 ✅ D1 persistence         — conversations + turns, idempotent on client_turn_id
+✅ Read API (FR-F6)       — GET /v1/conversations, GET /v1/conversations/:id/turns
 →  Durable queue integration
 →  Capture Client v1 (Chrome extension)
 ```
@@ -37,14 +38,16 @@ Capture Client v1 remains the **last** major subsystem—not the first.
 | 2 | Worker ingest | Done | [API.md](./API.md) — accept, validate, respond |
 | 3 | Authentication | Done | [Authentication.md](./Authentication.md) — shared Bearer; route summary in [API.md](./API.md) |
 | 4 | D1 persistence | Done | [Database.md](./Database.md) — schema + idempotent writes (`0001_init.sql`) |
-| 5 | Durable queue integration | **Next** | Wire client queue → authenticated ingest; queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
-| 6 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
+| 5 | Minimal read API (FR-F6) | Done | [API.md](./API.md#read-endpoints-fr-f6) — `GET /v1/conversations`, `GET /v1/conversations/:id/turns` |
+| 6 | Durable queue integration | **Next** | Wire client queue → authenticated ingest; queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
+| 7 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
 
 ### Layer notes
 
 - **Worker ingest** — clean, testable API surface; no database writes yet.
 - **Authentication** — protect `/v1/turns` with shared Bearer (`CAPTURE_API_TOKEN`); policy in [Authentication.md](./Authentication.md).
 - **D1 persistence** — conversations + turns persisted; real `accepted` / `duplicate` from storage; no queue or retries ([Database.md](./Database.md)).
+- **Read API** — authenticated inspection of stored conversations and turns; summaries + deterministic ordering; no pagination in Phase 1 ([API.md](./API.md#read-endpoints-fr-f6)).
 - **Durable queue integration** — connect Capture Client v1’s local queue to auth + D1 ingest (still not a Worker-owned queue).
 - **Capture Client v1** — full adapter (observe ChatGPT, enqueue, sync, operator status).
 

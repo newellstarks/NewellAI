@@ -12,6 +12,10 @@ Spec: [docs/Contracts.md](../../docs/Contracts.md)
 - `CaptureMetadata`
 - `UploadRequest`
 - `UploadResponse`
+- `ConversationSummary`
+- `ConversationsResponse`
+- `TurnRecord`
+- `ConversationTurnsResponse`
 - `ApiError`
 
 ```ts

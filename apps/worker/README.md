@@ -4,6 +4,8 @@
 
 `POST /v1/turns`: authenticate → validate → persist conversation + turns to D1 (idempotent on `client_turn_id`) → real `accepted` / `duplicate` counts. No queue logic, no retries.
 
+Read endpoints (FR-F6): `GET /v1/conversations` (summaries) and `GET /v1/conversations/:id/turns` (ordered turns) — same Bearer auth, no pagination in Phase 1.
+
 Does **not** own the durable queue — Capture Client v1 ([ADR-0002](../../docs/ADRs/0002-durable-queue-in-extension.md)).
 
 ## Docs
@@ -23,7 +25,7 @@ Set the shared secret for Wrangler:
 CAPTURE_API_TOKEN=dev-secret
 ```
 
-Protected route: `POST /v1/turns` with `Authorization: Bearer <token>`.  
+Protected routes: `POST /v1/turns`, `GET /v1/conversations`, and `GET /v1/conversations/:id/turns` with `Authorization: Bearer <token>`.  
 `GET /health` stays public.
 
 ## Develop

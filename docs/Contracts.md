@@ -28,6 +28,7 @@ Every client—Chrome today, Safari tomorrow, Cursor someday—must speak this l
 | C-4 | Optional client timestamps; Worker may fill server time |
 | C-5 | `UploadRequest` supports one or more turns in a single call |
 | C-6 | Errors use a stable `ApiError` shape (`code`, `message`, optional `details`) |
+| C-7 | Export read response types `ConversationSummary`, `TurnRecord`, `ConversationsResponse`, `ConversationTurnsResponse` — **additive**; `UploadRequest` / `UploadResponse` unchanged |
 
 ### Non-requirements
 
@@ -98,6 +99,62 @@ Successful ingest result.
 | `turn_ids` | `string[]` | no | Server ids if assigned |
 | `server_time` | `string` | yes | ISO-8601 |
 
+### `ConversationSummary`
+
+One conversation in the `GET /v1/conversations` list ([API.md](./API.md#read-endpoints-fr-f6)). **Summary only — no turn content.**
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `conversation_id` | `string` | yes | |
+| `user_id` | `string` | yes | Stored account identity (existing field; not tenancy) |
+| `title` | `string` | no | Absent when not stored |
+| `source_model` | `string` | no | Absent when not stored |
+| `started_at` | `string` | no | Client-supplied ISO-8601, absent when not stored |
+| `created_at` | `string` | yes | Server time of first insert |
+| `last_turn_at` | `string \| null` | yes | `MAX(turns.created_at)` — list sort key (DESC, NULLs last); `null` when the conversation has no stored turns |
+| `turn_count` | `number` | yes | Turns stored for this conversation; `0` for an orphaned row |
+
+### `ConversationsResponse`
+
+Body for `GET /v1/conversations`.
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `conversations` | `ConversationSummary[]` | yes | Ordered `last_turn_at` DESC with NULLs last, then `conversation_id` ASC; empty array allowed |
+| `server_time` | `string` | yes | ISO-8601 |
+
+### `TurnRecord`
+
+One stored turn as returned by `GET /v1/conversations/:id/turns` — the persisted form of `TurnPayload` plus server fields and capture metadata.
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `turn_id` | `string` | yes | Server-assigned UUID |
+| `conversation_id` | `string` | yes | |
+| `client_turn_id` | `string` | yes | Idempotency key as uploaded |
+| `speaker` | `"user" \| "assistant"` | yes | |
+| `text` | `string` | yes | |
+| `captured_at` | `string` | no | Absent when not stored |
+| `sequence` | `number` | no | Absent when not stored |
+| `parent_client_turn_id` | `string` | no | |
+| `message_type` | `string` | no | |
+| `topic` | `string` | no | |
+| `capture_client` | `string` | yes | |
+| `capture_client_version` | `string` | no | |
+| `surface` | `string` | no | |
+| `captured_batch_id` | `string` | no | |
+| `created_at` | `string` | yes | Server ingest time |
+
+### `ConversationTurnsResponse`
+
+Body for `GET /v1/conversations/:id/turns`.
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `conversation_id` | `string` | yes | Echo of the requested id |
+| `turns` | `TurnRecord[]` | yes | Ordered `sequence` ASC (NULLs last), `created_at` ASC, `turn_id` ASC |
+| `server_time` | `string` | yes | ISO-8601 |
+
 ### `ApiError`
 
 Stable error envelope for 4xx/5xx JSON bodies.
@@ -127,9 +184,10 @@ Stable error envelope for 4xx/5xx JSON bodies.
 
 | ID | Case | Expected |
 |----|------|----------|
-| CT-1 | Package exports all six types | TypeScript compiles |
+| CT-1 | Package exports all six upload/error types | TypeScript compiles |
 | CT-2 | Sample `UploadRequest` satisfies types | Assignable without `any` |
 | CT-3 | Sample `ApiError` satisfies types | Assignable without `any` |
+| CT-4 | Sample `ConversationsResponse` / `ConversationTurnsResponse` satisfy types | Assignable without `any` |
 
 ## Open questions
 

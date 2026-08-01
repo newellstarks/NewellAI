@@ -31,7 +31,7 @@ Authenticated request → Validate → Insert conversation → Insert turns → 
 
 - Queue logic (stays in Capture Client v1 — [ADR-0002](./ADRs/0002-durable-queue-in-extension.md))
 - Retries (clients retry; server is idempotent)
-- Synchronization / read APIs (`GET /v1/sessions*` remain "not yet")
+- Synchronization (read APIs are their own slice — [API.md](./API.md#read-endpoints-fr-f6))
 - Local SQLite mirror
 - Extension work
 
@@ -140,7 +140,7 @@ npx wrangler d1 migrations apply newellai --remote  # production
 
 ## Later capabilities
 
-- Read/inspect APIs (`GET /v1/sessions`, `GET /v1/sessions/:id/turns`)
+- Pagination for the read endpoints (`GET /v1/conversations*` are implemented without it — [API.md](./API.md#read-endpoints-fr-f6))
 - Local SQLite mirror (inspection / backup)
 - Preload from ChatGPT history export
 - Optional per-user encryption with a user-held key
