@@ -40,7 +40,7 @@ Capture Client v1 remains the **last** major subsystem—not the first.
 | 3 | Authentication | Done | [Authentication.md](./Authentication.md) — shared Bearer; route summary in [API.md](./API.md) |
 | 4 | D1 persistence | Done | [Database.md](./Database.md) — schema + idempotent writes (`0001_init.sql`) |
 | 5 | Minimal read API (FR-F6) | Done | [API.md](./API.md#read-endpoints-fr-f6) — `GET /v1/conversations`, `GET /v1/conversations/:id/turns` |
-| 6 | Durable queue integration | **Next** | Wire client queue → authenticated ingest; queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
+| 6 | Durable queue integration | **Next** — design accepted | [DurableQueue.md](./DurableQueue.md) + [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md); queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
 | 7 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
 
 ### Layer notes

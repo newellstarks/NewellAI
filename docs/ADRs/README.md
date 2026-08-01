@@ -13,6 +13,7 @@
 | [0003](./0003-npm-workspaces-only.md) | npm workspaces only | Accepted |
 | [0004](./0004-why-browser-extension-capture.md) | Why Capture Client v1 is a browser extension (and when to replace it) | Accepted |
 | [0005](./0005-use-cloudflare-d1-for-turn-persistence.md) | Use Cloudflare D1 for turn persistence | Accepted |
+| [0006](./0006-capture-client-durable-queue-identity-and-synchronization.md) | Capture Client v1 Durable Queue, Identity, and Synchronization | Accepted |
 
 ## Template
 

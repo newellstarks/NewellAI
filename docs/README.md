@@ -53,7 +53,7 @@ When the repo layout changes: update paths here, but **do not change architectur
 | 8 | Database | Active | [Database.md](./Database.md) |
 | 9 | Capture Client v1 (Chrome Extension) | Draft | [CaptureClient.md](./CaptureClient.md) |
 | 10 | Turn Capture | Active | [TurnCapture.md](./TurnCapture.md) |
-| 11 | Durable Queue | Draft | [DurableQueue.md](./DurableQueue.md) |
+| 11 | Durable Queue | Active | [DurableQueue.md](./DurableQueue.md) |
 | 12 | Subsystem Template | Stable | [SubsystemTemplate.md](./SubsystemTemplate.md) |
 | 13 | Architecture Governance | Stable | [ArchitectureGovernance.md](./ArchitectureGovernance.md) |
 | — | Architecture Decision Records | Active | [ADRs/](./ADRs/) |

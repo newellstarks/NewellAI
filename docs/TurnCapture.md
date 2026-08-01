@@ -50,7 +50,7 @@ Phase 1 alone only requires the Worker ingest path (manual or any authorized cli
 
 1. **Reliability over cleverness** — prefer stable selectors / payloads over fragile UI scraping tricks
 2. **Server-side timestamps** when the client omits them
-3. **Session-aware ordering** — Capture Client v1 queue preserves order per session before sync
+3. **Conversation-aware ordering** — Capture Client v1 queue preserves order per conversation before sync
 4. **Multi-user-ready fields** — `user_id` / `client_id` even for customer zero
 5. **Local durability first** (v1) — enqueue succeeds on device; sync retries until Worker/D1 accept
 6. Failed sync is visible to the operator (not silent forever)

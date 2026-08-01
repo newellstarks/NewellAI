@@ -4,16 +4,16 @@
 
 | | |
 |---|---|
-| **Status** | Draft |
+| **Status** | Active |
 | **Purpose** | Capture Client v1 local buffer, order, retry, and sync (not Worker-owned). |
 | **Prerequisites** | [Chapter 9 — Capture Client v1](./CaptureClient.md), [Chapter 10 — Turn Capture](./TurnCapture.md), [Chapter 6 — API](./API.md), [Chapter 7 — Authentication](./Authentication.md) |
-| **Related chapters** | [ADR-0002](./ADRs/0002-durable-queue-in-extension.md), [Contracts](./Contracts.md), [Roadmap](./Roadmap.md) |
+| **Related chapters** | [ADR-0002](./ADRs/0002-durable-queue-in-extension.md), [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md), [Contracts](./Contracts.md), [Roadmap](./Roadmap.md) |
 | **Nav** | [← Prev](./TurnCapture.md) · [TOC](./README.md#table-of-contents) · [Next →](./SubsystemTemplate.md) |
 
 ---
-> **Status:** Notebook draft — **Phase 2** (Capture Client v1). Do not implement before Phase 1 Foundation is done.  
+> **Status:** Active — **Phase 2** (Capture Client v1). Phase 1 Foundation is closed ([Roadmap](./Roadmap.md)); design decisions are recorded in [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md).  
 > **Location:** Capture Client v1 / Chrome extension (`apps/extension`) — **not** the Cloudflare Worker.  
-> **Implement only after this page is accepted and Foundation exists.** Prompt: *Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).*
+> Prompt: *Implement the Durable Queue exactly as specified in the engineering notebook (`docs/DurableQueue.md`).*
 
 ## Purpose
 
@@ -23,7 +23,7 @@ Turn capture must not lose messages when the network drops, the Worker is briefl
 
 1. Captured turns are stored on the device immediately (survive browser restarts where storage allows)
 2. This client can retry authenticated ingest without asking the operator to re-speak the conversation
-3. Per-session order is preserved on the client before sync
+3. Per-conversation order is preserved on the client before sync
 4. The Worker stays a simple, reliable **ingest + validate + D1 persist** service—not a queue runtime
 
 **Crystal-clear split:**
@@ -43,7 +43,7 @@ What must it do?
 |----|-------------|
 | DQ-1 | Accept normalized turn payloads from the extension capture path |
 | DQ-2 | Persist queue items locally in the extension (survive service-worker restarts; prefer durable extension storage) |
-| DQ-3 | Preserve **per-session order** when syncing |
+| DQ-3 | Preserve **per-conversation order** when syncing |
 | DQ-4 | Deliver each item to the Worker ingest API **at least once**; server must be idempotent |
 | DQ-5 | Retry failed ingest with bounded backoff |
 | DQ-6 | Expose status to the operator (pending count, last error) |
@@ -66,7 +66,7 @@ From extension capture after normalize (see [TurnCapture.md](./TurnCapture.md)):
 | Field | Required | Notes |
 |-------|----------|-------|
 | `user_id` | yes | |
-| `session_id` | yes | Ordering key |
+| `conversation_id` | yes | Ordering key (wire protocol; earlier drafts said `session_id`) |
 | `speaker` | yes | `user` \| `assistant` |
 | `turn_text` | yes | |
 | `client_turn_id` | yes | Idempotency key for Worker / D1 |
@@ -90,7 +90,28 @@ sync_batch(limit) → { delivered, retried, failed }
 status() → { depth, oldest_age_ms, last_error }
 ```
 
-Local backing store (chrome.storage / IndexedDB / etc.) is an open question—record via ADR before coding.
+Backing store, identity, and lifetime strategy are decided in [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md); the policy table below is normative.
+
+## Design decisions (accepted — [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md))
+
+| Topic | Decision |
+|-------|----------|
+| Queue storage | IndexedDB for queue items and dead letters; `chrome.storage.local` for configuration and token |
+| Envelope | Versioned, self-contained queue envelope (`schema_version`, state, attempts, `next_attempt_at`, payload, conversation/capture metadata) |
+| Turn identity | Stable source-provided message identifier when available and validated (adapter-extracted; the contract is not hard-coded to any specific DOM attribute); otherwise a local identity created and persisted **before first enqueue**. Retries and rescans reuse the same `client_turn_id`. |
+| Sequence | Assigned once, per conversation, when a previously unseen source turn is accepted into durable storage. Re-observation reuses identity and sequence; a rescan never creates another queue item or increments the sequence. |
+| Storage failure | Fail the enqueue visibly; never silently evict |
+| Retry | Persisted exponential backoff: 5 s doubling to a 5-minute cap; default 5 attempts, then dead-letter |
+| `401` | Hold queued items in a **distinct auth-blocked status** (separate from pending/retrying); surface auth error; do not consume retry budget |
+| Permanent 4xx (`VALIDATION_ERROR`, `INVALID_JSON`, `404`, `405`) | Immediate dead-letter |
+| Duplicate response | Any valid `200` is successful delivery — dequeue regardless of `accepted`/`duplicate` split |
+| Sync concurrency | One batch in flight globally for v1 |
+| Crash recovery | Abandoned in-flight items revert to pending on service-worker startup |
+| Dead letters | Retained in a dedicated store until manually cleared by the operator |
+| MV3 lifecycle | Immediate sync attempt on enqueue + one-minute `chrome.alarms` sweep of due `next_attempt_at` + startup recovery |
+| Credentials | Token in `chrome.storage.local` only — never `chrome.storage.sync`, never bundled into the build |
+| Diagnostics | Badge (pending + dead counts) + options page (counts incl. auth-blocked, last error, clear dead letters); never store or log conversation text or the token |
+| Batch shape | One conversation per `POST /v1/turns`, maximum 25 turns, oldest conversation first |
 
 ## Failure modes
 
@@ -111,7 +132,7 @@ Local backing store (chrome.storage / IndexedDB / etc.) is an open question—re
 | Local enqueue latency | p95 &lt; 50 ms |
 | Sync to Worker (happy path) | p95 &lt; 2 s after enqueue when online |
 | Sustained capture | ≥ 5 turns/sec burst without dropping |
-| Ordering | Strict FIFO **per `session_id`** on sync |
+| Ordering | Strict FIFO **per `conversation_id`** on sync |
 | Durability | No locally acknowledged turn lost across normal extension restarts |
 | Retry budget | Exponential backoff; max attempts configurable (default 5) then local dead-letter |
 
@@ -119,24 +140,20 @@ Local backing store (chrome.storage / IndexedDB / etc.) is an open question—re
 
 | ID | Case | Expected |
 |----|------|----------|
-| T1 | Enqueue user + assistant turns for one session; online | Both reach D1 via Worker in order |
+| T1 | Enqueue user + assistant turns for one conversation; online | Both reach D1 via Worker in order |
 | T2 | Enqueue while offline | Items pending; sync when online |
 | T3 | Duplicate `client_turn_id` sync | Single D1 row; queue item cleared |
 | T4 | Worker fails twice then succeeds | Delivered after retries |
 | T5 | Worker always 500 | Dead-letter after max attempts; queue unblocked for other items |
 | T6 | Extension restart with pending queue | Pending items still process |
-| T7 | Two sessions interleaved | Per-session order preserved |
+| T7 | Two conversations interleaved | Per-conversation order preserved |
 | T8 | `status()` with pending | Reports depth / last error usefully |
 
 ## Open questions
 
-1. **Local store:** `chrome.storage.local` vs IndexedDB vs both?
-2. **Service worker lifetime:** How do we guarantee sync continues when the SW is suspended?
-3. **Batch size:** One turn per request vs batched `POST`?
-4. **Dead-letter UX:** Badge only vs options-page list for Capture Client v1?
-5. **Sequence authority:** Extension-assigned sequence vs Worker-assigned on ingest?
+None. The original five open questions (local store, service-worker lifetime, batch size, dead-letter UX, sequence authority) and turn identity are all **resolved** — see the design-decisions table above and [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md).
 
-Resolve via ADR under `docs/ADRs/` before implementation.
+How the ChatGPT capture adapter extracts and validates its source identifier is an implementation detail of the DOM-capture slice under the identity contract above — not a new architectural decision.
 
 ## Related
 
