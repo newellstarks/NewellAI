@@ -13,7 +13,7 @@
 ---
 Phases are defined in [Roadmap.md](./Roadmap.md). **Do not optimize capture before the foundation exists.**
 
-## Phase 1 — Foundation (current)
+## Phase 1 — Foundation (complete — closed 2026-08-01)
 
 Prove a working backend for customer zero (and future clients):
 
@@ -21,7 +21,9 @@ Prove a working backend for customer zero (and future clients):
 - Cloudflare Worker with authenticated upload API
 - Validation of ingest payloads
 - D1 persistence (schema + migrations)
-- Manual end-to-end upload test is enough to exit Phase 1
+- Manual end-to-end upload test is enough to exit Phase 1 — **passed 2026-08-01** (local Worker + local D1; see the exit record in [Roadmap.md](./Roadmap.md))
+
+FR-F1 through FR-F6 are all implemented.
 
 ### Functional requirements (Phase 1)
 

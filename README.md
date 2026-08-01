@@ -67,4 +67,4 @@ When the TOC changes, update **both** this file and `docs/README.md`, plus each 
 Idea → Engineering Notebook → Implement exactly that → Test → Git Commit → Repeat
 ```
 
-See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 ✅ → read API ✅ → durable queue integration → **then** Capture Client v1. Increment without redesign.
+See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 ✅ → read API ✅ → **Phase 1 closed** (E2E test passed 2026-08-01) → durable queue integration → **then** Capture Client v1. Increment without redesign.

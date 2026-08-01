@@ -16,7 +16,7 @@
 
 NewellAI is a **platform**: a client-agnostic backend plus pluggable **capture clients**.
 
-**Phase 1 (in progress)** — Foundation goal: contracts, Worker ingest, auth, D1, upload + read API. Contracts, Worker ingest, shared-secret auth, D1 persistence, and the minimal read API are done; durable queue integration is next.  
+**Phase 1 (closed 2026-08-01)** — Foundation goal met: contracts, Worker ingest, shared-secret auth, D1 persistence, and the minimal read API are done; the manual end-to-end exit test passed locally ([Roadmap](./Roadmap.md)). Durable queue integration is next.  
 **Phase 2** — Capture Client v1 (Chrome Extension): first adapter only.  
 **Phase 3** — Additional clients against the same backend.
 

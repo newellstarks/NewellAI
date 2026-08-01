@@ -23,6 +23,7 @@ Each step builds on the previous one **without forcing a redesign** of earlier w
 ✅ Authentication         — shared Bearer / CAPTURE_API_TOKEN
 ✅ D1 persistence         — conversations + turns, idempotent on client_turn_id
 ✅ Read API (FR-F6)       — GET /v1/conversations, GET /v1/conversations/:id/turns
+✅ Phase 1 exit           — manual end-to-end upload test passed (2026-08-01, local only)
 →  Durable queue integration
 →  Capture Client v1 (Chrome extension)
 ```
@@ -53,11 +54,21 @@ Capture Client v1 remains the **last** major subsystem—not the first.
 
 ## Phase map
 
-### Phase 1 — Foundation (current)
+### Phase 1 — Foundation (closed 2026-08-01)
 
-Goal: working backend (contracts → ingest → auth → D1). Any authorized client can upload turns.
+Goal met: working backend (contracts → ingest → auth → D1 → read API). Any authorized client can upload and read back turns. FR-F1 through FR-F6 are implemented.
 
-Non-goals: DOM scraping, multi-client polish, treating the extension as the product.
+Non-goals (unchanged): DOM scraping, multi-client polish, treating the extension as the product.
+
+**Exit record — manual end-to-end upload test (2026-08-01), all 11 checks passed:**
+
+- Local Worker (`wrangler dev`) and local D1 only; no deployment, login, or remote Cloudflare resources
+- First upload: `accepted: 2, duplicate: 0`; identical retry: `accepted: 0, duplicate: 2` (idempotency, FR-F5)
+- Authenticated conversation-list and turn-list readback matched the stored data (FR-F6)
+- Direct D1 counts: `users = 1`, `conversations = 1`, `turns = 2` — no extra rows from the retry
+- Request-ID generation, unauthorized handling (sanitized 401), unknown-conversation 404, and secret/configuration checks all passed
+
+The next milestone is **Phase 2 — durable queue and capture-client integration**.
 
 ### Phase 2 — Capture Client v1
 

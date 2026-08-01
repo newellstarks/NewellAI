@@ -74,7 +74,8 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 ✅ Authentication (shared bearer — see Authentication.md)
 ✅ D1 persistence (conversations + turns — see Database.md)
 ✅ Read API — GET /v1/conversations, GET /v1/conversations/:id/turns (see API.md)
-→  Durable queue integration
+✅ Phase 1 exit test passed (manual E2E upload, 2026-08-01 — see Roadmap.md)
+→  Phase 2: Durable queue integration
 →  Capture Client v1
 ```
 
