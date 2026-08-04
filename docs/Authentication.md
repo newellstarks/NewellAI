@@ -119,6 +119,23 @@ Wire payload shapes are unchanged—auth is transport/header policy only ([Contr
 | AUTH-14 | Unsupported schemes (`Basic`, `Token`, …) | `401` sanitized |
 | AUTH-15 | Combined / multi-value `Authorization` (comma) | `401` sanitized |
 
+## Local development pairing
+
+`POST /v1/dev/pair` is **not** a Bearer route. It exists only so Capture Client v1 can obtain `CAPTURE_API_TOKEN` on loopback without Terminal copy/paste. Full operator policy: [CaptureClient.md](./CaptureClient.md).
+
+| Gate | Requirement |
+|------|-------------|
+| Env | `ALLOW_LOCAL_PAIRING=true` (absent/false → behave as unavailable / `404`) |
+| Env | `PAIRING_EXTENSION_ORIGIN=chrome-extension://<exact-id>` |
+| Host | Request URL host is `127.0.0.1` or `localhost` |
+| Origin | Exact match to `PAIRING_EXTENSION_ORIGIN`; reject missing, `null`, web, and other extensions |
+| CORS | Reflect **only** that exact origin — never `*` |
+| Method | `POST` (+ `OPTIONS` preflight for that origin); `GET` rejected |
+| One-shot | One successful response per Worker process start |
+| Headers | `Cache-Control: no-store` |
+| Logging | Never log token or response body |
+| Production | Must remain disabled / unavailable in remote deployment configuration |
+
 ## Open questions
 
 1. When does Phase 1 graduate from shared secret to per-user credentials? Defer via ADR when multi-user onboarding starts.
@@ -127,6 +144,7 @@ Wire payload shapes are unchanged—auth is transport/header policy only ([Contr
 ## Related
 
 - [API](./API.md) — route table and concise auth summary
+- [CaptureClient](./CaptureClient.md) — operator pairing / export-import
 - [Contracts](./Contracts.md)
 - [Roadmap](./Roadmap.md)
 - [Architecture](./Architecture.md)

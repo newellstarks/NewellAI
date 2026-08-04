@@ -2,6 +2,7 @@ import type { Env } from "./env";
 import { errorResponse, HttpError } from "./errors";
 import { createRequestId, withRequestId } from "./requestId";
 import { handleHealth } from "./routes/health";
+import { handleDevPair } from "./routes/v1/devPair";
 import {
   handleConversationTurns,
   handleListConversations,
@@ -11,19 +12,17 @@ import { handleIngestTurns } from "./routes/v1/turns";
 const CONVERSATION_TURNS_RE = /^\/v1\/conversations\/([^/]+)\/turns$/;
 
 /**
- * Worker entry — ingest + authentication + D1 persistence + read slices.
- *
- * POST /v1/turns                  — authenticated, idempotent ingest to D1
- * GET  /v1/conversations          — authenticated conversation summaries
- * GET  /v1/conversations/:id/turns — authenticated ordered turns
- *
- * Durable queue remains Capture Client v1 (extension), not here.
+ * Worker entry — ingest + authentication + D1 persistence + read slices
+ * + local-only POST /v1/dev/pair (Slice 2.1).
  */
 async function routeV1(
   request: Request,
   env: Env,
   pathname: string,
 ): Promise<Response> {
+  const pair = await handleDevPair(request, env, pathname);
+  if (pair !== null) return pair;
+
   if (pathname === "/v1/turns") {
     return handleIngestTurns(request, env);
   }
@@ -55,7 +54,6 @@ export default {
       }
 
       if (pathname.startsWith("/v1/")) {
-        // Request ID is created before authentication (and before body access).
         const requestId = createRequestId();
         try {
           return withRequestId(await routeV1(request, env, pathname), requestId);

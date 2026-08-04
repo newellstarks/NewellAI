@@ -21,3 +21,8 @@ export const CAPTURE_CLIENT_VERSION = "0.1.0";
 export const CAPTURE_SURFACE = "chatgpt";
 
 export const DEFAULT_USER_ID = "user-1";
+/** Canonical local Worker URL for Restore / empty-field default. */
+export const DEFAULT_LOCAL_WORKER_URL = "http://127.0.0.1:8787";
+
+export const CONFIG_EXPORT_KIND = "newellai-capture-client-config";
+export const CONFIG_EXPORT_SCHEMA_VERSION = 1;

@@ -67,4 +67,4 @@ When the TOC changes, update **both** this file and `docs/README.md`, plus each 
 Idea → Engineering Notebook → Implement exactly that → Test → Git Commit → Repeat
 ```
 
-See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 ✅ → read API ✅ → **Phase 1 closed** → durable queue Slice 1 ✅ → **ChatGPT capture Slice 2 (next)**. Increment without redesign.
+See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 ✅ → read API ✅ → **Phase 1 closed** → durable queue Slice 1 ✅ → ChatGPT capture Slice 2 ✅ → **operator config persistence Slice 2.1 (next)**. Increment without redesign.

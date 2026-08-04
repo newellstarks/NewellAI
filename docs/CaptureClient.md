@@ -28,7 +28,8 @@ It owns **capture** and the **Durable Queue** (local buffer, order, retry, sync)
 | Slice | Scope | Status |
 |-------|--------|--------|
 | **1** | Durable IndexedDB queue, sync engine, options (endpoint/token/status), synthetic enqueue, MV3 alarms/recovery | **Done** (Chrome runtime verified) |
-| **2** | ChatGPT DOM capture adapter → existing queue (this chapter’s capture design) | **Next** — design accepted |
+| **2** | ChatGPT DOM capture adapter → existing queue (this chapter’s capture design) | **Done** (Chrome runtime verified) |
+| **2.1** | Operator config persistence — defaults, capture UI consistency, export/import (no token), local pairing, Restore local setup | **Next** — design accepted |
 | Later | Additional surfaces, richer operator UX, optional capture polish | Not started |
 
 ## Phase 2 scope
@@ -188,6 +189,63 @@ Role from `data-message-author-role` or equivalent turn role attribute. Prefer m
 - Adapter unit tests (no live ChatGPT in CI)
 - Enqueue via fake-indexeddb proving `already_known` on rescan
 - Message-validation unit tests for the SW boundary
+
+## Operator configuration persistence (Slice 2.1 — accepted design)
+
+### What survives vs what is lost
+
+| Event | `chrome.storage.local` (URL, token, capture On/Off, `user_id`) | IndexedDB queue / identities |
+|-------|------------------------------------------------------------------|------------------------------|
+| Extension **Reload**, SW restart, browser restart | **Kept** | **Kept** |
+| **Remove** extension / clear extension data, then Load unpacked | **Wiped** | **Wiped** |
+
+Recovery after Remove: **Import configuration** (non-secrets) + **Pair with local Worker** (or clipboard token), or **Restore local development setup** (sets URL + enables capture, then pairs if possible).
+
+### Defaults and capture UI
+
+- Default / Restore Worker URL: `http://127.0.0.1:8787`
+- Capture checkbox **immediate-saves** on change; “Capture: Enabled/Disabled” updates only after a successful storage write; on failure the checkbox reverts to the last saved value
+- Token is never placed in source control, `manifest.json`, README, or exported plaintext configuration
+
+### Export / Import configuration
+
+Export JSON (`schema_version`, `kind`, `worker_base_url`, `capture_chatgpt_enabled`, `user_id`) only. **Never** includes the API token. Import restores those fields and leaves any existing token unchanged unless the operator pairs or imports a token separately. Options copy: “Export does not include the API token.”
+
+### Local pairing — `POST /v1/dev/pair`
+
+Extension-only cannot read `.dev.vars`. Local development uses a **user-initiated** one-click pair:
+
+| Rule | Behavior |
+|------|----------|
+| Method | `POST` only (`GET` rejected) |
+| Availability | Only when `ALLOW_LOCAL_PAIRING=true` in local Worker env; **unavailable** in production / remote deployment configuration |
+| Loopback | Request URL host must be `127.0.0.1` or `localhost` |
+| Origin | Exact `PAIRING_EXTENSION_ORIGIN` (`chrome-extension://<this-extension-id>`). No wildcard CORS. Reject missing `Origin`, `Origin: null`, normal web origins, and other extension origins |
+| One-shot | At most one successful pair per Worker process start (then pairing closes for that isolate) |
+| Cache | `Cache-Control: no-store` |
+| Logging | Never log the token or response body |
+| Fallback | Clipboard token import remains |
+
+Unpacked extension ID stability: Chrome derives the unpacked extension ID from the **absolute path** of the load directory. **Remove → Load unpacked from the same folder** yields the **same** ID. Options shows the current `chrome.runtime.id` so `.dev.vars` can set `PAIRING_EXTENSION_ORIGIN=chrome-extension://<id>` once. Loading from a different path produces a different ID (update `.dev.vars`).
+
+### Restore local development setup
+
+One options action that:
+
+1. Sets Worker URL to `http://127.0.0.1:8787`
+2. Enables capture
+3. Defaults empty `user_id` to `user-1`
+4. If a valid token is already stored → report token present; else attempt **Pair with local Worker** once; if pair fails → report that the token still needs pairing (Pair / clipboard remain available)
+
+### Automated tests (Slice 2.1)
+
+- Reload simulation preserves settings
+- Checkbox/status consistency after save / failed save
+- Default / Restore Worker URL is `http://127.0.0.1:8787`
+- Export excludes token
+- Import restores non-secrets without clearing token
+- Restore local setup sets URL + capture On and reports unpaired when no token
+- Worker pair: loopback + flags + matching origin → 200 once; then reject; bad/missing origin and non-loopback reject
 
 ## Related
 

@@ -76,7 +76,8 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 ✅ Read API — GET /v1/conversations, GET /v1/conversations/:id/turns (see API.md)
 ✅ Phase 1 exit test passed (manual E2E upload, 2026-08-01 — see Roadmap.md)
 ✅ Phase 2 Slice 1 — durable queue + sync (Chrome runtime verified)
-→  Phase 2 Slice 2 — ChatGPT DOM capture (design accepted — see CaptureClient.md)
+✅ Phase 2 Slice 2 — ChatGPT DOM capture (Chrome runtime verified)
+→  Phase 2 Slice 2.1 — operator config persistence (design accepted — see CaptureClient.md)
 ```
 
 ## Development loop

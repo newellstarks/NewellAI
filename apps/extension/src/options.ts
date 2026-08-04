@@ -1,19 +1,25 @@
 import {
+  DEFAULT_LOCAL_WORKER_URL,
   DEFAULT_USER_ID,
+  exportConfiguration,
   hasToken,
+  importConfiguration,
   importTokenFromClipboard,
-  loadBaseUrl,
+  loadBaseUrlOrDefault,
   loadCaptureSettings,
+  pairWithLocalWorker,
   readTokenFieldValue,
   replaceTokenFieldValue,
+  restoreLocalDevelopmentSetup,
+  saveBaseUrl,
   saveCaptureSettings,
   saveConfig,
 } from "./config";
 import type { QueueStatus } from "./queue/types";
 
 /**
- * Options page — capture enablement, user_id, endpoint, token, status
- * (docs/CaptureClient.md, docs/DurableQueue.md).
+ * Options page — capture enablement, export/import, local pairing, status
+ * (docs/CaptureClient.md Slice 2.1, docs/DurableQueue.md).
  */
 
 function el<T extends HTMLElement>(id: string): T {
@@ -48,9 +54,12 @@ async function refreshStatus(): Promise<void> {
   el("st-error").textContent = s.last_error ?? "none";
   el("st-error").className = s.last_error === null ? "" : "error";
   el("st-success").textContent =
-    s.last_success_at === null ? "never" : new Date(s.last_success_at).toLocaleString();
+    s.last_success_at === null
+      ? "never"
+      : new Date(s.last_success_at).toLocaleString();
   if (reply.capture) {
     renderCaptureStatus(reply.capture.enabled);
+    el<HTMLInputElement>("user-id").value = reply.capture.userId;
   }
 }
 
@@ -59,7 +68,7 @@ function note(id: string, text: string): void {
   span.textContent = text;
   setTimeout(() => {
     span.textContent = "";
-  }, 4000);
+  }, 6000);
 }
 
 function wireTokenField(tokenInput: HTMLInputElement): void {
@@ -80,10 +89,16 @@ function wireTokenField(tokenInput: HTMLInputElement): void {
 }
 
 async function init(): Promise<void> {
-  el<HTMLInputElement>("base-url").value = await loadBaseUrl();
+  el<HTMLInputElement>("base-url").value = await loadBaseUrlOrDefault();
+  el<HTMLInputElement>("base-url").placeholder = DEFAULT_LOCAL_WORKER_URL;
+
   const capture = await loadCaptureSettings();
   renderCaptureStatus(capture.enabled);
   el<HTMLInputElement>("user-id").value = capture.userId;
+
+  el("extension-id").textContent = chrome.runtime.id;
+  el("pairing-origin-hint").textContent =
+    `PAIRING_EXTENSION_ORIGIN=chrome-extension://${chrome.runtime.id}`;
 
   const tokenInput = el<HTMLInputElement>("token");
   tokenInput.placeholder = (await hasToken())
@@ -91,13 +106,21 @@ async function init(): Promise<void> {
     : "Stored locally; never displayed";
   wireTokenField(tokenInput);
 
-  el("save-capture").addEventListener("click", () => {
+  // Immediate-save capture checkbox (status updates only after successful write).
+  el<HTMLInputElement>("capture-enabled").addEventListener("change", () => {
     void (async () => {
-      const enabled = el<HTMLInputElement>("capture-enabled").checked;
+      const checkbox = el<HTMLInputElement>("capture-enabled");
+      const previous = await loadCaptureSettings();
+      const enabled = checkbox.checked;
       const userId =
         el<HTMLInputElement>("user-id").value.trim() || DEFAULT_USER_ID;
-      await saveCaptureSettings({ enabled, userId });
-      el<HTMLInputElement>("user-id").value = userId;
+      const saved = await saveCaptureSettings({ enabled, userId });
+      if (!saved.ok) {
+        checkbox.checked = previous.enabled;
+        renderCaptureStatus(previous.enabled);
+        note("capture-note", saved.message);
+        return;
+      }
       renderCaptureStatus(enabled);
       await send({ type: "configChanged" });
       await refreshStatus();
@@ -107,6 +130,21 @@ async function init(): Promise<void> {
           ? "Capture enabled — visible chat will rescan"
           : "Capture disabled",
       );
+    })();
+  });
+
+  el("save-user-id").addEventListener("click", () => {
+    void (async () => {
+      const userId =
+        el<HTMLInputElement>("user-id").value.trim() || DEFAULT_USER_ID;
+      const saved = await saveCaptureSettings({ userId });
+      if (!saved.ok) {
+        note("capture-note", saved.message);
+        return;
+      }
+      el<HTMLInputElement>("user-id").value = userId;
+      note("capture-note", "User id saved");
+      await refreshStatus();
     })();
   });
 
@@ -123,8 +161,14 @@ async function init(): Promise<void> {
     void (async () => {
       const baseUrl = el<HTMLInputElement>("base-url").value.trim();
       const token = readTokenFieldValue(tokenInput);
-      if (baseUrl.length === 0 || token.trim().length === 0) {
-        note("save-note", "Both fields are required");
+      if (baseUrl.length === 0) {
+        note("save-note", "Worker base URL is required");
+        return;
+      }
+      if (token.trim().length === 0) {
+        const urlOnly = await saveBaseUrl(baseUrl);
+        note("save-note", urlOnly.ok ? "Worker URL saved" : urlOnly.message);
+        if (urlOnly.ok) await refreshStatus();
         return;
       }
       const saved = await saveConfig({ baseUrl, token });
@@ -139,18 +183,96 @@ async function init(): Promise<void> {
 
   el("import-clipboard").addEventListener("click", () => {
     void (async () => {
-      const baseUrl = el<HTMLInputElement>("base-url").value.trim();
-      if (baseUrl.length === 0) {
-        note("save-note", "Worker base URL is required");
-        return;
-      }
+      const baseUrl =
+        el<HTMLInputElement>("base-url").value.trim() ||
+        DEFAULT_LOCAL_WORKER_URL;
       const imported = await importTokenFromClipboard(baseUrl);
       if (!imported.ok) {
         note("save-note", imported.message);
         return;
       }
+      el<HTMLInputElement>("base-url").value = baseUrl;
       await afterTokenSaved();
       note("save-note", "Saved successfully");
+    })();
+  });
+
+  el("pair-local").addEventListener("click", () => {
+    void (async () => {
+      const baseUrl =
+        el<HTMLInputElement>("base-url").value.trim() ||
+        DEFAULT_LOCAL_WORKER_URL;
+      const paired = await pairWithLocalWorker(baseUrl);
+      if (!paired.ok) {
+        note("save-note", paired.message);
+        return;
+      }
+      el<HTMLInputElement>("base-url").value = baseUrl;
+      await afterTokenSaved();
+      note("save-note", "Paired with local Worker");
+    })();
+  });
+
+  el("restore-local").addEventListener("click", () => {
+    void (async () => {
+      const result = await restoreLocalDevelopmentSetup();
+      el<HTMLInputElement>("base-url").value = DEFAULT_LOCAL_WORKER_URL;
+      const capture = await loadCaptureSettings();
+      renderCaptureStatus(capture.enabled);
+      el<HTMLInputElement>("user-id").value = capture.userId;
+      if (result.tokenPresent) {
+        tokenInput.placeholder = "Token saved — enter a new value to replace";
+      }
+      await send({ type: "configChanged" });
+      await refreshStatus();
+      note("setup-note", result.message);
+    })();
+  });
+
+  el("export-config").addEventListener("click", () => {
+    void (async () => {
+      const exported = await exportConfiguration();
+      const blob = new Blob([JSON.stringify(exported, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "newellai-capture-config.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      note("setup-note", "Exported (does not include the API token)");
+    })();
+  });
+
+  el("import-config").addEventListener("change", (event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    void (async () => {
+      try {
+        const text = await file.text();
+        const parsed: unknown = JSON.parse(text);
+        const imported = await importConfiguration(parsed);
+        if (!imported.ok) {
+          note("setup-note", imported.message);
+          return;
+        }
+        el<HTMLInputElement>("base-url").value = await loadBaseUrlOrDefault();
+        const capture = await loadCaptureSettings();
+        renderCaptureStatus(capture.enabled);
+        el<HTMLInputElement>("user-id").value = capture.userId;
+        await send({ type: "configChanged" });
+        await refreshStatus();
+        note(
+          "setup-note",
+          "Configuration imported (token unchanged — pair if needed)",
+        );
+      } catch {
+        note("setup-note", "Could not read configuration file");
+      } finally {
+        input.value = "";
+      }
     })();
   });
 

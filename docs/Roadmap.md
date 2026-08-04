@@ -41,7 +41,8 @@ Capture Client v1 remains an **adapter** on the finished backend—not the produ
 | 4 | D1 persistence | Done | [Database.md](./Database.md) — schema + idempotent writes (`0001_init.sql`) |
 | 5 | Minimal read API (FR-F6) | Done | [API.md](./API.md#read-endpoints-fr-f6) — `GET /v1/conversations`, `GET /v1/conversations/:id/turns` |
 | 6 | Durable queue (Slice 1) | Done — Chrome runtime verified | [DurableQueue.md](./DurableQueue.md) + [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md); queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
-| 7 | ChatGPT capture (Slice 2) | **Next** — design accepted | [CaptureClient.md](./CaptureClient.md) + [TurnCapture.md](./TurnCapture.md); FR-C1 via ChatGPT adapter only |
+| 7 | ChatGPT capture (Slice 2) | Done — Chrome runtime verified | [CaptureClient.md](./CaptureClient.md) + [TurnCapture.md](./TurnCapture.md); FR-C1 via ChatGPT adapter only |
+| 8 | Operator config persistence (Slice 2.1) | **Next** — design accepted | [CaptureClient.md](./CaptureClient.md) — defaults, export/import (no token), local `POST /v1/dev/pair`, Restore local setup |
 
 ### Layer notes
 
@@ -51,6 +52,7 @@ Capture Client v1 remains an **adapter** on the finished backend—not the produ
 - **Read API** — authenticated inspection of stored conversations and turns; summaries + deterministic ordering; no pagination in Phase 1 ([API.md](./API.md#read-endpoints-fr-f6)).
 - **Durable queue (Slice 1)** — local IndexedDB queue + sync to auth + D1 ingest (still not a Worker-owned queue); synthetic enqueue verified in Chrome.
 - **ChatGPT capture (Slice 2)** — observe ChatGPT DOM when explicitly enabled; normalize; enqueue through the existing queue ([CaptureClient.md](./CaptureClient.md)).
+- **Operator config persistence (Slice 2.1)** — reload-safe settings UX; export/import without token; loopback-only local pairing; Restore local development setup ([CaptureClient.md](./CaptureClient.md)).
 
 ## Phase map
 
@@ -68,7 +70,7 @@ Non-goals (unchanged): DOM scraping, multi-client polish, treating the extension
 - Direct D1 counts: `users = 1`, `conversations = 1`, `turns = 2` — no extra rows from the retry
 - Request-ID generation, unauthorized handling (sanitized 401), unknown-conversation 404, and secret/configuration checks all passed
 
-Phase 2 Slice 1 (durable queue + sync) is done. The next milestone is **Phase 2 Slice 2 — ChatGPT turn capture**.
+Phase 2 Slices 1–2 are done. The next milestone is **Phase 2 Slice 2.1 — operator config persistence**.
 
 ### Phase 2 — Capture Client v1
 
@@ -77,7 +79,8 @@ Phase 2 Slice 1 (durable queue + sync) is done. The next milestone is **Phase 2 
 | Slice | Status |
 |-------|--------|
 | 1 — Durable queue + sync + options | Done (runtime verified) |
-| 2 — ChatGPT DOM capture | Design accepted — implement next ([CaptureClient.md](./CaptureClient.md)) |
+| 2 — ChatGPT DOM capture | Done (runtime verified) |
+| 2.1 — Operator config persistence | Design accepted — implement next ([CaptureClient.md](./CaptureClient.md)) |
 
 ### Phase 3 — Additional clients
 

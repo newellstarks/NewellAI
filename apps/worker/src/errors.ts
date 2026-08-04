@@ -2,6 +2,7 @@ import type { ApiError } from "@newellai/contracts";
 
 export type ErrorCode =
   | "UNAUTHORIZED"
+  | "FORBIDDEN"
   | "NOT_FOUND"
   | "METHOD_NOT_ALLOWED"
   | "INVALID_JSON"
@@ -10,6 +11,7 @@ export type ErrorCode =
 
 const STATUS_BY_CODE: Record<ErrorCode, number> = {
   UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
   NOT_FOUND: 404,
   METHOD_NOT_ALLOWED: 405,
   INVALID_JSON: 400,
