@@ -51,7 +51,7 @@ When the repo layout changes: update paths here, but **do not change architectur
 | 6 | API | Active | [API.md](./API.md) |
 | 7 | Authentication | Active | [Authentication.md](./Authentication.md) |
 | 8 | Database | Active | [Database.md](./Database.md) |
-| 9 | Capture Client v1 (Chrome Extension) | Draft | [CaptureClient.md](./CaptureClient.md) |
+| 9 | Capture Client v1 (Chrome Extension) | Active | [CaptureClient.md](./CaptureClient.md) |
 | 10 | Turn Capture | Active | [TurnCapture.md](./TurnCapture.md) |
 | 11 | Durable Queue | Active | [DurableQueue.md](./DurableQueue.md) |
 | 12 | Subsystem Template | Stable | [SubsystemTemplate.md](./SubsystemTemplate.md) |
@@ -75,8 +75,8 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 ✅ D1 persistence (conversations + turns — see Database.md)
 ✅ Read API — GET /v1/conversations, GET /v1/conversations/:id/turns (see API.md)
 ✅ Phase 1 exit test passed (manual E2E upload, 2026-08-01 — see Roadmap.md)
-→  Phase 2: Durable queue integration
-→  Capture Client v1
+✅ Phase 2 Slice 1 — durable queue + sync (Chrome runtime verified)
+→  Phase 2 Slice 2 — ChatGPT DOM capture (design accepted — see CaptureClient.md)
 ```
 
 ## Development loop

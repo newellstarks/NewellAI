@@ -24,11 +24,11 @@ Each step builds on the previous one **without forcing a redesign** of earlier w
 ✅ D1 persistence         — conversations + turns, idempotent on client_turn_id
 ✅ Read API (FR-F6)       — GET /v1/conversations, GET /v1/conversations/:id/turns
 ✅ Phase 1 exit           — manual end-to-end upload test passed (2026-08-01, local only)
-→  Durable queue integration
-→  Capture Client v1 (Chrome extension)
+✅ Durable queue (Slice 1) — IndexedDB queue + sync + options; Chrome runtime verified
+→  Capture Client v1 Slice 2 — ChatGPT DOM capture → existing queue
 ```
 
-Capture Client v1 remains the **last** major subsystem—not the first.
+Capture Client v1 remains an **adapter** on the finished backend—not the product.
 
 ## Engineering sequence (detail)
 
@@ -40,8 +40,8 @@ Capture Client v1 remains the **last** major subsystem—not the first.
 | 3 | Authentication | Done | [Authentication.md](./Authentication.md) — shared Bearer; route summary in [API.md](./API.md) |
 | 4 | D1 persistence | Done | [Database.md](./Database.md) — schema + idempotent writes (`0001_init.sql`) |
 | 5 | Minimal read API (FR-F6) | Done | [API.md](./API.md#read-endpoints-fr-f6) — `GET /v1/conversations`, `GET /v1/conversations/:id/turns` |
-| 6 | Durable queue integration | **Next** — design accepted | [DurableQueue.md](./DurableQueue.md) + [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md); queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
-| 7 | Capture Client v1 | Phase 2 | [CaptureClient.md](./CaptureClient.md) |
+| 6 | Durable queue (Slice 1) | Done — Chrome runtime verified | [DurableQueue.md](./DurableQueue.md) + [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md); queue stays in client ([ADR-0002](./ADRs/0002-durable-queue-in-extension.md)) |
+| 7 | ChatGPT capture (Slice 2) | **Next** — design accepted | [CaptureClient.md](./CaptureClient.md) + [TurnCapture.md](./TurnCapture.md); FR-C1 via ChatGPT adapter only |
 
 ### Layer notes
 
@@ -49,8 +49,8 @@ Capture Client v1 remains the **last** major subsystem—not the first.
 - **Authentication** — protect `/v1/turns` with shared Bearer (`CAPTURE_API_TOKEN`); policy in [Authentication.md](./Authentication.md).
 - **D1 persistence** — conversations + turns persisted; real `accepted` / `duplicate` from storage; no queue or retries ([Database.md](./Database.md)).
 - **Read API** — authenticated inspection of stored conversations and turns; summaries + deterministic ordering; no pagination in Phase 1 ([API.md](./API.md#read-endpoints-fr-f6)).
-- **Durable queue integration** — connect Capture Client v1’s local queue to auth + D1 ingest (still not a Worker-owned queue).
-- **Capture Client v1** — full adapter (observe ChatGPT, enqueue, sync, operator status).
+- **Durable queue (Slice 1)** — local IndexedDB queue + sync to auth + D1 ingest (still not a Worker-owned queue); synthetic enqueue verified in Chrome.
+- **ChatGPT capture (Slice 2)** — observe ChatGPT DOM when explicitly enabled; normalize; enqueue through the existing queue ([CaptureClient.md](./CaptureClient.md)).
 
 ## Phase map
 
@@ -68,11 +68,16 @@ Non-goals (unchanged): DOM scraping, multi-client polish, treating the extension
 - Direct D1 counts: `users = 1`, `conversations = 1`, `turns = 2` — no extra rows from the retry
 - Request-ID generation, unauthorized handling (sanitized 401), unknown-conversation 404, and secret/configuration checks all passed
 
-The next milestone is **Phase 2 — durable queue and capture-client integration**.
+Phase 2 Slice 1 (durable queue + sync) is done. The next milestone is **Phase 2 Slice 2 — ChatGPT turn capture**.
 
 ### Phase 2 — Capture Client v1
 
 **Capture Client v1 (Chrome Extension)** — one adapter on the finished backend. See [ADR-0004](./ADRs/0004-why-browser-extension-capture.md).
+
+| Slice | Status |
+|-------|--------|
+| 1 — Durable queue + sync + options | Done (runtime verified) |
+| 2 — ChatGPT DOM capture | Design accepted — implement next ([CaptureClient.md](./CaptureClient.md)) |
 
 ### Phase 3 — Additional clients
 

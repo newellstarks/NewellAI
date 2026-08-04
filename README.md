@@ -50,7 +50,7 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 | Chapter 6 | API | Active | [docs/API.md](./docs/API.md) |
 | Chapter 7 | Authentication | Active | [docs/Authentication.md](./docs/Authentication.md) |
 | Chapter 8 | Database | Active | [docs/Database.md](./docs/Database.md) |
-| Chapter 9 | Capture Client v1 (Chrome Extension) | Draft | [docs/CaptureClient.md](./docs/CaptureClient.md) |
+| Chapter 9 | Capture Client v1 (Chrome Extension) | Active | [docs/CaptureClient.md](./docs/CaptureClient.md) |
 | Chapter 10 | Turn Capture | Active | [docs/TurnCapture.md](./docs/TurnCapture.md) |
 | Chapter 11 | Durable Queue | Active | [docs/DurableQueue.md](./docs/DurableQueue.md) |
 | Chapter 12 | Subsystem Template | Stable | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
@@ -67,4 +67,4 @@ When the TOC changes, update **both** this file and `docs/README.md`, plus each 
 Idea → Engineering Notebook → Implement exactly that → Test → Git Commit → Repeat
 ```
 
-See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 ✅ → read API ✅ → **Phase 1 closed** (E2E test passed 2026-08-01) → durable queue integration → **then** Capture Client v1. Increment without redesign.
+See [docs/README.md](./docs/README.md). Build **inside-out** ([Roadmap](./docs/Roadmap.md)): contracts → ingest ✅ → auth ✅ → D1 ✅ → read API ✅ → **Phase 1 closed** → durable queue Slice 1 ✅ → **ChatGPT capture Slice 2 (next)**. Increment without redesign.

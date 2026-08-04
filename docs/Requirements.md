@@ -59,11 +59,11 @@ FR-F1 through FR-F6 are all implemented.
 
 Once the backend works, add **Capture Client v1 (Chrome Extension)**:
 
-| ID | Requirement |
-|----|-------------|
-| FR-C1 | Capture turns from ChatGPT in the browser |
-| FR-C2 | Local durable queue + sync to the Phase 1 upload API |
-| FR-C3 | Surface sync errors to the operator |
+| ID | Requirement | Notes |
+|----|-------------|--------|
+| FR-C1 | Capture turns from ChatGPT in the browser | Slice 2 — design accepted ([CaptureClient.md](./CaptureClient.md)) |
+| FR-C2 | Local durable queue + sync to the Phase 1 upload API | Slice 1 — done |
+| FR-C3 | Surface sync errors to the operator | Slice 1 — done (options + badge); capture-enabled status in Slice 2 |
 
 This client is an **adapter**—not the architecture. See [CaptureClient.md](./CaptureClient.md).
 
