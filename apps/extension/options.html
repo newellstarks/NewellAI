@@ -12,19 +12,47 @@
       input[type="text"], input[type="password"], input.token-entry {
         width: 100%; padding: 0.45rem; border: 1px solid #9fb0c0; border-radius: 4px; box-sizing: border-box;
       }
-      /* Mask without type=password so password managers are less likely to fill. */
       input.token-entry { -webkit-text-security: disc; text-security: disc; }
       button { margin: 0.75rem 0.5rem 0 0; padding: 0.45rem 0.9rem; border: 1px solid #2c6e49; border-radius: 4px; background: #2c6e49; color: #fff; cursor: pointer; }
       button.secondary { background: #fff; color: #2c6e49; }
       button.danger { border-color: #c0392b; background: #fff; color: #c0392b; }
       dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; margin: 0; }
       dt { font-weight: 600; }
-      #save-note, #action-note { color: #2c6e49; margin-left: 0.5rem; }
+      #save-note, #action-note, #capture-note { color: #2c6e49; margin-left: 0.5rem; }
       .error { color: #c0392b; }
+      .hint { font-size: 0.85rem; color: #5a6a7a; margin: 0.4rem 0 0.8rem; }
+      .toggle-row { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; margin: 0.5rem 0; }
+      .toggle-row input { width: auto; }
+      .capture-status { font-weight: 700; font-size: 1.05rem; margin: 0 0 0.5rem; }
+      .capture-on { color: #2c6e49; }
+      .capture-off { color: #6b7280; }
     </style>
   </head>
   <body>
     <h1>NewellAI Turn Capture — Capture Client v1</h1>
+
+    <fieldset id="capture-fieldset">
+      <legend>ChatGPT capture</legend>
+      <p id="capture-status" class="capture-status capture-off">Capture: Disabled</p>
+      <label class="toggle-row">
+        <input id="capture-enabled" type="checkbox" />
+        Capture ChatGPT turns
+      </label>
+      <p class="hint">Default Off. While disabled, the content script does not enqueue turns. Enabling triggers a rescan of the visible conversation.</p>
+      <label for="user-id">User id</label>
+      <input
+        id="user-id"
+        name="user_id"
+        type="text"
+        placeholder="user-1"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <div>
+        <button id="save-capture" class="secondary" type="button">Save capture settings</button>
+        <span id="capture-note"></span>
+      </div>
+    </fieldset>
 
     <form id="connection-form" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
       <fieldset>
@@ -43,11 +71,6 @@
           data-form-type="other"
         />
         <label for="token">Capture API token</label>
-        <!--
-          Not type=password: password managers treat that as a login secret and
-          often inject the wrong value next to a URL field. Masked via CSS.
-          readonly until focus blocks autofill; paste handler replaces wholly.
-        -->
         <input
           id="token"
           name="capture_api_token_entry"

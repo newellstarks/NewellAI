@@ -2,12 +2,14 @@
   "manifest_version": 3,
   "name": "NewellAI Turn Capture",
   "version": "0.1.0",
-  "description": "Capture Client v1 — durable queue + sync to the NewellAI Worker. No DOM capture yet.",
+  "description": "Capture Client v1 — ChatGPT turn capture, durable queue, and sync to the NewellAI Worker.",
   "permissions": ["storage", "alarms"],
   "host_permissions": [
     "http://localhost/*",
     "http://127.0.0.1/*",
-    "https://*.workers.dev/*"
+    "https://*.workers.dev/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
   ],
   "background": {
     "service_worker": "dist/background.js",
@@ -16,5 +18,15 @@
   "options_page": "options.html",
   "action": {
     "default_title": "NewellAI Turn Capture"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": ["dist/chatgpt.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

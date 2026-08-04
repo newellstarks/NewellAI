@@ -1,20 +1,19 @@
 import {
+  DEFAULT_USER_ID,
   hasToken,
   importTokenFromClipboard,
   loadBaseUrl,
+  loadCaptureSettings,
   readTokenFieldValue,
   replaceTokenFieldValue,
+  saveCaptureSettings,
   saveConfig,
 } from "./config";
 import type { QueueStatus } from "./queue/types";
 
 /**
- * Options page — endpoint, token, status, synthetic test enqueue
- * (docs/DurableQueue.md diagnostics policy: counts and sanitized errors only;
- * the stored token is never read back into the page).
- *
- * Token field is autofill-resistant: not type=password, readonly until focus,
- * paste always replaces (never appends), password-manager ignore attributes.
+ * Options page — capture enablement, user_id, endpoint, token, status
+ * (docs/CaptureClient.md, docs/DurableQueue.md).
  */
 
 function el<T extends HTMLElement>(id: string): T {
@@ -25,10 +24,21 @@ function send<T>(message: unknown): Promise<T> {
   return chrome.runtime.sendMessage(message) as Promise<T>;
 }
 
+function renderCaptureStatus(enabled: boolean): void {
+  const status = el("capture-status");
+  status.textContent = enabled ? "Capture: Enabled" : "Capture: Disabled";
+  status.className = enabled
+    ? "capture-status capture-on"
+    : "capture-status capture-off";
+  el<HTMLInputElement>("capture-enabled").checked = enabled;
+}
+
 async function refreshStatus(): Promise<void> {
-  const reply = await send<{ ok: boolean; status?: QueueStatus }>({
-    type: "getStatus",
-  });
+  const reply = await send<{
+    ok: boolean;
+    status?: QueueStatus;
+    capture?: { enabled: boolean; userId: string };
+  }>({ type: "getStatus" });
   if (!reply.ok || reply.status === undefined) return;
   const s = reply.status;
   el("st-pending").textContent = String(s.pending);
@@ -39,6 +49,9 @@ async function refreshStatus(): Promise<void> {
   el("st-error").className = s.last_error === null ? "" : "error";
   el("st-success").textContent =
     s.last_success_at === null ? "never" : new Date(s.last_success_at).toLocaleString();
+  if (reply.capture) {
+    renderCaptureStatus(reply.capture.enabled);
+  }
 }
 
 function note(id: string, text: string): void {
@@ -50,21 +63,17 @@ function note(id: string, text: string): void {
 }
 
 function wireTokenField(tokenInput: HTMLInputElement): void {
-  // Unlock + clear on focus so autofilled junk cannot remain for append/paste.
   tokenInput.addEventListener("focus", () => {
     tokenInput.removeAttribute("readonly");
     replaceTokenFieldValue(tokenInput, "");
   });
 
-  // Paste always replaces the entire field value.
   tokenInput.addEventListener("paste", (event) => {
     event.preventDefault();
     const text = event.clipboardData?.getData("text") ?? "";
     replaceTokenFieldValue(tokenInput, text);
   });
 
-  // Drop any late autofill mutation that inserts without a user paste/type
-  // after we have already cleared — keep last user-driven value via input.
   tokenInput.addEventListener("blur", () => {
     tokenInput.setAttribute("readonly", "readonly");
   });
@@ -72,11 +81,34 @@ function wireTokenField(tokenInput: HTMLInputElement): void {
 
 async function init(): Promise<void> {
   el<HTMLInputElement>("base-url").value = await loadBaseUrl();
+  const capture = await loadCaptureSettings();
+  renderCaptureStatus(capture.enabled);
+  el<HTMLInputElement>("user-id").value = capture.userId;
+
   const tokenInput = el<HTMLInputElement>("token");
   tokenInput.placeholder = (await hasToken())
     ? "Token saved — enter a new value to replace"
     : "Stored locally; never displayed";
   wireTokenField(tokenInput);
+
+  el("save-capture").addEventListener("click", () => {
+    void (async () => {
+      const enabled = el<HTMLInputElement>("capture-enabled").checked;
+      const userId =
+        el<HTMLInputElement>("user-id").value.trim() || DEFAULT_USER_ID;
+      await saveCaptureSettings({ enabled, userId });
+      el<HTMLInputElement>("user-id").value = userId;
+      renderCaptureStatus(enabled);
+      await send({ type: "configChanged" });
+      await refreshStatus();
+      note(
+        "capture-note",
+        enabled
+          ? "Capture enabled — visible chat will rescan"
+          : "Capture disabled",
+      );
+    })();
+  });
 
   async function afterTokenSaved(): Promise<void> {
     replaceTokenFieldValue(tokenInput, "");
@@ -90,7 +122,6 @@ async function init(): Promise<void> {
     event.preventDefault();
     void (async () => {
       const baseUrl = el<HTMLInputElement>("base-url").value.trim();
-      // Full replacement read — never combine with a previously stored secret.
       const token = readTokenFieldValue(tokenInput);
       if (baseUrl.length === 0 || token.trim().length === 0) {
         note("save-note", "Both fields are required");
@@ -136,17 +167,18 @@ async function init(): Promise<void> {
   el("test-enqueue").addEventListener("click", () => {
     void (async () => {
       const now = new Date();
+      const settings = await loadCaptureSettings();
       await send({
         type: "enqueue",
         input: {
           conversation: {
             conversation_id: `manual-test-${now.toISOString().slice(0, 10)}`,
-            user_id: "user-1",
+            user_id: settings.userId,
             title: "Capture Client v1 test conversation",
           },
           capture: {
             capture_client: "chrome-extension",
-            capture_client_version: "0.0.0",
+            capture_client_version: "0.1.0",
             surface: "options-test",
           },
           turn: {

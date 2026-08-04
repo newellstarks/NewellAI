@@ -18,7 +18,8 @@ import {
  * never creates another queue item or increments the sequence.
  */
 
-const MAX_SOURCE_KEY_LENGTH = 128;
+/** Bound shared with capture messaging validation (ADR-0006). */
+export const MAX_SOURCE_KEY_LENGTH = 128;
 
 /** Validate a source-provided identifier; reject unusable values. */
 export function validateSourceKey(sourceKey: string | undefined): string | null {

@@ -1,4 +1,14 @@
-import { loadConfig } from "./config";
+import { loadCaptureSettings, loadConfig } from "./config";
+import {
+  authorizeCaptureEnqueue,
+  authorizeLegacyEnqueue,
+  CAPTURE_ENQUEUE_TYPE,
+} from "./capture/messaging";
+import {
+  CAPTURE_CLIENT,
+  CAPTURE_CLIENT_VERSION,
+  CAPTURE_SURFACE,
+} from "./capture/constants";
 import { openQueueDb } from "./queue/db";
 import {
   clearDeadLetters,
@@ -12,10 +22,9 @@ import { createSyncRunner } from "./queue/sync";
 import type { EnqueueInput } from "./queue/types";
 
 /**
- * Capture Client v1 service worker — durable queue slice (docs/DurableQueue.md,
- * ADR-0006). MV3 lifecycle: immediate sync attempt on enqueue, one-minute
- * chrome.alarms sweep of persisted next_attempt_at, startup recovery.
- * No DOM capture in this slice. No conversation text or token in logs.
+ * Capture Client v1 service worker — durable queue + ChatGPT captureEnqueue
+ * (docs/DurableQueue.md, docs/CaptureClient.md, ADR-0006).
+ * Diagnostics never include turn text or the token.
  */
 
 const SYNC_ALARM = "newellai-sync-sweep";
@@ -32,9 +41,20 @@ const runSync = (async () => {
 })();
 
 async function updateBadge(): Promise<void> {
+  const { enabled } = await loadCaptureSettings();
+  if (!enabled) {
+    await chrome.action.setBadgeText({ text: "OFF" });
+    await chrome.action.setBadgeBackgroundColor({ color: "#6b7280" });
+    return;
+  }
   const status = await getStatus(await db());
   const count = status.pending + status.auth_blocked + status.in_flight + status.dead;
-  await chrome.action.setBadgeText({ text: count === 0 ? "" : String(count) });
+  if (count === 0) {
+    await chrome.action.setBadgeText({ text: "ON" });
+    await chrome.action.setBadgeBackgroundColor({ color: "#2c6e49" });
+    return;
+  }
+  await chrome.action.setBadgeText({ text: String(count) });
   await chrome.action.setBadgeBackgroundColor({
     color: status.dead > 0 || status.auth_blocked > 0 ? "#c0392b" : "#2c6e49",
   });
@@ -71,26 +91,88 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   void syncAndRefresh();
 });
 
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  if ("capture_chatgpt_enabled" in changes || "user_id" in changes) {
+    void updateBadge();
+  }
+});
+
 type Message =
   | { type: "enqueue"; input: EnqueueInput }
+  | { type: typeof CAPTURE_ENQUEUE_TYPE }
   | { type: "getStatus" }
+  | { type: "getCaptureSettings" }
   | { type: "clearDeadLetters" }
   | { type: "configChanged" }
   | { type: "syncNow" };
 
-chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) => {
   void (async () => {
     try {
       const database = await db();
       switch (message.type) {
+        case CAPTURE_ENQUEUE_TYPE: {
+          const gate = authorizeCaptureEnqueue(
+            message,
+            sender,
+            chrome.runtime.id,
+          );
+          if (!gate.ok) {
+            sendResponse({ ok: false, error: gate.reason });
+            break;
+          }
+          const settings = await loadCaptureSettings();
+          if (!settings.enabled) {
+            sendResponse({ ok: false, error: "capture_disabled" });
+            break;
+          }
+          const input: EnqueueInput = {
+            conversation: {
+              conversation_id: gate.message.conversation_id,
+              user_id: settings.userId,
+            },
+            capture: {
+              capture_client: CAPTURE_CLIENT,
+              capture_client_version: CAPTURE_CLIENT_VERSION,
+              surface: CAPTURE_SURFACE,
+            },
+            source_key: gate.message.source_key,
+            turn: {
+              speaker: gate.message.speaker,
+              text: gate.message.text,
+              ...(gate.message.captured_at !== undefined
+                ? { captured_at: gate.message.captured_at }
+                : {}),
+            },
+          };
+          const result = await enqueue(database, input);
+          await syncAndRefresh();
+          sendResponse({ ok: true, result });
+          break;
+        }
         case "enqueue": {
+          const legacy = authorizeLegacyEnqueue(sender, chrome.runtime.id);
+          if (!legacy.ok) {
+            sendResponse({ ok: false, error: legacy.reason });
+            break;
+          }
           const result = await enqueue(database, message.input);
           await syncAndRefresh();
           sendResponse({ ok: true, result });
           break;
         }
         case "getStatus": {
-          sendResponse({ ok: true, status: await getStatus(database) });
+          const settings = await loadCaptureSettings();
+          sendResponse({
+            ok: true,
+            status: await getStatus(database),
+            capture: settings,
+          });
+          break;
+        }
+        case "getCaptureSettings": {
+          sendResponse({ ok: true, capture: await loadCaptureSettings() });
           break;
         }
         case "clearDeadLetters": {
@@ -100,15 +182,12 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
           break;
         }
         case "configChanged": {
-          // Credentials may be fixed: auth-blocked items become pending.
           const requeued = await requeueAuthBlocked(database);
           await syncAndRefresh();
           sendResponse({ ok: true, requeued });
           break;
         }
         case "syncNow": {
-          // Operator intent: try now. Does not reset attempts or touch
-          // auth_blocked / dead letters. Automatic alarm sweeps still honor backoff.
           await forcePendingDue(database);
           await syncAndRefresh();
           sendResponse({ ok: true, status: await getStatus(database) });
@@ -116,9 +195,11 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
         }
       }
     } catch (error) {
-      // Sanitized: no payload content, no token.
-      sendResponse({ ok: false, error: error instanceof Error ? error.name : "Error" });
+      sendResponse({
+        ok: false,
+        error: error instanceof Error ? error.name : "Error",
+      });
     }
   })();
-  return true; // async sendResponse
+  return true;
 });

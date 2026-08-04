@@ -1,19 +1,19 @@
 import type { SyncConfig, SyncConfigLoad } from "./queue/sync";
+import { STORAGE_KEYS } from "./storage-keys";
 import {
   TOKEN_STORAGE_MISMATCH_MESSAGE,
   fingerprintToken,
   validateCaptureToken,
 } from "./token";
+import { DEFAULT_USER_ID, MAX_USER_ID_LENGTH } from "./capture/constants";
 
 /**
  * Configuration lives in chrome.storage.local (ADR-0006): the token is never
  * placed in chrome.storage.sync and never bundled into the build.
  */
 
-export const STORAGE_KEYS = {
-  baseUrl: "worker_base_url",
-  token: "capture_api_token",
-} as const;
+export { STORAGE_KEYS } from "./storage-keys";
+export { DEFAULT_USER_ID } from "./capture/constants";
 
 export type LoadConfigResult = SyncConfigLoad;
 
@@ -38,6 +38,52 @@ export async function loadConfig(): Promise<LoadConfigResult> {
     status: "ready",
     config: { baseUrl: baseUrl.trim(), token: validated.token },
   };
+}
+
+export type CaptureSettings = {
+  enabled: boolean;
+  userId: string;
+};
+
+/** Capture enablement defaults Off; user_id defaults to user-1. */
+export async function loadCaptureSettings(): Promise<CaptureSettings> {
+  const stored = await chrome.storage.local.get([
+    STORAGE_KEYS.captureEnabled,
+    STORAGE_KEYS.userId,
+  ]);
+  const enabled = stored[STORAGE_KEYS.captureEnabled] === true;
+  const rawUser = stored[STORAGE_KEYS.userId];
+  let userId = DEFAULT_USER_ID;
+  if (typeof rawUser === "string") {
+    const trimmed = rawUser.trim();
+    if (
+      trimmed.length > 0 &&
+      trimmed.length <= MAX_USER_ID_LENGTH &&
+      !/[\u0000-\u001f\u007f]/.test(trimmed)
+    ) {
+      userId = trimmed;
+    }
+  }
+  return { enabled, userId };
+}
+
+export async function saveCaptureSettings(
+  settings: Partial<CaptureSettings>,
+): Promise<void> {
+  const patch: Record<string, unknown> = {};
+  if (settings.enabled !== undefined) {
+    patch[STORAGE_KEYS.captureEnabled] = settings.enabled === true;
+  }
+  if (settings.userId !== undefined) {
+    const trimmed = settings.userId.trim();
+    patch[STORAGE_KEYS.userId] =
+      trimmed.length > 0 && trimmed.length <= MAX_USER_ID_LENGTH
+        ? trimmed
+        : DEFAULT_USER_ID;
+  }
+  if (Object.keys(patch).length > 0) {
+    await chrome.storage.local.set(patch);
+  }
 }
 
 export type SaveConfigResult = { ok: true } | { ok: false; message: string };
