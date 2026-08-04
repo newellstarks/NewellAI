@@ -3,11 +3,21 @@ import { IDBFactory } from "fake-indexeddb";
 import type { UploadRequest } from "@newellai/contracts";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getAllFromStore, openQueueDb, STORES } from "./db";
-import { enqueue, getDeadLetters, getStatus } from "./queue";
-import { createSyncRunner, syncOnce, type FetchLike } from "./sync";
+import { enqueue, forcePendingDue, getDeadLetters, getStatus } from "./queue";
+import {
+  createSyncRunner,
+  sanitizeFetchError,
+  syncOnce,
+  type FetchLike,
+} from "./sync";
+import { INVALID_TOKEN_MESSAGE } from "../token";
 import type { EnqueueInput, QueueEnvelope } from "./types";
 
 const CONFIG = { baseUrl: "http://localhost:8787", token: "test-token" };
+const ready = async () =>
+  ({ status: "ready" as const, config: CONFIG });
+const missing = async () => ({ status: "missing" as const });
+const invalidToken = async () => ({ status: "invalid_token" as const });
 
 let db: IDBDatabase;
 
@@ -149,7 +159,7 @@ describe("syncOnce — classification", () => {
     await enqueue(db, input("conv-a", "a second", "a2"), 4_000);
 
     const { fetchFn, uploads } = fakeFetch([ok(2)]);
-    const run = createSyncRunner(db, async () => CONFIG, fetchFn);
+    const run = createSyncRunner(db, ready, fetchFn);
     const outcome = await run();
 
     expect(outcome.delivered).toBe(4);
@@ -202,7 +212,7 @@ describe("syncOnce — classification", () => {
       await enqueue(db, input("conv-a", `turn ${i}`, `m${String(i).padStart(2, "0")}`), i);
     }
     const { fetchFn, uploads } = fakeFetch([ok(25), ok(5)]);
-    const run = createSyncRunner(db, async () => CONFIG, fetchFn);
+    const run = createSyncRunner(db, ready, fetchFn);
     const outcome = await run();
 
     expect(outcome.delivered).toBe(30);
@@ -231,10 +241,151 @@ describe("syncOnce — classification", () => {
   it("runner returns unconfigured as idle without fetching", async () => {
     await enqueue(db, input("conv-a", "waiting", "m1"));
     const { fetchFn, calls } = fakeFetch([ok(1)]);
-    const run = createSyncRunner(db, async () => null, fetchFn);
+    const run = createSyncRunner(db, missing, fetchFn);
     const outcome = await run();
     expect(outcome.idle).toBe(true);
     expect(calls()).toBe(0);
     expect(await queueItems()).toHaveLength(1);
+  });
+});
+
+describe("invalid token — no fetch, no retry consumption", () => {
+  it("syncOnce with contaminated token does not call fetch or consume attempts", async () => {
+    const badToken = "good-prefix\nbad-suffix";
+    await enqueue(db, input("conv-a", "secret turn text", "m1"), 0);
+    const { fetchFn, calls } = fakeFetch([ok(1)]);
+
+    const outcome = await syncOnce(
+      db,
+      { baseUrl: CONFIG.baseUrl, token: badToken },
+      fetchFn,
+      0,
+    );
+
+    expect(calls()).toBe(0);
+    expect(outcome.auth_blocked).toBe(1);
+    expect(outcome.retried).toBe(0);
+    expect(outcome.delivered).toBe(0);
+
+    const [item] = await queueItems();
+    expect(item!.state).toBe("auth_blocked");
+    expect(item!.attempts).toBe(0);
+
+    const status = await getStatus(db);
+    expect(status.last_error).toBe(INVALID_TOKEN_MESSAGE);
+    expect(status.last_error).not.toContain(badToken);
+    expect(status.last_error).not.toContain("secret turn text");
+    expect(JSON.stringify(status)).not.toContain(badToken);
+    expect(JSON.stringify(status)).not.toContain("secret turn text");
+  });
+
+  it("createSyncRunner invalid_token holds pending without fetch", async () => {
+    await enqueue(db, input("conv-a", "turn body", "m1"));
+    const { fetchFn, calls } = fakeFetch([ok(1)]);
+    const run = createSyncRunner(db, invalidToken, fetchFn);
+    const outcome = await run();
+
+    expect(calls()).toBe(0);
+    expect(outcome.auth_blocked).toBe(1);
+    const [item] = await queueItems();
+    expect(item!.attempts).toBe(0);
+    expect(item!.state).toBe("auth_blocked");
+    expect((await getStatus(db)).last_error).toBe(INVALID_TOKEN_MESSAGE);
+  });
+
+  it("CR-contaminated token is rejected the same way", async () => {
+    await enqueue(db, input("conv-a", "x", "m1"), 0);
+    const { fetchFn, calls } = fakeFetch([ok(1)]);
+    await syncOnce(
+      db,
+      { baseUrl: CONFIG.baseUrl, token: "token\rwith-cr" },
+      fetchFn,
+      0,
+    );
+    expect(calls()).toBe(0);
+    expect((await queueItems())[0]!.attempts).toBe(0);
+  });
+});
+
+describe("sanitizeFetchError", () => {
+  it("formats name and message as network error (Name: message)", () => {
+    expect(sanitizeFetchError(new TypeError("Failed to fetch"))).toBe(
+      "network error (TypeError: Failed to fetch)",
+    );
+  });
+
+  it("redacts bearer tokens and long opaque secrets from messages", () => {
+    const secret = "a".repeat(40);
+    const diagnostic = sanitizeFetchError(
+      new Error(`Authorization Bearer ${secret} rejected`),
+    );
+    expect(diagnostic).toContain("network error (Error:");
+    expect(diagnostic).not.toContain(secret);
+    expect(diagnostic).toContain("Bearer [redacted]");
+  });
+});
+
+describe("thrown fetch diagnostics", () => {
+  it("stores sanitized diagnostic text without token or turn text", async () => {
+    const secretToken = "super-secret-token-value-0123456789abcdef";
+    const turnText = "TOP SECRET TURN TEXT that must never appear";
+    await enqueue(db, input("conv-a", turnText, "m1"), 0);
+
+    await syncOnce(
+      db,
+      { baseUrl: "http://localhost:8787", token: secretToken },
+      async () => {
+        throw new TypeError("Failed to fetch");
+      },
+      0,
+    );
+
+    const status = await getStatus(db);
+    expect(status.last_error).toBe("network error (TypeError: Failed to fetch)");
+    expect(status.last_error).not.toContain(secretToken);
+    expect(status.last_error).not.toContain(turnText);
+    expect(JSON.stringify(status)).not.toContain(secretToken);
+    expect(JSON.stringify(status)).not.toContain(turnText);
+  });
+});
+
+describe("operator Sync now vs automatic backoff", () => {
+  it("automatic sync respects persisted next_attempt_at", async () => {
+    await enqueue(db, input("conv-a", "offline", "m1"), 1_000);
+    const offline = fakeFetch(["network-error"]);
+    await syncOnce(db, CONFIG, offline.fetchFn, 1_000);
+
+    const [item] = await queueItems();
+    expect(item!.next_attempt_at).toBe(1_000 + 5_000);
+
+    // Sweep before due: idle, no fetch.
+    const early = fakeFetch([ok(1)]);
+    const outcome = await syncOnce(db, CONFIG, early.fetchFn, 2_000);
+    expect(outcome.idle).toBe(true);
+    expect(early.calls()).toBe(0);
+    expect(await queueItems()).toHaveLength(1);
+  });
+
+  it("forcePendingDue then sync bypasses waiting for next_attempt_at", async () => {
+    await enqueue(db, input("conv-a", "offline", "m1"), 1_000);
+    const offline = fakeFetch(["network-error"]);
+    await syncOnce(db, CONFIG, offline.fetchFn, 1_000);
+
+    const [before] = await queueItems();
+    expect(before!.attempts).toBe(1);
+    expect(before!.next_attempt_at).toBeGreaterThan(2_000);
+
+    const forced = await forcePendingDue(db);
+    expect(forced).toBe(1);
+    const [afterForce] = await queueItems();
+    expect(afterForce!.attempts).toBe(1); // attempts unchanged
+    expect(afterForce!.next_attempt_at).toBe(0);
+
+    // Same early clock that previously idled — now delivers.
+    const online = fakeFetch([ok(1)]);
+    const outcome = await syncOnce(db, CONFIG, online.fetchFn, 2_000);
+    expect(outcome.delivered).toBe(1);
+    expect(online.calls()).toBe(1);
+    expect(await queueItems()).toHaveLength(0);
   });
 });

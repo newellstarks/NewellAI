@@ -126,6 +126,42 @@ export async function requeueAuthBlocked(db: IDBDatabase): Promise<number> {
   });
 }
 
+/**
+ * Hold pending items as auth-blocked without consuming retry attempts
+ * (invalid stored token / configuration). Does not touch dead letters.
+ */
+export async function holdPendingAsAuthBlocked(db: IDBDatabase): Promise<number> {
+  return withTransaction(db, [STORES.queue], "readwrite", async (tx) => {
+    const store = tx.objectStore(STORES.queue);
+    const pending = (await idbRequest(
+      store.index("by_state").getAll("pending"),
+    )) as QueueEnvelope[];
+    for (const item of pending) {
+      // attempts unchanged — configuration failure is not a delivery attempt.
+      store.put({ ...item, state: "auth_blocked" });
+    }
+    return pending.length;
+  });
+}
+
+/**
+ * Operator "Sync now": make all pending items due immediately.
+ * Does not reset attempts, and does not touch auth_blocked or dead letters.
+ * Automatic sweeps continue to respect persisted next_attempt_at / backoff.
+ */
+export async function forcePendingDue(db: IDBDatabase): Promise<number> {
+  return withTransaction(db, [STORES.queue], "readwrite", async (tx) => {
+    const store = tx.objectStore(STORES.queue);
+    const pending = (await idbRequest(
+      store.index("by_state").getAll("pending"),
+    )) as QueueEnvelope[];
+    for (const item of pending) {
+      store.put({ ...item, next_attempt_at: 0 });
+    }
+    return pending.length;
+  });
+}
+
 /** Dead letters are retained until manually cleared by the operator. */
 export async function clearDeadLetters(db: IDBDatabase): Promise<number> {
   return withTransaction(db, [STORES.dead], "readwrite", async (tx) => {

@@ -3,6 +3,7 @@ import { openQueueDb } from "./queue/db";
 import {
   clearDeadLetters,
   enqueue,
+  forcePendingDue,
   getStatus,
   recoverInFlight,
   requeueAuthBlocked,
@@ -106,6 +107,9 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
           break;
         }
         case "syncNow": {
+          // Operator intent: try now. Does not reset attempts or touch
+          // auth_blocked / dead letters. Automatic alarm sweeps still honor backoff.
+          await forcePendingDue(database);
           await syncAndRefresh();
           sendResponse({ ok: true, status: await getStatus(database) });
           break;

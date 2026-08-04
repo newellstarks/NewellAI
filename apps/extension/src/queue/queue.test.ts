@@ -5,6 +5,7 @@ import { getAllFromStore, openQueueDb, STORES } from "./db";
 import {
   clearDeadLetters,
   enqueue,
+  forcePendingDue,
   getDeadLetters,
   getStatus,
   recoverInFlight,
@@ -181,7 +182,43 @@ describe("T8: status", () => {
     expect(status.pending).toBe(1);
     expect(status.dead).toBe(0);
     expect(status.oldest_pending_age_ms).toBe(9_000);
-    expect(status.last_error).toBe("network error");
+    expect(status.last_error).toBe("network error (TypeError: fetch failed)");
     expect(JSON.stringify(status)).not.toContain("secret content");
+  });
+});
+
+describe("forcePendingDue — operator Sync now", () => {
+  it("makes pending items due without resetting attempts or touching auth_blocked", async () => {
+    await enqueue(db, input("conv-a", "waiting", "m1"), 1_000);
+    await syncOnce(
+      db,
+      { baseUrl: "http://x", token: "t" },
+      async () => {
+        throw new TypeError("fetch failed");
+      },
+      1_000,
+    );
+    let [item] = await queueItems();
+    expect(item!.attempts).toBe(1);
+    expect(item!.next_attempt_at).toBe(1_000 + 5_000);
+
+    // Simulate an auth-blocked sibling that must not be touched.
+    await enqueue(db, input("conv-b", "blocked", "b1"), 2_000);
+    await syncOnce(
+      db,
+      { baseUrl: "http://x", token: "bad" },
+      async () => new Response("{}", { status: 401 }),
+      2_000,
+    );
+
+    const forced = await forcePendingDue(db);
+    expect(forced).toBe(1); // only the pending item
+
+    const items = await queueItems();
+    const pending = items.find((i) => i.state === "pending")!;
+    const blocked = items.find((i) => i.state === "auth_blocked")!;
+    expect(pending.attempts).toBe(1);
+    expect(pending.next_attempt_at).toBe(0);
+    expect(blocked.next_attempt_at).not.toBe(0);
   });
 });

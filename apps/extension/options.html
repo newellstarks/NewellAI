@@ -9,7 +9,11 @@
       fieldset { border: 1px solid #cdd6df; border-radius: 6px; margin-bottom: 1.25rem; padding: 1rem; }
       legend { font-weight: 600; padding: 0 0.4rem; }
       label { display: block; margin: 0.6rem 0 0.2rem; font-weight: 600; }
-      input[type="text"], input[type="password"] { width: 100%; padding: 0.45rem; border: 1px solid #9fb0c0; border-radius: 4px; box-sizing: border-box; }
+      input[type="text"], input[type="password"], input.token-entry {
+        width: 100%; padding: 0.45rem; border: 1px solid #9fb0c0; border-radius: 4px; box-sizing: border-box;
+      }
+      /* Mask without type=password so password managers are less likely to fill. */
+      input.token-entry { -webkit-text-security: disc; text-security: disc; }
       button { margin: 0.75rem 0.5rem 0 0; padding: 0.45rem 0.9rem; border: 1px solid #2c6e49; border-radius: 4px; background: #2c6e49; color: #fff; cursor: pointer; }
       button.secondary { background: #fff; color: #2c6e49; }
       button.danger { border-color: #c0392b; background: #fff; color: #c0392b; }
@@ -22,14 +26,53 @@
   <body>
     <h1>NewellAI Turn Capture — Capture Client v1</h1>
 
-    <fieldset>
-      <legend>Worker connection</legend>
-      <label for="base-url">Worker base URL</label>
-      <input id="base-url" type="text" placeholder="http://localhost:8787" autocomplete="off" />
-      <label for="token">Capture API token</label>
-      <input id="token" type="password" placeholder="Stored locally; never displayed" autocomplete="off" />
-      <div><button id="save">Save</button><span id="save-note"></span></div>
-    </fieldset>
+    <form id="connection-form" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore>
+      <fieldset>
+        <legend>Worker connection</legend>
+        <label for="base-url">Worker base URL</label>
+        <input
+          id="base-url"
+          name="worker_base_url"
+          type="text"
+          placeholder="http://localhost:8787"
+          autocomplete="off"
+          spellcheck="false"
+          data-lpignore="true"
+          data-1p-ignore
+          data-bwignore
+          data-form-type="other"
+        />
+        <label for="token">Capture API token</label>
+        <!--
+          Not type=password: password managers treat that as a login secret and
+          often inject the wrong value next to a URL field. Masked via CSS.
+          readonly until focus blocks autofill; paste handler replaces wholly.
+        -->
+        <input
+          id="token"
+          name="capture_api_token_entry"
+          class="token-entry"
+          type="text"
+          placeholder="Stored locally; never displayed"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          inputmode="text"
+          readonly
+          data-lpignore="true"
+          data-1p-ignore
+          data-bwignore
+          data-form-type="other"
+          data-bw-secret="false"
+        />
+        <div>
+          <button id="save" type="submit">Save</button>
+          <button id="import-clipboard" class="secondary" type="button">Import token from clipboard</button>
+          <span id="save-note"></span>
+        </div>
+      </fieldset>
+    </form>
 
     <fieldset>
       <legend>Queue status</legend>
@@ -42,10 +85,10 @@
         <dt>Last success</dt><dd id="st-success">–</dd>
       </dl>
       <div>
-        <button id="refresh" class="secondary">Refresh</button>
-        <button id="sync-now" class="secondary">Sync now</button>
-        <button id="test-enqueue" class="secondary">Enqueue test turn</button>
-        <button id="clear-dead" class="danger">Clear dead letters</button>
+        <button id="refresh" class="secondary" type="button">Refresh</button>
+        <button id="sync-now" class="secondary" type="button">Sync now</button>
+        <button id="test-enqueue" class="secondary" type="button">Enqueue test turn</button>
+        <button id="clear-dead" class="danger" type="button">Clear dead letters</button>
         <span id="action-note"></span>
       </div>
     </fieldset>

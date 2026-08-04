@@ -1,6 +1,7 @@
 import type { UploadRequest } from "@newellai/contracts";
+import { INVALID_TOKEN_MESSAGE, validateCaptureToken } from "../token";
 import { idbRequest, STORES, withTransaction } from "./db";
-import { setStatus } from "./queue";
+import { holdPendingAsAuthBlocked, setStatus } from "./queue";
 import {
   backoffMs,
   MAX_ATTEMPTS,
@@ -26,7 +27,33 @@ export interface SyncConfig {
   token: string;
 }
 
+/** Resolver result for createSyncRunner (matches config.loadConfig). */
+export type SyncConfigLoad =
+  | { status: "ready"; config: SyncConfig }
+  | { status: "missing" }
+  | { status: "invalid_token" };
+
 export type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
+
+/**
+ * Sanitize a thrown fetch/sync error for operator status.
+ * Stores only error.name and a short safe message — never token, body,
+ * turn text, or Authorization headers.
+ */
+export function sanitizeFetchError(error: unknown): string {
+  const name = error instanceof Error && error.name.length > 0 ? error.name : "Error";
+  const raw =
+    error instanceof Error && typeof error.message === "string"
+      ? error.message
+      : "unknown";
+  const safe = raw
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/\b[A-Za-z0-9+/=_-]{32,}\b/g, "[redacted]")
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .trim()
+    .slice(0, 120);
+  return `network error (${name}: ${safe.length > 0 ? safe : "unknown"})`;
+}
 
 /** Callers must not run two syncs concurrently; see createSyncRunner. */
 export async function syncOnce(
@@ -42,6 +69,17 @@ export async function syncOnce(
     auth_blocked: 0,
     idle: false,
   };
+
+  const tokenCheck = validateCaptureToken(config.token);
+  if (!tokenCheck.ok) {
+    const blocked = await holdPendingAsAuthBlocked(db);
+    await setStatus(db, { last_error: INVALID_TOKEN_MESSAGE });
+    outcome.auth_blocked = blocked;
+    outcome.idle = blocked === 0;
+    return outcome;
+  }
+  // Use the trimmed, validated token for the Authorization header.
+  const safeConfig: SyncConfig = { baseUrl: config.baseUrl, token: tokenCheck.token };
 
   // Select the due batch and mark it in flight, atomically. Any persisted
   // in-flight items found here are abandoned (the caller serializes syncs),
@@ -103,20 +141,23 @@ export async function syncOnce(
   };
 
   let response: Response | null = null;
+  let fetchErrorDiagnostic: string | null = null;
   try {
-    response = await fetchFn(`${config.baseUrl.replace(/\/$/, "")}/v1/turns`, {
+    response = await fetchFn(`${safeConfig.baseUrl.replace(/\/$/, "")}/v1/turns`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${config.token}`,
+        Authorization: `Bearer ${safeConfig.token}`,
         "content-type": "application/json",
       },
       body: JSON.stringify(upload),
     });
-  } catch {
-    response = null; // network failure → transient
+  } catch (error) {
+    // Transient failure; diagnostic is sanitized (no token/body/turn text).
+    response = null;
+    fetchErrorDiagnostic = sanitizeFetchError(error);
   }
 
-  await applyResult(db, batch, response, now, outcome);
+  await applyResult(db, batch, response, now, outcome, fetchErrorDiagnostic);
   return outcome;
 }
 
@@ -126,6 +167,7 @@ async function applyResult(
   response: Response | null,
   now: number,
   outcome: SyncOutcome,
+  fetchErrorDiagnostic: string | null = null,
 ): Promise<void> {
   const status = response?.status ?? null;
   // Sanitized reason only: never response bodies or conversation text.
@@ -190,7 +232,10 @@ async function applyResult(
     await setStatus(db, { last_error: `upload rejected (HTTP ${status})` });
   } else {
     await setStatus(db, {
-      last_error: status === null ? "network error" : `server error (HTTP ${status})`,
+      last_error:
+        status === null
+          ? (fetchErrorDiagnostic ?? "network error")
+          : `server error (HTTP ${status})`,
     });
   }
 }
@@ -202,7 +247,7 @@ async function applyResult(
  */
 export function createSyncRunner(
   db: IDBDatabase,
-  getConfig: () => Promise<SyncConfig | null>,
+  getConfig: () => Promise<SyncConfigLoad>,
   fetchFn: FetchLike,
 ): () => Promise<SyncOutcome> {
   let running: Promise<SyncOutcome> | null = null;
@@ -215,10 +260,18 @@ export function createSyncRunner(
       auth_blocked: 0,
       idle: true,
     };
-    const config = await getConfig();
-    if (config === null) return total; // unconfigured: nothing to do
+    const loaded = await getConfig();
+    if (loaded.status === "missing") return total;
+    if (loaded.status === "invalid_token") {
+      const blocked = await holdPendingAsAuthBlocked(db);
+      await setStatus(db, { last_error: INVALID_TOKEN_MESSAGE });
+      total.auth_blocked = blocked;
+      total.idle = blocked === 0;
+      return total;
+    }
+
     for (;;) {
-      const result = await syncOnce(db, config, fetchFn);
+      const result = await syncOnce(db, loaded.config, fetchFn);
       total.delivered += result.delivered;
       total.retried += result.retried;
       total.dead_lettered += result.dead_lettered;
@@ -227,6 +280,7 @@ export function createSyncRunner(
       // Continue only when the whole batch succeeded; failures wait for
       // their persisted next_attempt_at.
       if (result.idle || result.delivered === 0 || result.retried > 0) break;
+      if (result.auth_blocked > 0) break;
     }
     return total;
   };
