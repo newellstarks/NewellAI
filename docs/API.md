@@ -7,7 +7,7 @@
 | **Status** | Active |
 | **Purpose** | Worker HTTP surface: ingest routes, validation, and error envelopes. |
 | **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md) |
-| **Related chapters** | [Authentication](./Authentication.md), [Architecture](./Architecture.md), [Database](./Database.md), [Roadmap](./Roadmap.md) |
+| **Related chapters** | [Authentication](./Authentication.md), [Architecture](./Architecture.md), [Database](./Database.md), [Artifacts](./Artifacts.md), [Roadmap](./Roadmap.md) |
 | **Nav** | [← Prev](./Contracts.md) · [TOC](./README.md#table-of-contents) · [Next →](./Authentication.md) |
 
 ---
@@ -116,6 +116,7 @@ Returns `ConversationTurnsResponse`: every stored turn for one conversation.
 - Auth policy from [Authentication.md](./Authentication.md) — do not re-specify it here
 - Persistence behavior from [Database.md](./Database.md) — validate before persist; idempotent on `client_turn_id`
 - No queue logic or retries in the Worker (queue stays in the client — [ADR-0002](./ADRs/0002-durable-queue-in-extension.md))
+- Artifact ingest / content routes are **Accepted** for design: `POST /v1/artifacts`, `PUT /v1/artifacts/:artifact_id/content`, proxied `GET .../content` — [Artifacts.md](./Artifacts.md), [ADR-0009](./ADRs/0009-artifact-delivery-retry-and-recovery-pipeline.md); not yet implemented.
 
 ## Related
 
@@ -124,4 +125,5 @@ Returns `ConversationTurnsResponse`: every stored turn for one conversation.
 - [Roadmap](./Roadmap.md)
 - [Architecture](./Architecture.md)
 - [Database](./Database.md)
+- [Artifacts](./Artifacts.md) — proposed artifact routes
 - Code: `apps/worker/`

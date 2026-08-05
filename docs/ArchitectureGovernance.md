@@ -8,7 +8,7 @@
 | **Purpose** | How architecture, implementation, review, and redesign decisions are made for NewellAI. |
 | **Prerequisites** | [Chapter 0 — Engineering Notebook](./README.md), [Chapter 4 — Architecture](./Architecture.md) |
 | **Related chapters** | [SubsystemTemplate](./SubsystemTemplate.md), [ADRs](./ADRs/), [Roadmap](./Roadmap.md) |
-| **Nav** | [← Prev](./SubsystemTemplate.md) · [TOC](./README.md#table-of-contents) · [Next →](./ADRs/README.md) |
+| **Nav** | [← Prev](./SubsystemTemplate.md) · [TOC](./README.md#table-of-contents) · [Next →](./Artifacts.md) |
 
 ---
 

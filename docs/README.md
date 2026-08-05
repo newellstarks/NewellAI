@@ -56,6 +56,9 @@ When the repo layout changes: update paths here, but **do not change architectur
 | 11 | Durable Queue | Active | [DurableQueue.md](./DurableQueue.md) |
 | 12 | Subsystem Template | Stable | [SubsystemTemplate.md](./SubsystemTemplate.md) |
 | 13 | Architecture Governance | Stable | [ArchitectureGovernance.md](./ArchitectureGovernance.md) |
+| 14 | Conversation Artifacts | Draft — ADRs 0007–0010 Accepted | [Artifacts.md](./Artifacts.md) |
+| 15 | Structured Sources and Canonical Knowledge | Draft | [StructuredSources.md](./StructuredSources.md) |
+| — | Digital Newell Framework identity inventory | Draft | [DigitalNewellFrameworkInventory.md](./DigitalNewellFrameworkInventory.md) |
 | — | Architecture Decision Records | Active | [ADRs/](./ADRs/) |
 
 **Status key:** **Draft** = direction not implemented · **Active** = in use, still evolving · **Stable** = rely on it; change deliberately (often via ADR)
@@ -78,6 +81,8 @@ See [Roadmap](./Roadmap.md) for the live checklist. In short:
 ✅ Phase 2 Slice 1 — durable queue + sync (Chrome runtime verified)
 ✅ Phase 2 Slice 2 — ChatGPT DOM capture (Chrome runtime verified)
 →  Phase 2 Slice 2.1 — operator config persistence (design accepted — see CaptureClient.md)
+→  Artifact v1 — conversation artifacts (design draft — see Artifacts.md; ADRs required before implement)
+→  Structured sources / Framework import (design draft — see StructuredSources.md; ADRs 0011–0015)
 ```
 
 ## Development loop

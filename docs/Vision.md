@@ -43,6 +43,7 @@ Each layer (contracts → ingest → auth → D1 → queue integration → Captu
 - Structured documentation that AI tools can navigate
 - Separate source, config, runtime outputs, and docs
 - Engineering notebook remains the authoritative specification
+- **Document fidelity:** visual presentation and formatting in Word/Excel are human-facing semantic data and preserved latent semantic information; edits change only what was requested ([Architecture](./Architecture.md), [ADR-0016](./ADRs/0016-document-and-workbook-fidelity.md) — Accepted)
 
 ## Related
 

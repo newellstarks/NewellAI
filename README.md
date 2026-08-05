@@ -55,6 +55,9 @@ Authoritative reading order (same as [`docs/README.md`](./docs/README.md#table-o
 | Chapter 11 | Durable Queue | Active | [docs/DurableQueue.md](./docs/DurableQueue.md) |
 | Chapter 12 | Subsystem Template | Stable | [docs/SubsystemTemplate.md](./docs/SubsystemTemplate.md) |
 | Chapter 13 | Architecture Governance | Stable | [docs/ArchitectureGovernance.md](./docs/ArchitectureGovernance.md) |
+| Chapter 14 | Conversation Artifacts | Draft — ADRs 0007–0010 Accepted | [docs/Artifacts.md](./docs/Artifacts.md) |
+| Chapter 15 | Structured Sources and Canonical Knowledge | Draft | [docs/StructuredSources.md](./docs/StructuredSources.md) |
+| — | Digital Newell Framework identity inventory | Draft | [docs/DigitalNewellFrameworkInventory.md](./docs/DigitalNewellFrameworkInventory.md) |
 | — | Architecture Decision Records | Active | [docs/ADRs/](./docs/ADRs/) |
 
 **Status:** Draft · Active · Stable — see [docs/README.md](./docs/README.md#table-of-contents).

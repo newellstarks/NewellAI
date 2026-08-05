@@ -7,7 +7,7 @@
 | **Status** | Active |
 | **Purpose** | D1 schema and persistence behavior for Worker ingest; local SQLite mirror strategy. |
 | **Prerequisites** | [Chapter 5 — Shared Contracts](./Contracts.md), [Chapter 6 — API](./API.md), [Chapter 7 — Authentication](./Authentication.md) |
-| **Related chapters** | [Architecture](./Architecture.md), [TurnCapture](./TurnCapture.md), [Roadmap](./Roadmap.md) |
+| **Related chapters** | [Architecture](./Architecture.md), [TurnCapture](./TurnCapture.md), [Artifacts](./Artifacts.md), [Roadmap](./Roadmap.md) |
 | **Nav** | [← Prev](./Authentication.md) · [TOC](./README.md#table-of-contents) · [Next →](./CaptureClient.md) |
 
 ---
@@ -16,10 +16,13 @@
 
 | Store | Role |
 |-------|------|
-| Cloudflare **D1** | Authoritative cloud store for turns (via Worker ingest) |
+| Cloudflare **D1** | Authoritative cloud store for turns (via Worker ingest); proposed later: artifact **metadata** only |
+| Object storage | Artifact **binaries** (local filesystem first; private R2 when deployed) — see [Artifacts.md](./Artifacts.md) |
 | Local **SQLite** | Periodic mirror for inspection, backup, and offline review (later) |
 
 Schema SQL lives in `migrations/`. Worker config: `apps/worker/wrangler.toml` (binding `DB`).
+
+**Hard rule:** do not store binary artifact files in D1 or in the `turns` table.
 
 ## Scope (this slice — persistence only)
 
@@ -34,6 +37,7 @@ Authenticated request → Validate → Insert conversation → Insert turns → 
 - Synchronization (read APIs are their own slice — [API.md](./API.md#read-endpoints-fr-f6))
 - Local SQLite mirror
 - Extension work
+- Artifact binary storage or artifact metadata tables (proposed separately — [Artifacts.md](./Artifacts.md))
 
 ## Schema (migration `0001_init.sql`)
 
@@ -144,6 +148,8 @@ npx wrangler d1 migrations apply newellai --remote  # production
 - Local SQLite mirror (inspection / backup)
 - Preload from ChatGPT history export
 - Optional per-user encryption with a user-held key
+- Artifact **metadata** tables (bytes remain in object storage) — [Artifacts.md](./Artifacts.md)
+- Canonical / imported operational tables from structured sources — [StructuredSources.md](./StructuredSources.md)
 
 ## Related
 
@@ -151,6 +157,8 @@ npx wrangler d1 migrations apply newellai --remote  # production
 - [API](./API.md)
 - [Authentication](./Authentication.md)
 - [TurnCapture](./TurnCapture.md)
+- [Artifacts](./Artifacts.md) — no D1 blobs for binaries
+- [StructuredSources](./StructuredSources.md) — imported records + provenance in D1
 - [ADR-0005](./ADRs/0005-use-cloudflare-d1-for-turn-persistence.md) — why D1
 - [ADRs](./ADRs/)
 - Code: `migrations/`, `apps/worker/src/db/`

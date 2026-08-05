@@ -7,7 +7,7 @@
 | **Status** | Active |
 | **Purpose** | First capture adapter (Chrome extension)—not the product architecture. |
 | **Prerequisites** | [Chapter 2 — Roadmap](./Roadmap.md), [Chapter 4 — Architecture](./Architecture.md), [Chapter 6 — API](./API.md), [Chapter 7 — Authentication](./Authentication.md), [Chapter 11 — Durable Queue](./DurableQueue.md) |
-| **Related chapters** | [TurnCapture](./TurnCapture.md), [DurableQueue](./DurableQueue.md), [ADR-0004](./ADRs/0004-why-browser-extension-capture.md), [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md) |
+| **Related chapters** | [TurnCapture](./TurnCapture.md), [DurableQueue](./DurableQueue.md), [Artifacts](./Artifacts.md), [ADR-0004](./ADRs/0004-why-browser-extension-capture.md), [ADR-0006](./ADRs/0006-capture-client-durable-queue-identity-and-synchronization.md) |
 | **Nav** | [← Prev](./Database.md) · [TOC](./README.md#table-of-contents) · [Next →](./TurnCapture.md) |
 
 ---
@@ -93,9 +93,11 @@ ChatGPT DOM (approved origins only)
 
 ### Conversation id
 
-1. Prefer URL path `/c/<id>` when present.
+1. Prefer URL path `/c/<id>` when present (including Project paths such as `/g/…/c/<id>` — Project specialization was a Slice 2 non-goal; Artifact v1 proposes full support — [Artifacts.md](./Artifacts.md)).
 2. If a new chat has not yet received an id, buffer completed observations until the URL stabilizes, then enqueue with that `conversation_id`.
 3. Do not mint a random `conversation_id` per turn.
+
+Slice 2 implemented extraction for standalone `/c/<id>` only. Extending Project URL identity is part of the Artifact v1 design, not a silent Slice 2 change.
 
 ### Turn identity (under ADR-0006)
 
@@ -250,10 +252,11 @@ One options action that:
 ## Related
 
 - [Roadmap](./Roadmap.md) — Phase 2 vs Phase 3
-- [Requirements](./Requirements.md) — FR-C1–FR-C3
+- [Requirements](./Requirements.md) — FR-C1–FR-C3; FR-A1–FR-A9 proposed
 - [Architecture](./Architecture.md)
 - [TurnCapture](./TurnCapture.md)
 - [DurableQueue](./DurableQueue.md)
+- [Artifacts](./Artifacts.md) — Artifact v1 proposal (Project URLs + binaries)
 - [API](./API.md)
 - [ADR-0002](./ADRs/0002-durable-queue-in-extension.md)
 - [ADR-0004](./ADRs/0004-why-browser-extension-capture.md)
