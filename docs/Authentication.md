@@ -136,6 +136,24 @@ Wire payload shapes are unchanged—auth is transport/header policy only ([Contr
 | Logging | Never log token or response body |
 | Production | Must remain disabled / unavailable in remote deployment configuration |
 
+## Local Desktop Recall session
+
+Desktop Recall (`/recall/`) must not require pasting `CAPTURE_API_TOKEN` for normal local use.
+
+| Item | Behavior |
+|------|----------|
+| Mint | `POST /v1/dev/recall/session` — loopback + `ALLOW_LOCAL_PAIRING=true` only |
+| Cookie | `recall_session` — opaque id; `HttpOnly; SameSite=Strict; Path=/`; not `Secure` on plain `http://127.0.0.1` |
+| Body | Mint/revoke responses never include `CAPTURE_API_TOKEN` |
+| Scope `recall_read` | Cookie authorizes **GET** Recall read APIs only (status, conversations, turns, artifacts metadata/content, search) |
+| Scope `capture_full` | `Authorization: Bearer <CAPTURE_API_TOKEN>` — unchanged full capture/write |
+| Revoke | `POST /v1/dev/recall/session/revoke` clears cookie + server session |
+| Restart | In-memory sessions die with the Worker isolate; Connect once again |
+| Remote | Non-loopback mint unavailable (`404`); pairing flag off → unavailable |
+| Fallback | Recall UI may offer Advanced paste of capture Bearer for recovery only; never embed the capture token in static HTML/JS |
+
+Read APIs accept either `capture_full` or `recall_read`. Ingest and artifact **writes** require `capture_full` only.
+
 ## Open questions
 
 1. When does Phase 1 graduate from shared secret to per-user credentials? Defer via ADR when multi-user onboarding starts.

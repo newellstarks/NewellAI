@@ -38,8 +38,10 @@ The Cloudflare Worker exposes a **client-agnostic ingest API** over the [wire pr
 | `GET /v1/conversations` | Same Bearer policy (responses expose conversation metadata) |
 | `GET /v1/conversations/:id/turns` | Same Bearer policy (responses expose turn content) |
 | `POST /v1/dev/pair` | **No Bearer.** Local-only pairing gate (loopback + `ALLOW_LOCAL_PAIRING` + exact extension `Origin`). See [CaptureClient.md](./CaptureClient.md) and [Authentication.md](./Authentication.md#local-development-pairing). |
+| `POST /v1/dev/recall/session` | **No Bearer.** Local-only Recall session mint (loopback + `ALLOW_LOCAL_PAIRING`). Sets HttpOnly `recall_session` cookie (`recall_read`). |
+| `POST /v1/dev/recall/session/revoke` | Clears Recall session cookie (loopback + pairing flag). |
 
-On Bearer-protected `/v1/*` routes: server `X-Request-Id` first → authenticate → then body parse / validation / D1 access. Authentication always precedes database access. Failures: sanitized `401` + `WWW-Authenticate: Bearer`, or fail-closed `500` if the secret is missing. `/v1/dev/pair` does not use Bearer; it is unavailable unless local pairing env is explicitly enabled.
+On protected `/v1/*` routes: server `X-Request-Id` first → authenticate → then body parse / validation / D1 access. **Read** routes accept Bearer `capture_full` or Recall cookie `recall_read`. **Write** routes (ingest, artifact POST/PUT) require Bearer `capture_full` only. Failures: sanitized `401` + `WWW-Authenticate: Bearer`, or fail-closed `500` if the secret is missing. Dev pair / Recall session mint are unavailable unless local pairing env is explicitly enabled.
 
 Full policy (header parsing, timing-safe compare, request-id rules, misconfiguration logging, test cases AUTH-1…15): **[Authentication.md](./Authentication.md)**.
 
@@ -52,6 +54,8 @@ Full policy (header parsing, timing-safe compare, request-id rules, misconfigura
 | `GET` | `/v1/conversations` | Bearer | Implemented (conversation summaries) |
 | `GET` | `/v1/conversations/:id/turns` | Bearer | Implemented (ordered turns for one conversation) |
 | `POST` | `/v1/dev/pair` | Local pairing gate (no Bearer) | Slice 2.1 — local development only |
+| `POST` | `/v1/dev/recall/session` | Local Recall session mint (cookie) | Desktop Recall local auth |
+| `POST` | `/v1/dev/recall/session/revoke` | Revoke Recall session | Desktop Recall local auth |
 
 ## Read endpoints (FR-F6)
 
