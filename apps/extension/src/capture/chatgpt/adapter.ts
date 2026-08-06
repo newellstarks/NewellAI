@@ -2,6 +2,7 @@ import type { Speaker } from "@newellai/contracts";
 import {
   evaluateAssistantCompletion,
   evaluateUserCompletionWithAttachment,
+  IMAGE_ATTACHMENT_TEXT,
   type StabilityTracker,
 } from "./completion";
 import { normalizePlainText } from "./normalize";
@@ -66,19 +67,52 @@ function isVisible(el: Element): boolean {
   return true;
 }
 
-function roleFromElement(el: Element): Speaker | null {
+function hasDirectAuthorRole(el: Element): boolean {
+  const role = el.getAttribute("data-message-author-role");
+  return role === "user" || role === "assistant";
+}
+
+function hasDataTurn(el: Element): boolean {
+  const turn = el.getAttribute("data-turn");
+  return turn === "user" || turn === "assistant";
+}
+
+function isScreenshotContent(el: Element): boolean {
+  return el.hasAttribute("data-conversation-screenshot-content");
+}
+
+/**
+ * Resolve speaker for a message/turn root.
+ * Author-role wins; then data-turn; then screenshot-content image hosts
+ * (never tool-only text, never user-turn screenshot).
+ */
+export function roleFromElement(el: Element): Speaker | null {
   const role =
     el.getAttribute("data-message-author-role") ??
     el.getAttribute("data-author-role") ??
     el.getAttribute("data-role");
   if (role === "user" || role === "assistant") return role;
 
-  // article[data-testid=conversation-turn-…] — look for nested role.
+  // Nested author-role (user/assistant only — tool/system do not claim the turn).
   const nested = el.querySelector("[data-message-author-role]");
   if (nested) {
     const nestedRole = nested.getAttribute("data-message-author-role");
     if (nestedRole === "user" || nestedRole === "assistant") return nestedRole;
   }
+
+  const turn = el.getAttribute("data-turn");
+  if (turn === "user" || turn === "assistant") return turn;
+
+  if (isScreenshotContent(el)) {
+    if (
+      el.closest('[data-turn="user"]') ||
+      el.closest('[data-message-author-role="user"]')
+    ) {
+      return null;
+    }
+    if (turnHasImageAttachment(el)) return "assistant";
+  }
+
   return null;
 }
 
@@ -124,18 +158,54 @@ function elementHasStreamingMarker(el: Element): boolean {
 /**
  * Collect visible user/assistant message roots in document order.
  * Skips tool/system roles and non-visible nodes.
+ *
+ * Preference:
+ * 1. Deepest direct author-role (user/assistant)
+ * 2. data-turn root over nested screenshot-content (keeps image on turn)
+ * 3. Standalone screenshot-content image host as assistant when needed
  */
 export function extractRawMessages(root: ParentNode): RawMessageNode[] {
   const candidates = queryAll(root, MESSAGE_ROOT_SELECTORS).filter(isVisible);
-  // Prefer deepest message nodes with author role to avoid double-counting
-  // article wrappers that also match.
   const filtered = candidates.filter((el) => {
     const role = roleFromElement(el);
     if (role === null) return false;
-    // Drop wrappers that contain another matching message root with a role.
+
     for (const other of candidates) {
       if (other === el) continue;
-      if (el.contains(other) && roleFromElement(other) !== null) return false;
+
+      // Prefer enclosing data-turn=assistant over nested screenshot host.
+      if (
+        isScreenshotContent(el) &&
+        hasDataTurn(other) &&
+        other.contains(el) &&
+        roleFromElement(other) !== null
+      ) {
+        return false;
+      }
+
+      if (!el.contains(other) || roleFromElement(other) === null) continue;
+
+      // Nested author-role speaker wins over wrappers (including data-turn).
+      if (hasDirectAuthorRole(other)) return false;
+
+      // Keep data-turn root when the only nested candidate is screenshot-content
+      // (do not collapse to a host that loses turn identity / siblings).
+      if (hasDataTurn(el) && isScreenshotContent(other)) continue;
+
+      // Assistant data-turn with image: do not collapse to a narrower nested
+      // root that lacks the image attachment (e.g. empty role-less shells).
+      if (
+        hasDataTurn(el) &&
+        el.getAttribute("data-turn") === "assistant" &&
+        turnHasImageAttachment(el) &&
+        !turnHasImageAttachment(other) &&
+        !hasDirectAuthorRole(other)
+      ) {
+        continue;
+      }
+
+      // Default: deepest role-bearing candidate wins.
+      return false;
     }
     return true;
   });
@@ -193,7 +263,7 @@ export function selectCompletedCandidates(
       if (!evaluateUserCompletionWithAttachment(msg.text, hasImage)) continue;
       // Capture enqueue requires non-empty text; image-only uses a stable marker.
       const text =
-        msg.text.length > 0 ? msg.text : "[image attachment]";
+        msg.text.length > 0 ? msg.text : IMAGE_ATTACHMENT_TEXT;
       completed.push({
         speaker: msg.speaker,
         text,
@@ -202,6 +272,8 @@ export function selectCompletedCandidates(
       });
       continue;
     }
+    const hasImage =
+      msg.element !== undefined && turnHasImageAttachment(msg.element);
     const done = evaluateAssistantCompletion(
       msg.trackKey,
       msg.text,
@@ -209,11 +281,14 @@ export function selectCompletedCandidates(
       tracker,
       nowMs,
       stabilityMs,
+      hasImage,
     );
     if (!done) continue;
+    const text =
+      msg.text.length > 0 ? msg.text : IMAGE_ATTACHMENT_TEXT;
     completed.push({
       speaker: msg.speaker,
-      text: msg.text,
+      text,
       sourceProvidedId: msg.sourceProvidedId,
       ...(msg.element !== undefined ? { element: msg.element } : {}),
     });

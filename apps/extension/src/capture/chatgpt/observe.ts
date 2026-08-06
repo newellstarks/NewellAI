@@ -55,11 +55,22 @@ export interface CaptureEnqueuePayload {
   captured_at: string;
 }
 
-export type EnqueueSender = (payload: CaptureEnqueuePayload) => void | Promise<void>;
+/** Durable turn identity returned after enqueue (or already_known). */
+export type EnqueueSendResult = {
+  client_turn_id: string;
+};
+
+export type EnqueueSender = (
+  payload: CaptureEnqueuePayload,
+) => void | Promise<void | EnqueueSendResult>;
 
 export interface CaptureArtifactPayload {
   type: typeof ARTIFACT_ENQUEUE_TYPE;
   conversation_id: string;
+  /**
+   * Turn source_key for durable identity lookup in the service worker.
+   * Must match the turn enqueue source_key; background resolves client_turn_id.
+   */
   client_turn_id: string;
   source_key: string;
   direction: "user_uploaded" | "assistant_generated";
@@ -200,12 +211,93 @@ export function createChatgptObserver(deps: ObserveDeps): ChatgptObserver {
         artifactFailCounts.delete(attemptKey);
         return;
       }
+      // Turn identity may not exist yet — allow later rescans to retry.
+      if (result.error === "turn_identity_unknown") {
+        return;
+      }
       const fails = (artifactFailCounts.get(attemptKey) ?? 0) + 1;
       artifactFailCounts.set(attemptKey, fails);
       return;
     }
     // Legacy void sender: treat as success so we do not loop forever in tests.
     artifactSucceeded.add(attemptKey);
+  }
+
+  /**
+   * Enqueue the turn first; return the durable client_turn_id when available,
+   * otherwise the turn source_key (matches client_turn_id for validated keys).
+   */
+  async function enqueueTurnAndResolveId(
+    conversationId: string,
+    sourceKey: string,
+    speaker: Speaker,
+    text: string,
+    captured_at: string,
+  ): Promise<string> {
+    const result = await deps.sendEnqueue({
+      type: CAPTURE_ENQUEUE_TYPE,
+      conversation_id: conversationId,
+      source_key: sourceKey,
+      speaker,
+      text,
+      captured_at,
+    });
+    if (
+      result &&
+      typeof result === "object" &&
+      typeof result.client_turn_id === "string" &&
+      result.client_turn_id.length > 0
+    ) {
+      return result.client_turn_id;
+    }
+    return sourceKey;
+  }
+
+  async function enqueueImagesForTurn(
+    conversationId: string,
+    element: Element,
+    speaker: Speaker,
+    turnSourceKey: string,
+    captured_at: string,
+  ): Promise<void> {
+    if (deps.sendArtifactEnqueue === undefined) return;
+    const direction =
+      speaker === "user" ? "user_uploaded" : "assistant_generated";
+    const images = discoverEstuaryImagesInElement(
+      element,
+      direction,
+      // Wire field carries turn source_key for background identity lookup.
+      turnSourceKey,
+      turnSourceKey,
+    );
+    for (const image of images) {
+      const attemptKey = artifactAttemptKey(conversationId, image.source_url);
+      if (shouldSkipArtifact(attemptKey)) continue;
+      const fetched = await fetchEstuaryImageBytes(
+        image.source_url,
+        deps.fetchFn ?? fetch,
+      );
+      if (!fetched.ok) continue;
+      const payload: CaptureArtifactPayload = {
+        type: ARTIFACT_ENQUEUE_TYPE,
+        conversation_id: conversationId,
+        // Must equal the turn's durable source_key (not a recomputed variant).
+        client_turn_id: turnSourceKey,
+        source_key: fetched.artifact.file_id,
+        direction: image.direction,
+        mime_type: fetched.artifact.mime_type,
+        declared_sha256: fetched.artifact.sha256,
+        declared_byte_size: fetched.artifact.byte_size,
+        image_provenance: image.image_provenance,
+        source_url: fetched.artifact.source_url,
+        captured_at,
+        bytes: toWireBytes(fetched.artifact.bytes),
+      };
+      if (fetched.artifact.original_filename !== undefined) {
+        payload.original_filename = fetched.artifact.original_filename;
+      }
+      await deliverArtifact(attemptKey, payload);
+    }
   }
 
   async function flushCompleted(
@@ -218,14 +310,14 @@ export function createChatgptObserver(deps: ObserveDeps): ChatgptObserver {
     for (let i = 0; i < keyed.length; i++) {
       const turn = keyed[i]!;
       const candidate = candidates[i];
-      await deps.sendEnqueue({
-        type: CAPTURE_ENQUEUE_TYPE,
-        conversation_id: conversationId,
-        source_key: turn.source_key,
-        speaker: turn.speaker,
-        text: turn.text,
+      // Ensure durable turn identity exists before linking artifacts.
+      await enqueueTurnAndResolveId(
+        conversationId,
+        turn.source_key,
+        turn.speaker,
+        turn.text,
         captured_at,
-      });
+      );
 
       if (
         deps.sendArtifactEnqueue === undefined ||
@@ -233,44 +325,13 @@ export function createChatgptObserver(deps: ObserveDeps): ChatgptObserver {
       ) {
         continue;
       }
-      const direction =
-        turn.speaker === "user" ? "user_uploaded" : "assistant_generated";
-      const images = discoverEstuaryImagesInElement(
+      await enqueueImagesForTurn(
+        conversationId,
         candidate.element,
-        direction,
+        turn.speaker,
         turn.source_key,
-        turn.source_key,
+        captured_at,
       );
-      for (const image of images) {
-        const attemptKey = artifactAttemptKey(
-          conversationId,
-          image.source_url,
-        );
-        if (shouldSkipArtifact(attemptKey)) continue;
-        const fetched = await fetchEstuaryImageBytes(
-          image.source_url,
-          deps.fetchFn ?? fetch,
-        );
-        if (!fetched.ok) continue;
-        const payload: CaptureArtifactPayload = {
-          type: ARTIFACT_ENQUEUE_TYPE,
-          conversation_id: conversationId,
-          client_turn_id: image.client_turn_id,
-          source_key: fetched.artifact.file_id,
-          direction: image.direction,
-          mime_type: fetched.artifact.mime_type,
-          declared_sha256: fetched.artifact.sha256,
-          declared_byte_size: fetched.artifact.byte_size,
-          image_provenance: image.image_provenance,
-          source_url: fetched.artifact.source_url,
-          captured_at,
-          bytes: toWireBytes(fetched.artifact.bytes),
-        };
-        if (fetched.artifact.original_filename !== undefined) {
-          payload.original_filename = fetched.artifact.original_filename;
-        }
-        await deliverArtifact(attemptKey, payload);
-      }
     }
   }
 
@@ -310,77 +371,48 @@ export function createChatgptObserver(deps: ObserveDeps): ChatgptObserver {
         completed.length > 0 ? completed : coalesceCandidates(buffered);
       buffered = [];
       await flushCompleted(conversationId, toSend);
-      // Second pass: estuary imgs inside role nodes (live shape), independent of
-      // whether the turn text path already flushed this tick.
-      await flushArtifactsFromRoles(conversationId);
+      // Second pass: same completed-turn identity set as flushCompleted — never
+      // invent a parallel source_key from a solo role-node assignSourceKeys.
+      await flushArtifactsForCompletedTurns(conversationId);
     } catch (err) {
       const name = err instanceof Error ? err.name.slice(0, 24) : "unknown";
       console.warn("[newellai] capture rescan failed:", name);
     }
   }
 
-  async function flushArtifactsFromRoles(conversationId: string): Promise<void> {
+  /**
+   * Recover estuary images for completed turns only, using the same
+   * extract → completion → assignSourceKeys path as turn enqueue.
+   */
+  async function flushArtifactsForCompletedTurns(
+    conversationId: string,
+  ): Promise<void> {
     if (deps.sendArtifactEnqueue === undefined) return;
-    const roles = deps.document.querySelectorAll(
-      '[data-message-author-role="user"], [data-message-author-role="assistant"]',
+    const raw = extractRawMessages(deps.document);
+    const completed = coalesceCandidates(
+      selectCompletedCandidates(raw, tracker, now(), stabilityMs),
     );
+    if (completed.length === 0) return;
+    const keyed = await assignSourceKeys(conversationId, completed);
     const captured_at = new Date(now()).toISOString();
-    for (const el of Array.from(roles)) {
-      const roleAttr = el.getAttribute("data-message-author-role");
-      if (roleAttr !== "user" && roleAttr !== "assistant") continue;
-
-      const direction =
-        roleAttr === "user" ? "user_uploaded" : "assistant_generated";
-      const sourceProvidedId = el.getAttribute("data-message-id");
-      const textNode =
-        el.querySelector(".whitespace-pre-wrap, .markdown, [data-message-content]");
-      const rawText = (textNode?.textContent ?? "").trim();
-      const text = rawText.length > 0 ? rawText : "[image attachment]";
-      const keyed = await assignSourceKeys(conversationId, [
-        {
-          speaker: roleAttr,
-          text,
-          sourceProvidedId,
-        },
-      ]);
-      const turnKey = keyed[0]!.source_key;
-      const images = discoverEstuaryImagesInElement(
-        el,
-        direction,
-        turnKey,
-        turnKey,
+    for (let i = 0; i < keyed.length; i++) {
+      const turn = keyed[i]!;
+      const candidate = completed[i];
+      if (candidate?.element === undefined) continue;
+      await enqueueTurnAndResolveId(
+        conversationId,
+        turn.source_key,
+        turn.speaker,
+        turn.text,
+        captured_at,
       );
-      if (images.length === 0) continue;
-      for (const image of images) {
-        const attemptKey = artifactAttemptKey(
-          conversationId,
-          image.source_url,
-        );
-        if (shouldSkipArtifact(attemptKey)) continue;
-        const fetched = await fetchEstuaryImageBytes(
-          image.source_url,
-          deps.fetchFn ?? fetch,
-        );
-        if (!fetched.ok) continue;
-        const payload: CaptureArtifactPayload = {
-          type: ARTIFACT_ENQUEUE_TYPE,
-          conversation_id: conversationId,
-          client_turn_id: image.client_turn_id,
-          source_key: fetched.artifact.file_id,
-          direction: image.direction,
-          mime_type: fetched.artifact.mime_type,
-          declared_sha256: fetched.artifact.sha256,
-          declared_byte_size: fetched.artifact.byte_size,
-          image_provenance: image.image_provenance,
-          source_url: fetched.artifact.source_url,
-          captured_at,
-          bytes: toWireBytes(fetched.artifact.bytes),
-        };
-        if (fetched.artifact.original_filename !== undefined) {
-          payload.original_filename = fetched.artifact.original_filename;
-        }
-        await deliverArtifact(attemptKey, payload);
-      }
+      await enqueueImagesForTurn(
+        conversationId,
+        candidate.element,
+        turn.speaker,
+        turn.source_key,
+        captured_at,
+      );
     }
   }
 

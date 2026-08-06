@@ -99,6 +99,25 @@ export async function enqueue(
   );
 }
 
+/**
+ * Resolve the durable turn client_turn_id for a conversation + source_key.
+ * Used by artifact enqueue so images never invent a parallel identity.
+ */
+export async function lookupClientTurnId(
+  db: IDBDatabase,
+  conversationId: string,
+  sourceKey: string,
+): Promise<string | null> {
+  const validated = validateSourceKey(sourceKey);
+  if (validated === null) return null;
+  return withTransaction(db, [STORES.identities], "readonly", async (tx) => {
+    const existing = (await idbRequest(
+      tx.objectStore(STORES.identities).get([conversationId, validated]),
+    )) as IdentityRecord | undefined;
+    return existing?.client_turn_id ?? null;
+  });
+}
+
 /** Abandoned in-flight items revert to pending on startup (ADR-0006). */
 export async function recoverInFlight(db: IDBDatabase): Promise<number> {
   return withTransaction(db, [STORES.queue], "readwrite", async (tx) => {

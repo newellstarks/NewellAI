@@ -3,6 +3,7 @@ import { createChatgptObserver } from "../capture/chatgpt/observe";
 import type {
   CaptureArtifactPayload,
   CaptureEnqueuePayload,
+  EnqueueSendResult,
 } from "../capture/chatgpt/observe";
 
 /**
@@ -23,21 +24,34 @@ async function readCaptureEnabled(): Promise<boolean> {
   return stored[STORAGE_KEYS.captureEnabled] === true;
 }
 
-function sendEnqueue(payload: CaptureEnqueuePayload): void {
-  if (!captureEnabled) return;
-  chrome.runtime.sendMessage(payload, (reply) => {
-    const err = chrome.runtime.lastError?.message;
-    if (err) {
-      console.info(LOG_PREFIX, "captureEnqueue transport:", err.slice(0, 80));
-      return;
-    }
-    if (reply && reply.ok === false) {
-      console.info(
-        LOG_PREFIX,
-        "captureEnqueue rejected:",
-        String(reply.error ?? "unknown").slice(0, 40),
-      );
-    }
+function sendEnqueue(
+  payload: CaptureEnqueuePayload,
+): Promise<EnqueueSendResult | void> {
+  if (!captureEnabled) return Promise.resolve();
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(payload, (reply) => {
+      const err = chrome.runtime.lastError?.message;
+      if (err) {
+        console.info(LOG_PREFIX, "captureEnqueue transport:", err.slice(0, 80));
+        resolve();
+        return;
+      }
+      if (reply && reply.ok === false) {
+        console.info(
+          LOG_PREFIX,
+          "captureEnqueue rejected:",
+          String(reply.error ?? "unknown").slice(0, 40),
+        );
+        resolve();
+        return;
+      }
+      const clientTurnId = reply?.result?.client_turn_id;
+      if (typeof clientTurnId === "string" && clientTurnId.length > 0) {
+        resolve({ client_turn_id: clientTurnId });
+        return;
+      }
+      resolve();
+    });
   });
 }
 

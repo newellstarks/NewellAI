@@ -8,6 +8,7 @@ import {
   forcePendingDue,
   getDeadLetters,
   getStatus,
+  lookupClientTurnId,
   recoverInFlight,
   requeueAuthBlocked,
   validateSourceKey,
@@ -67,6 +68,15 @@ describe("enqueue — identity and sequence (ADR-0006)", () => {
   it("uses a validated source key as client_turn_id", async () => {
     const result = await enqueue(db, input("conv-a", "hello", "msg-77"));
     expect(result.client_turn_id).toBe("msg-77");
+  });
+
+  it("lookupClientTurnId returns durable id and null when unknown", async () => {
+    const accepted = await enqueue(db, input("conv-a", "hello", "msg-lookup"));
+    expect(await lookupClientTurnId(db, "conv-a", "msg-lookup")).toBe(
+      accepted.client_turn_id,
+    );
+    expect(await lookupClientTurnId(db, "conv-a", "msg-missing")).toBeNull();
+    expect(await lookupClientTurnId(db, "conv-other", "msg-lookup")).toBeNull();
   });
 
   it("falls back to a local UUID when the source key is invalid", async () => {

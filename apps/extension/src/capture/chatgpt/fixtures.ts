@@ -152,3 +152,120 @@ export const FIXTURE_USER_UPLOAD_SECTION_DATA_TURN_SIBLING = `
   </section>
 </main>
 `;
+
+/** Assistant image-only: empty markdown, estuary sibling under turn root. */
+export const FIXTURE_ASSISTANT_IMAGE_ONLY = `
+<main>
+  <article data-testid="conversation-turn-asst-img">
+    <div data-message-author-role="assistant" data-message-id="msg-asst-img-only">
+      <div class="markdown"></div>
+    </div>
+    <div class="attachment">
+      <a href="https://chatgpt.com/backend-api/estuary/content?id=file_asst_only&ts=1&p=2&cid=3&sig=4&v=5">
+        <img src="blob:https://chatgpt.com/asst-preview" alt="generated" />
+      </a>
+    </div>
+  </article>
+</main>
+`;
+
+/** Assistant caption text + generated estuary image sibling. */
+export const FIXTURE_ASSISTANT_TEXT_AND_IMAGE = `
+<main>
+  <article data-testid="conversation-turn-asst-text-img">
+    <div data-message-author-role="assistant" data-message-id="msg-asst-text-img">
+      <div class="markdown"><p>Here is your duck</p></div>
+    </div>
+    <div class="attachment">
+      <img src="https://chatgpt.com/backend-api/estuary/content?id=file_asst_captioned&ts=1&p=2&cid=3&sig=4&v=5" alt="generated" />
+    </div>
+  </article>
+</main>
+`;
+
+/** Streaming assistant with image must not complete. */
+export const FIXTURE_ASSISTANT_IMAGE_STREAMING = `
+<main>
+  <article data-testid="conversation-turn-asst-stream-img">
+    <div
+      data-message-author-role="assistant"
+      data-message-id="msg-asst-stream-img"
+      data-is-streaming="true"
+    >
+      <div class="markdown"></div>
+      <div class="result-streaming"></div>
+    </div>
+    <div class="attachment">
+      <a href="https://chatgpt.com/backend-api/estuary/content?id=file_asst_stream&ts=1&p=2&cid=3&sig=4&v=5">
+        <img src="blob:https://chatgpt.com/asst-stream" alt="generated" />
+      </a>
+    </div>
+  </article>
+</main>
+`;
+
+/**
+ * Live mismatch: section[data-turn=assistant] hosts the generated image with
+ * no nested data-message-author-role="assistant".
+ */
+export const FIXTURE_ASSISTANT_DATA_TURN_IMAGE_NO_ROLE = `
+<main>
+  <section data-turn="assistant" data-testid="conversation-turn-gen-1">
+    <div data-conversation-screenshot-content>
+      <a href="https://chatgpt.com/backend-api/estuary/content?id=file_data_turn_norole&ts=1&p=2&cid=3&sig=4&v=5">
+        <img src="blob:https://chatgpt.com/gen-norole" alt="generated" />
+      </a>
+    </div>
+  </section>
+</main>
+`;
+
+/** data-turn=assistant with caption author-role + sibling image. */
+export const FIXTURE_ASSISTANT_DATA_TURN_CAPTION_IMAGE = `
+<main>
+  <section data-turn="assistant" data-testid="conversation-turn-gen-2">
+    <div data-message-author-role="assistant" data-message-id="msg-data-turn-cap">
+      <div class="markdown"><p>Here is your duck</p></div>
+    </div>
+    <div class="attachment">
+      <img src="https://chatgpt.com/backend-api/estuary/content?id=file_data_turn_cap&ts=1&p=2&cid=3&sig=4&v=5" alt="generated" />
+    </div>
+  </section>
+</main>
+`;
+
+/**
+ * Standalone screenshot-content image host (no enclosing data-turn).
+ * Must become an assistant candidate without promoting tool text cards.
+ */
+export const FIXTURE_ASSISTANT_SCREENSHOT_CONTENT_ONLY = `
+<main>
+  <div data-conversation-screenshot-content>
+    <img src="https://chatgpt.com/backend-api/estuary/content?id=file_screenshot_only&ts=1&p=2&cid=3&sig=4&v=5" alt="generated" />
+  </div>
+</main>
+`;
+
+/** Tool text card must remain excluded (no image). */
+export const FIXTURE_TOOL_ONLY_TEXT = `
+<main>
+  <div data-message-author-role="user" data-message-id="msg-tool-user">
+    <div class="whitespace-pre-wrap">use a tool</div>
+  </div>
+  <div data-message-author-role="tool" data-message-id="msg-tool-only">
+    <div class="whitespace-pre-wrap">tool output text only</div>
+  </div>
+</main>
+`;
+
+/** Streaming data-turn assistant image must not complete early. */
+export const FIXTURE_ASSISTANT_DATA_TURN_IMAGE_STREAMING = `
+<main>
+  <section data-turn="assistant" data-testid="conversation-turn-gen-stream" data-is-streaming="true">
+    <div class="result-streaming"></div>
+    <div data-conversation-screenshot-content>
+      <img src="https://chatgpt.com/backend-api/estuary/content?id=file_data_turn_stream&ts=1&p=2&cid=3&sig=4&v=5" alt="generated" />
+    </div>
+  </section>
+</main>
+`;

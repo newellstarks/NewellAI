@@ -30,6 +30,7 @@ import {
   enqueue,
   forcePendingDue,
   getStatus,
+  lookupClientTurnId,
   recoverInFlight,
   requeueAuthBlocked,
 } from "./queue/queue";
@@ -258,10 +259,21 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
             sendResponse({ ok: false, error: "capture_disabled" });
             break;
           }
+          // Content script sends the turn source_key in client_turn_id.
+          // Resolve to the durable turn identity — never invent a parallel id.
+          const clientTurnId = await lookupClientTurnId(
+            database,
+            gate.message.conversation_id,
+            gate.message.client_turn_id,
+          );
+          if (clientTurnId === null) {
+            sendResponse({ ok: false, error: "turn_identity_unknown" });
+            break;
+          }
           const result = await enqueueArtifact(artDb, {
             conversation_id: gate.message.conversation_id,
             user_id: settings.userId,
-            client_turn_id: gate.message.client_turn_id,
+            client_turn_id: clientTurnId,
             source_key: gate.message.source_key,
             direction: gate.message.direction,
             mime_type: gate.message.mime_type,

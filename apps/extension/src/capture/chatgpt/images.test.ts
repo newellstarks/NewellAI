@@ -132,20 +132,36 @@ describe("image-only user turn completion", () => {
   });
 });
 
+const ESTUARY =
+  "https://chatgpt.com/backend-api/estuary/content?id=file_z&ts=1&p=2&cid=3&sig=4&v=5";
+
+function makePngBody(size = 256): Uint8Array {
+  const png = new Uint8Array(size);
+  png.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], 0);
+  return png;
+}
+
+function bodyOf(bytes: Uint8Array): Blob {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return new Blob([copy]);
+}
+
 describe("fetchEstuaryImageBytes", () => {
-  it("fetches with credentials and validates mime/size", async () => {
-    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  it("fetches estuary content with credentials and validates mime/signature/size", async () => {
+    const png = makePngBody(512);
     const fetchFn = vi.fn(async () => {
-      return new Response(png, {
+      return new Response(bodyOf(png), {
         status: 200,
         headers: {
           "content-type": "image/png",
           "content-disposition": 'inline; filename="a.png"',
+          "content-length": String(png.byteLength),
         },
       });
     });
     const result = await fetchEstuaryImageBytes(
-      "https://chatgpt.com/backend-api/estuary/content?id=file_z&ts=1&p=2&cid=3&sig=4&v=5",
+      ESTUARY,
       fetchFn as unknown as typeof fetch,
     );
     expect(result.ok).toBe(true);
@@ -153,10 +169,80 @@ describe("fetchEstuaryImageBytes", () => {
       expect(result.artifact.mime_type).toBe("image/png");
       expect(result.artifact.original_filename).toBe("a.png");
       expect(result.artifact.file_id).toBe("file_z");
+      expect(result.artifact.byte_size).toBe(512);
+      expect(new Uint8Array(result.artifact.bytes).slice(0, 8)).toEqual(
+        Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a),
+      );
     }
     expect(fetchFn).toHaveBeenCalledWith(
       expect.stringContaining("/backend-api/estuary/content"),
       expect.objectContaining({ credentials: "include" }),
     );
+  });
+
+  it("rejects 200 JSON/text body claimed as image/png", async () => {
+    const body = JSON.stringify({
+      detail: "signed url metadata only",
+      padding: "x".repeat(100),
+    });
+    const fetchFn = vi.fn(async () => {
+      return new Response(body, {
+        status: 200,
+        headers: { "content-type": "image/png" },
+      });
+    });
+    const result = await fetchEstuaryImageBytes(
+      ESTUARY,
+      fetchFn as unknown as typeof fetch,
+    );
+    expect(result).toEqual({ ok: false, reason: "not_image" });
+  });
+
+  it("rejects tiny invalid PNG payloads", async () => {
+    const tiny = Uint8Array.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xde, 0x00, 0x00, 0x00,
+      0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xff, 0xff, 0x3f,
+      0x00, 0x05, 0xfe, 0x02, 0xfe, 0xa1, 0x46, 0x9f, 0x31, 0x00, 0x00, 0x00,
+      0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+    const fetchFn = vi.fn(async () => {
+      return new Response(bodyOf(tiny), {
+        status: 200,
+        headers: { "content-type": "image/png" },
+      });
+    });
+    const result = await fetchEstuaryImageBytes(
+      ESTUARY,
+      fetchFn as unknown as typeof fetch,
+    );
+    expect(result).toEqual({ ok: false, reason: "too_small" });
+  });
+
+  it("accepts JPEG and WebP signatures with matching Content-Type", async () => {
+    const jpeg = new Uint8Array(200);
+    jpeg.set([0xff, 0xd8, 0xff, 0xe0], 0);
+    const webp = new Uint8Array(200);
+    webp.set([0x52, 0x49, 0x46, 0x46], 0);
+    webp.set([0x57, 0x45, 0x42, 0x50], 8);
+
+    for (const [bytes, mime] of [
+      [jpeg, "image/jpeg"],
+      [webp, "image/webp"],
+    ] as const) {
+      const fetchFn = vi.fn(async () => {
+        return new Response(bodyOf(bytes), {
+          status: 200,
+          headers: { "content-type": mime },
+        });
+      });
+      const result = await fetchEstuaryImageBytes(
+        ESTUARY,
+        fetchFn as unknown as typeof fetch,
+      );
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.artifact.mime_type).toBe(mime);
+    }
   });
 });

@@ -5,6 +5,11 @@
 
 export const MESSAGE_ROOT_SELECTORS = [
   "[data-message-author-role]",
+  "section[data-turn]",
+  "[data-turn]",
+  // Generated-image host (only accepted as a candidate when it holds an image
+  // and is not under a user turn — see roleFromElement / extract filter).
+  "[data-conversation-screenshot-content]",
   'article[data-testid^="conversation-turn-"]',
   '[data-testid*="conversation-turn"]',
   ".group\\/conversation-turn",

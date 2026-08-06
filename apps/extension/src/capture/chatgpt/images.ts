@@ -1,14 +1,15 @@
 import type { ArtifactDirection, ImageProvenance } from "@newellai/contracts";
 import {
-  ARTIFACT_MAX_BYTES,
   isAllowedArtifactMime,
   validateEstuaryContentUrl,
+  validateImagePayload,
 } from "../../artifacts/allowlist";
 import { MESSAGE_ROOT_SELECTORS } from "./selectors";
 
 /**
  * Content-script image download (recon-proven page-context fetch).
  * Does not run in the service worker.
+ * User-uploaded and assistant-generated share this estuary fetch path.
  */
 
 export interface FetchedArtifactBytes {
@@ -51,7 +52,8 @@ export type FetchArtifactResult =
   | { ok: false; reason: string };
 
 /**
- * Validate estuary URL, fetch with credentials, enforce MIME/size.
+ * Validate estuary URL, fetch with credentials, enforce MIME/size/signature.
+ * Shared by user_uploaded and assistant_generated discovery.
  */
 export async function fetchEstuaryImageBytes(
   rawUrl: string,
@@ -88,11 +90,9 @@ export async function fetchEstuaryImageBytes(
   }
 
   const buf = await response.arrayBuffer();
-  if (buf.byteLength === 0) {
-    return { ok: false, reason: "empty" };
-  }
-  if (buf.byteLength > ARTIFACT_MAX_BYTES) {
-    return { ok: false, reason: "too_large" };
+  const payload = validateImagePayload(buf, contentType);
+  if (!payload.ok) {
+    return { ok: false, reason: payload.reason };
   }
 
   const sha256 = await sha256Hex(buf);
@@ -102,7 +102,7 @@ export async function fetchEstuaryImageBytes(
 
   const artifact: FetchedArtifactBytes = {
     bytes: buf,
-    mime_type: contentType,
+    mime_type: payload.mime,
     sha256,
     byte_size: buf.byteLength,
     file_id: validated.fileId,
