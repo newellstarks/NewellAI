@@ -8,6 +8,7 @@ export type ErrorCode =
   | "INVALID_JSON"
   | "VALIDATION_ERROR"
   | "CONFLICT"
+  | "INTEGRITY_ERROR"
   | "INTERNAL_ERROR";
 
 const STATUS_BY_CODE: Record<ErrorCode, number> = {
@@ -18,6 +19,7 @@ const STATUS_BY_CODE: Record<ErrorCode, number> = {
   INVALID_JSON: 400,
   VALIDATION_ERROR: 400,
   CONFLICT: 409,
+  INTEGRITY_ERROR: 409,
   INTERNAL_ERROR: 500,
 };
 

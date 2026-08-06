@@ -158,8 +158,13 @@ export async function handlePutArtifactContent(
     throw new HttpError("INTERNAL_ERROR", "Unexpected server error");
   }
 
-  const confirmed = await storage.head(key);
+  // Durable confirm: bytes must be readable and checksum-match before stored.
+  const confirmed = await storage.get(key);
   if (confirmed === null || confirmed.byteSize !== buf.byteLength) {
+    throw new HttpError("INTERNAL_ERROR", "Unexpected server error");
+  }
+  const confirmedChecksum = await sha256Hex(confirmed.bytes);
+  if (confirmedChecksum !== checksum) {
     throw new HttpError("INTERNAL_ERROR", "Unexpected server error");
   }
 
@@ -219,18 +224,30 @@ export async function handleGetArtifactContent(
     throw new HttpError("NOT_FOUND", "Artifact not found");
   }
   if (record.storage_location === null || record.checksum === null) {
-    throw new HttpError("NOT_FOUND", "Artifact not found");
+    throw new HttpError(
+      "INTEGRITY_ERROR",
+      "Artifact metadata is stored but object bytes are missing",
+      { code: "ARTIFACT_BYTES_MISSING", artifact_id: artifactId },
+    );
   }
 
   const storage = resolveObjectStorage(env);
   const obj = await storage.get(record.storage_location);
   if (obj === null) {
-    throw new HttpError("NOT_FOUND", "Artifact not found");
+    throw new HttpError(
+      "INTEGRITY_ERROR",
+      "Artifact metadata is stored but object bytes are missing",
+      { code: "ARTIFACT_BYTES_MISSING", artifact_id: artifactId },
+    );
   }
 
   const actual = await sha256Hex(obj.bytes);
   if (actual !== record.checksum) {
-    throw new HttpError("INTERNAL_ERROR", "Unexpected server error");
+    throw new HttpError(
+      "INTEGRITY_ERROR",
+      "Artifact object checksum does not match metadata",
+      { code: "ARTIFACT_CHECKSUM_MISMATCH", artifact_id: artifactId },
+    );
   }
 
   return new Response(obj.bytes, {

@@ -233,4 +233,126 @@ describe("Artifact v1 image routes", () => {
     );
     expect(getBytes.status).toBe(404);
   });
+
+  it("GET content returns INTEGRITY_ERROR when stored metadata lacks object bytes", async () => {
+    const checksum = await sha256Hex(PNG_BYTES);
+    const createRes = await worker.fetch(
+      new Request("https://example.test/v1/artifacts", {
+        method: "POST",
+        headers: { ...authHeaders(), "content-type": "application/json" },
+        body: JSON.stringify({
+          client_artifact_id: "file_missing",
+          conversation_id: "conv-e",
+          user_id: "user-1",
+          client_turn_id: "turn-e",
+          direction: "user_uploaded",
+          artifact_type: "image",
+          mime_type: "image/png",
+          declared_sha256: checksum,
+          declared_byte_size: PNG_BYTES.byteLength,
+          capture: { capture_client: "chrome-extension" },
+        }),
+      }),
+      env,
+    );
+    const created = (await createRes.json()) as { artifact_id: string };
+    const putRes = await worker.fetch(
+      new Request(
+        `https://example.test/v1/artifacts/${created.artifact_id}/content`,
+        {
+          method: "PUT",
+          headers: { ...authHeaders(), "content-type": "image/png" },
+          body: PNG_BYTES,
+        },
+      ),
+      env,
+    );
+    expect(putRes.status).toBe(200);
+
+    // Simulate lost object bytes without mutating capture_status (no row rewrite
+    // for missing bytes in production — fixture only points at a missing key).
+    const dbMissing = env.DB;
+    if (dbMissing === undefined) {
+      throw new Error("test DB missing");
+    }
+    await dbMissing
+      .prepare(
+        `UPDATE artifacts SET storage_location = ? WHERE artifact_id = ?`,
+      )
+      .bind("missing-object-key", created.artifact_id)
+      .run();
+
+    const getBytes = await worker.fetch(
+      new Request(
+        `https://example.test/v1/artifacts/${created.artifact_id}/content`,
+        { headers: authHeaders() },
+      ),
+      env,
+    );
+    expect(getBytes.status).toBe(409);
+    const body = (await getBytes.json()) as {
+      error: { code: string; details?: { code?: string } };
+    };
+    expect(body.error.code).toBe("INTEGRITY_ERROR");
+    expect(body.error.details?.code).toBe("ARTIFACT_BYTES_MISSING");
+  });
+
+  it("GET content returns INTEGRITY_ERROR on checksum mismatch", async () => {
+    const checksum = await sha256Hex(PNG_BYTES);
+    const createRes = await worker.fetch(
+      new Request("https://example.test/v1/artifacts", {
+        method: "POST",
+        headers: { ...authHeaders(), "content-type": "application/json" },
+        body: JSON.stringify({
+          client_artifact_id: "file_mismatch",
+          conversation_id: "conv-f",
+          user_id: "user-1",
+          client_turn_id: "turn-f",
+          direction: "assistant_generated",
+          artifact_type: "image",
+          mime_type: "image/png",
+          declared_sha256: checksum,
+          declared_byte_size: PNG_BYTES.byteLength,
+          capture: { capture_client: "chrome-extension" },
+        }),
+      }),
+      env,
+    );
+    const created = (await createRes.json()) as { artifact_id: string };
+    const putRes = await worker.fetch(
+      new Request(
+        `https://example.test/v1/artifacts/${created.artifact_id}/content`,
+        {
+          method: "PUT",
+          headers: { ...authHeaders(), "content-type": "image/png" },
+          body: PNG_BYTES,
+        },
+      ),
+      env,
+    );
+    expect(putRes.status).toBe(200);
+
+    const dbMismatch = env.DB;
+    if (dbMismatch === undefined) {
+      throw new Error("test DB missing");
+    }
+    await dbMismatch
+      .prepare(`UPDATE artifacts SET checksum = ? WHERE artifact_id = ?`)
+      .bind("a".repeat(64), created.artifact_id)
+      .run();
+
+    const getBytes = await worker.fetch(
+      new Request(
+        `https://example.test/v1/artifacts/${created.artifact_id}/content`,
+        { headers: authHeaders() },
+      ),
+      env,
+    );
+    expect(getBytes.status).toBe(409);
+    const body = (await getBytes.json()) as {
+      error: { code: string; details?: { code?: string } };
+    };
+    expect(body.error.code).toBe("INTEGRITY_ERROR");
+    expect(body.error.details?.code).toBe("ARTIFACT_CHECKSUM_MISMATCH");
+  });
 });
