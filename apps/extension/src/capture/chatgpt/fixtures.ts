@@ -74,3 +74,81 @@ export const FIXTURE_TOOL_CARD_SKIPPED = `
   </div>
 </main>
 `;
+
+/**
+ * Live shape: user role node holds caption/empty text; uploaded image is a
+ * sibling under the conversation-turn article. Preview uses blob:; durable
+ * URL is on the wrapping estuary <a href>.
+ */
+export const FIXTURE_USER_UPLOAD_IMAGE_SIBLING = `
+<main>
+  <article data-testid="conversation-turn-uploaded">
+    <div data-message-author-role="user" data-message-id="msg-img-user">
+      <div class="whitespace-pre-wrap"></div>
+    </div>
+    <div class="attachment">
+      <a href="https://chatgpt.com/backend-api/estuary/content?id=file_upload_live&ts=1&p=2&cid=3&sig=4&v=5">
+        <img src="blob:https://chatgpt.com/preview-uuid" alt="uploaded" />
+      </a>
+    </div>
+  </article>
+</main>
+`;
+
+/** Estuary on img src directly inside turn, role node has caption text. */
+export const FIXTURE_USER_UPLOAD_IMAGE_ESTUARY_SRC = `
+<main>
+  <article data-testid="conversation-turn-estuary-src">
+    <div data-message-author-role="user" data-message-id="msg-img-user-2">
+      <div class="whitespace-pre-wrap">see attached</div>
+    </div>
+    <div>
+      <img src="https://chatgpt.com/backend-api/estuary/content?id=file_direct&ts=1&p=2&cid=3&sig=4&v=5" alt="x" />
+    </div>
+  </article>
+</main>
+`;
+
+/**
+ * Live shape (Mar 2026+): estuary img[src] inside the user role node.
+ * Display URL may carry only `id` (signed query params optional).
+ */
+export const FIXTURE_USER_UPLOAD_ESTUARY_IN_ROLE_MIN_QUERY = `
+<main>
+  <article data-testid="conversation-turn-live-min">
+    <div data-message-author-role="user" data-message-id="msg-live-upload">
+      <div class="whitespace-pre-wrap"></div>
+      <div>
+        <img
+          alt="uploaded image"
+          src="https://chatgpt.com/backend-api/estuary/content?id=file_live_min_only"
+        />
+      </div>
+    </div>
+  </article>
+</main>
+`;
+
+/**
+ * Observed live shape (Aug 2026): turn is `section[data-turn]` without a
+ * conversation-turn testid. User role holds empty caption; preview is blob:;
+ * durable estuary URL is on a sibling anchor (not wrapping the img).
+ * Without `section[data-turn]` / `[data-turn]` in imageSearchRoot, discovery
+ * falls back to the role node and never sees the sibling attachment.
+ */
+export const FIXTURE_USER_UPLOAD_SECTION_DATA_TURN_SIBLING = `
+<main>
+  <section data-turn="user">
+    <div data-message-author-role="user" data-message-id="msg-section-turn-upload">
+      <div class="whitespace-pre-wrap"></div>
+    </div>
+    <div class="relative">
+      <img src="blob:https://chatgpt.com/live-preview-uuid" alt="uploaded image" />
+      <a
+        href="https://chatgpt.com/backend-api/estuary/content?id=file_section_turn&ts=1&p=2&cid=3&sig=4&v=5"
+        aria-label="Download"
+      >Download</a>
+    </div>
+  </section>
+</main>
+`;

@@ -1,10 +1,11 @@
 import type { Speaker } from "@newellai/contracts";
 import {
   evaluateAssistantCompletion,
-  evaluateUserCompletion,
+  evaluateUserCompletionWithAttachment,
   type StabilityTracker,
 } from "./completion";
 import { normalizePlainText } from "./normalize";
+import { turnHasImageAttachment } from "./images";
 import {
   CONTENT_SELECTORS,
   MESSAGE_ROOT_SELECTORS,
@@ -27,12 +28,15 @@ export interface RawMessageNode {
     hasStopAffordance: boolean;
     hasStreamingMarker: boolean;
   };
+  /** Present when extracted from a live Document (not fixtures). */
+  element?: Element;
 }
 
 export interface CompletedCandidate {
   speaker: Speaker;
   text: string;
   sourceProvidedId: string | null;
+  element?: Element;
 }
 
 function queryAll(root: ParentNode, selectors: readonly string[]): Element[] {
@@ -157,6 +161,7 @@ export function extractRawMessages(root: ParentNode): RawMessageNode[] {
         hasStopAffordance: hasStop,
         hasStreamingMarker: streaming,
       },
+      element: el,
     });
     index += 1;
   }
@@ -183,11 +188,17 @@ export function selectCompletedCandidates(
   const completed: CompletedCandidate[] = [];
   for (const msg of messages) {
     if (msg.speaker === "user") {
-      if (!evaluateUserCompletion(msg.text)) continue;
+      const hasImage =
+        msg.element !== undefined && turnHasImageAttachment(msg.element);
+      if (!evaluateUserCompletionWithAttachment(msg.text, hasImage)) continue;
+      // Capture enqueue requires non-empty text; image-only uses a stable marker.
+      const text =
+        msg.text.length > 0 ? msg.text : "[image attachment]";
       completed.push({
         speaker: msg.speaker,
-        text: msg.text,
+        text,
         sourceProvidedId: msg.sourceProvidedId,
+        ...(msg.element !== undefined ? { element: msg.element } : {}),
       });
       continue;
     }
@@ -204,6 +215,7 @@ export function selectCompletedCandidates(
       speaker: msg.speaker,
       text: msg.text,
       sourceProvidedId: msg.sourceProvidedId,
+      ...(msg.element !== undefined ? { element: msg.element } : {}),
     });
   }
   return completed;

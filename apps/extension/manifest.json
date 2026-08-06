@@ -3,7 +3,7 @@
   "name": "NewellAI Turn Capture",
   "version": "0.1.0",
   "description": "Capture Client v1 — ChatGPT turn capture, durable queue, and sync to the NewellAI Worker.",
-  "permissions": ["storage", "alarms"],
+  "permissions": ["storage", "alarms", "scripting"],
   "host_permissions": [
     "http://localhost/*",
     "http://127.0.0.1/*",

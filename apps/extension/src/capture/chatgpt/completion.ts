@@ -44,3 +44,14 @@ export function evaluateAssistantCompletion(
 export function evaluateUserCompletion(normalizedText: string): boolean {
   return normalizedText.length > 0;
 }
+
+/**
+ * User turn with a committed image attachment (including image-only uploads).
+ * Text may be empty when the operator uploads an image without a caption.
+ */
+export function evaluateUserCompletionWithAttachment(
+  normalizedText: string,
+  hasImageAttachment: boolean,
+): boolean {
+  return normalizedText.length > 0 || hasImageAttachment;
+}
