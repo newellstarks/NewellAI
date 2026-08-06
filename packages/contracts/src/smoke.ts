@@ -4,7 +4,11 @@
  */
 import type {
   ApiError,
+  ArtifactAcceptResponse,
+  ArtifactCreateRequest,
+  ArtifactRecord,
   CaptureMetadata,
+  ConversationArtifactsResponse,
   ConversationMetadata,
   ConversationsResponse,
   ConversationTurnsResponse,
@@ -89,8 +93,61 @@ const conversationTurns: ConversationTurnsResponse = {
   server_time: new Date().toISOString(),
 };
 
+const artifactCreate: ArtifactCreateRequest = {
+  client_artifact_id: "file_abc",
+  conversation_id: "conv-1",
+  user_id: "user-1",
+  client_turn_id: "turn-1",
+  direction: "user_uploaded",
+  artifact_type: "image",
+  mime_type: "image/png",
+  declared_sha256: "a".repeat(64),
+  declared_byte_size: 12,
+  image_provenance: "uploaded",
+  capture,
+};
+
+const artifactAccept: ArtifactAcceptResponse = {
+  artifact_id: "0d4e7a1c-0000-4000-8000-000000000001",
+  client_artifact_id: "file_abc",
+  conversation_id: "conv-1",
+  capture_status: "metadata_discovered",
+  linkage_status: "unresolved",
+  duplicate: false,
+  server_time: new Date().toISOString(),
+};
+
+const artifactRecord: ArtifactRecord = {
+  artifact_id: artifactAccept.artifact_id,
+  client_artifact_id: "file_abc",
+  conversation_id: "conv-1",
+  turn_id: null,
+  client_turn_id: "turn-1",
+  linkage_status: "unresolved",
+  direction: "user_uploaded",
+  artifact_type: "image",
+  mime_type: "image/png",
+  byte_size: null,
+  checksum: null,
+  storage_backend: null,
+  storage_location: null,
+  capture_status: "metadata_discovered",
+  parent_artifact_id: null,
+  capture_client: "manual",
+  created_at: "2026-08-01T00:00:00.000Z",
+};
+
+const conversationArtifacts: ConversationArtifactsResponse = {
+  conversation_id: "conv-1",
+  artifacts: [artifactRecord],
+  server_time: new Date().toISOString(),
+};
+
 void request;
 void response;
 void err;
 void list;
 void conversationTurns;
+void artifactCreate;
+void artifactAccept;
+void conversationArtifacts;

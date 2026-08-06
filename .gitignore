@@ -23,6 +23,9 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Local artifact object store (ADR-0007)
+apps/worker/.data/
+
 # Test / coverage
 coverage/
 .nyc_output/
