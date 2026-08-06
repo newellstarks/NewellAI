@@ -2,6 +2,7 @@ import type { Env } from "./env";
 import { errorResponse, HttpError } from "./errors";
 import { createRequestId, withRequestId } from "./requestId";
 import { handleHealth } from "./routes/health";
+import { handleRecallStatic } from "./routes/recall";
 import { handleDevPair } from "./routes/v1/devPair";
 import { handleRecallSession } from "./routes/v1/recallSession";
 import {
@@ -15,6 +16,8 @@ import {
   handleListConversationArtifacts,
   handlePutArtifactContent,
 } from "./routes/v1/artifacts";
+import { handleSearch } from "./routes/v1/search";
+import { handleStatus } from "./routes/v1/status";
 import { handleIngestTurns } from "./routes/v1/turns";
 
 const CONVERSATION_TURNS_RE = /^\/v1\/conversations\/([^/]+)\/turns$/;
@@ -26,7 +29,7 @@ const ARTIFACT_ONE_RE = /^\/v1\/artifacts\/([^/]+)$/;
 /**
  * Worker entry — ingest + authentication + D1 persistence + read slices
  * + local-only POST /v1/dev/pair (Slice 2.1) + Artifact v1 image routes
- * + local-only Recall session mint/revoke.
+ * + Desktop Recall search/status + /recall/ UI.
  */
 async function routeV1(
   request: Request,
@@ -44,6 +47,12 @@ async function routeV1(
   }
   if (pathname === "/v1/conversations") {
     return handleListConversations(request, env);
+  }
+  if (pathname === "/v1/search") {
+    return handleSearch(request, env);
+  }
+  if (pathname === "/v1/status") {
+    return handleStatus(request, env);
   }
   if (pathname === "/v1/artifacts") {
     return handleCreateArtifact(request, env);
@@ -100,6 +109,10 @@ export default {
           throw new HttpError("METHOD_NOT_ALLOWED", "Use GET for /health");
         }
         return handleHealth();
+      }
+
+      if (pathname === "/recall" || pathname.startsWith("/recall/")) {
+        return handleRecallStatic(request, env, pathname);
       }
 
       if (pathname.startsWith("/v1/")) {

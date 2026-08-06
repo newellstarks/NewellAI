@@ -20,7 +20,12 @@ interface MetaFile {
 }
 
 export class LocalFsObjectStorage implements ObjectStorage {
-  constructor(private readonly root: string) {}
+  /** Always absolute so cwd changes cannot relocate the store. */
+  readonly root: string;
+
+  constructor(root: string) {
+    this.root = path.resolve(root);
+  }
 
   private objectPath(key: string): string {
     if (
@@ -43,7 +48,17 @@ export class LocalFsObjectStorage implements ObjectStorage {
     bytes: Uint8Array,
     contentType: string,
   ): Promise<void> {
-    await mkdir(this.root, { recursive: true });
+    try {
+      await mkdir(this.root, { recursive: true });
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("not implemented") || msg.includes("unenv")) {
+        throw new Error(
+          "LocalFs mkdir unavailable in workerd; use artifact-fs-bridge (ARTIFACT_FS_BRIDGE_URL)",
+        );
+      }
+      throw error;
+    }
     const target = this.objectPath(key);
     const tmp = `${target}.tmp`;
     const payload = Buffer.from(bytes);

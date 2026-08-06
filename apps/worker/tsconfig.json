@@ -13,5 +13,5 @@
       "@newellai/contracts": ["../../packages/contracts/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "public/recall/token.d.ts"]
 }

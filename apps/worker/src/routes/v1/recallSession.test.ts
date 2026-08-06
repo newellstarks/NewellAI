@@ -83,6 +83,18 @@ describe("recall_read vs capture_full scopes", () => {
 
   it("read APIs succeed with recall_read cookie", async () => {
     const raw = await mintCookie();
+    const status = await worker.fetch(
+      new Request("http://127.0.0.1:8787/v1/status", {
+        headers: { Cookie: `${RECALL_SESSION_COOKIE}=${raw}` },
+      }),
+      env,
+    );
+    expect(status.status).toBe(200);
+    const body = (await status.json()) as {
+      storage: { available: boolean };
+    };
+    expect(body.storage.available).toBe(true);
+
     const conv = await worker.fetch(
       new Request("http://127.0.0.1:8787/v1/conversations", {
         headers: { Cookie: `${RECALL_SESSION_COOKIE}=${raw}` },
@@ -165,24 +177,81 @@ describe("recall_read vs capture_full scopes", () => {
     const clear = revoke.headers.get("Set-Cookie") ?? "";
     expect(clear).toMatch(/Max-Age=0/i);
 
-    const conv = await worker.fetch(
-      new Request("http://127.0.0.1:8787/v1/conversations", {
+    const status = await worker.fetch(
+      new Request("http://127.0.0.1:8787/v1/status", {
         headers: { Cookie: `${RECALL_SESSION_COOKIE}=${raw}` },
       }),
       env,
     );
-    expect(conv.status).toBe(401);
+    expect(status.status).toBe(401);
   });
 
   it("Worker restart equivalent: reset sessions invalidates cookie", async () => {
     const raw = await mintCookie();
     resetRecallSessionsForTests();
-    const conv = await worker.fetch(
-      new Request("http://127.0.0.1:8787/v1/conversations", {
+    const status = await worker.fetch(
+      new Request("http://127.0.0.1:8787/v1/status", {
         headers: { Cookie: `${RECALL_SESSION_COOKIE}=${raw}` },
       }),
       env,
     );
-    expect(conv.status).toBe(401);
+    expect(status.status).toBe(401);
+  });
+});
+
+describe("GET /v1/status bridge-down resilience", () => {
+  it("returns 200 with storage.available=false when head throws", async () => {
+    // Force bridge mode with a dead URL — head() fails, status must not 500.
+    env = {
+      ...env,
+      ARTIFACT_STORAGE_MODE: "bridge",
+      ARTIFACT_FS_BRIDGE_URL: "http://127.0.0.1:1",
+      ARTIFACT_DATA_ROOT: "/tmp/newellai-status-bridge-test",
+    };
+
+    // Insert a stored artifact row so status probes storage.
+    const { d1 } = createTestD1();
+    env.DB = d1;
+    await d1
+      .prepare(
+        `INSERT INTO users (user_id, created_at) VALUES ('user-1', datetime('now'))`,
+      )
+      .run();
+    await d1
+      .prepare(
+        `INSERT INTO conversations (conversation_id, user_id, started_at, created_at)
+         VALUES ('c-st', 'user-1', datetime('now'), datetime('now'))`,
+      )
+      .run();
+    await d1
+      .prepare(
+        `INSERT INTO artifacts (
+           artifact_id, client_artifact_id, conversation_id, turn_id, client_turn_id,
+           linkage_status, direction, artifact_type, mime_type, byte_size, checksum,
+           source_key, storage_backend, storage_location, capture_status,
+           capture_client, created_at
+         ) VALUES (
+           'a-st', 'file_st', 'c-st', NULL, 'ct-st',
+           'orphan', 'user_uploaded', 'image', 'image/png', 10, 'abcd',
+           'file_st', 'bridge', 'obj-key', 'stored',
+           'chrome-extension', datetime('now')
+         )`,
+      )
+      .run();
+
+    const res = await worker.fetch(
+      new Request("http://127.0.0.1:8787/v1/status", {
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      storage: { available: boolean; mode: string };
+      conversation_count: number;
+    };
+    expect(body.storage.mode).toBe("bridge");
+    expect(body.storage.available).toBe(false);
+    expect(body.conversation_count).toBe(1);
   });
 });

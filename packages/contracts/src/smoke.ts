@@ -12,6 +12,8 @@ import type {
   ConversationMetadata,
   ConversationsResponse,
   ConversationTurnsResponse,
+  SearchResponse,
+  SystemStatusResponse,
   TurnPayload,
   UploadRequest,
   UploadResponse,
@@ -143,6 +145,37 @@ const conversationArtifacts: ConversationArtifactsResponse = {
   server_time: new Date().toISOString(),
 };
 
+const search: SearchResponse = {
+  query: "Hello",
+  hits: [
+    {
+      conversation_id: "conv-1",
+      turn_id: "0d4e7a1c-0000-4000-8000-000000000000",
+      client_turn_id: "turn-1",
+      speaker: "user",
+      snippet: "Hello",
+      created_at: "2026-08-01T00:00:00.000Z",
+    },
+  ],
+  server_time: new Date().toISOString(),
+};
+
+const status: SystemStatusResponse = {
+  conversation_count: 1,
+  turn_count: 1,
+  artifacts: {
+    stored: 0,
+    pending_download: 0,
+    failed_download: 0,
+    other: 1,
+    bytes_missing: 0,
+  },
+  storage: { mode: "memory", root: null, available: true },
+  last_turn_at: "2026-08-01T00:00:00.000Z",
+  last_artifact_at: null,
+  server_time: new Date().toISOString(),
+};
+
 void request;
 void response;
 void err;
@@ -151,3 +184,5 @@ void conversationTurns;
 void artifactCreate;
 void artifactAccept;
 void conversationArtifacts;
+void search;
+void status;

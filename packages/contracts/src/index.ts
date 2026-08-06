@@ -223,3 +223,75 @@ export interface ConversationArtifactsResponse {
   /** ISO-8601 */
   server_time: string;
 }
+
+// --- Desktop Recall v1 (Additive read/search) ---
+
+/**
+ * One hit from GET /v1/search.
+ * Carries a bounded snippet only — never the full turn text.
+ */
+export interface SearchHit {
+  conversation_id: string;
+  turn_id: string;
+  client_turn_id: string;
+  speaker: Speaker;
+  /** Bounded excerpt around the first literal match. */
+  snippet: string;
+  /** Conversation title when stored. */
+  title?: string;
+  captured_at?: string;
+  /** Server ingest time (ISO-8601). */
+  created_at: string;
+}
+
+/** Body for GET /v1/search. */
+export interface SearchResponse {
+  query: string;
+  /** Deterministic order: created_at DESC, turn_id ASC. */
+  hits: SearchHit[];
+  /** ISO-8601 */
+  server_time: string;
+}
+
+/** Artifact counts by capture_status for GET /v1/status. */
+export interface ArtifactStatusCounts {
+  stored: number;
+  pending_download: number;
+  failed_download: number;
+  /** All other capture_status values combined. */
+  other: number;
+  /**
+   * Rows with capture_status=stored whose object bytes are missing from the
+   * configured storage adapter (integrity gap after restart/misconfig).
+   */
+  bytes_missing: number;
+}
+
+/** Local object-storage diagnostics for GET /v1/status (no secrets). */
+export interface StorageStatusInfo {
+  mode: "local" | "memory" | "bridge";
+  /** Absolute filesystem root when mode=local|bridge; null for memory. */
+  root: string | null;
+  /**
+   * False when the configured storage adapter is unreachable (e.g. FS bridge
+   * down). Status must still return 200 so Recall can load non-artifact data.
+   */
+  available: boolean;
+}
+
+/**
+ * Capture-system health aggregates for GET /v1/status.
+ * Counts and timestamps only — no turn text or artifact bytes.
+ */
+export interface SystemStatusResponse {
+  conversation_count: number;
+  turn_count: number;
+  artifacts: ArtifactStatusCounts;
+  storage: StorageStatusInfo;
+  /** MAX(turns.created_at), or null when no turns. */
+  last_turn_at: string | null;
+  /** MAX(artifacts.created_at), or null when no artifacts. */
+  last_artifact_at: string | null;
+  /** ISO-8601 */
+  server_time: string;
+}

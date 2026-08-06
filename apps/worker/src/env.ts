@@ -20,11 +20,25 @@ export interface Env {
   ARTIFACT_MAX_BYTES?: string;
   /**
    * Filesystem root for local object storage (ADR-0007).
-   * Default: apps/worker/.data/artifacts relative to process cwd when unset.
+   * Prefer an absolute path. Relative values resolve via path.resolve(cwd).
+   * Default absolute: `<cwd>/.data/artifacts`.
    */
   ARTIFACT_DATA_ROOT?: string;
   /**
-   * When `"memory"`, use in-process object store (tests). Never set in deploy.
+   * Storage backend selector:
+   * - unset / `"local"` — direct LocalFs (Node tests)
+   * - `"bridge"` — host disk via ARTIFACT_FS_BRIDGE_URL (Wrangler local)
+   * - `"memory"` — in-process only (unit tests; lost on restart)
    */
   ARTIFACT_STORAGE_MODE?: string;
+  /**
+   * Base URL for the host artifact-fs-bridge (e.g. http://127.0.0.1:8791).
+   * When set, PUT/GET use the bridge (same absolute ARTIFACT_DATA_ROOT on disk).
+   */
+  ARTIFACT_FS_BRIDGE_URL?: string;
+  /**
+   * Static assets binding for Desktop Recall UI (`/recall/*`).
+   * Bound via wrangler `[assets]`; optional in unit tests.
+   */
+  ASSETS?: Fetcher;
 }

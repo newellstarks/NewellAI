@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NewellAI Recall</title>
+    <link rel="stylesheet" href="/recall/styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <h1>NewellAI Recall</h1>
+      <p class="sub">Local search and review of captured turns and images</p>
+    </header>
+
+    <section id="auth" class="panel">
+      <h2>Local access</h2>
+      <p class="hint">
+        Connect once to this local Worker. No capture token paste for normal use.
+      </p>
+      <div class="row">
+        <button type="button" id="btn-connect">Connect local Worker</button>
+        <button type="button" id="btn-sign-out" class="secondary">Sign out</button>
+        <span id="auth-state" class="muted"></span>
+      </div>
+      <details id="advanced-auth" class="advanced">
+        <summary>Advanced — recovery Bearer token</summary>
+        <p class="hint">
+          Development/recovery only. Paste <code>CAPTURE_API_TOKEN</code> if
+          session mint is unavailable. Not used for normal local use.
+        </p>
+        <label>
+          Bearer token
+          <input
+            id="token"
+            type="password"
+            name="recall-bearer-token"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-1p-ignore="true"
+            data-lpignore="true"
+            data-form-type="other"
+            data-bwignore="true"
+          />
+        </label>
+        <div class="row">
+          <button type="button" id="btn-save-token">Use recovery token</button>
+          <button type="button" id="btn-clear-token" class="secondary">
+            Clear recovery token
+          </button>
+        </div>
+      </details>
+    </section>
+
+    <section id="health" class="panel hidden">
+      <h2>System health</h2>
+      <div id="health-body" class="health-grid"></div>
+    </section>
+
+    <section id="search-panel" class="panel hidden">
+      <h2>Search</h2>
+      <form id="search-form" class="row">
+        <input
+          id="search-q"
+          type="search"
+          placeholder="Literal text (min 2 characters)"
+          minlength="2"
+          maxlength="200"
+        />
+        <button type="submit">Search</button>
+      </form>
+      <p id="search-error" class="error" hidden></p>
+      <ul id="search-results" class="list"></ul>
+    </section>
+
+    <section id="conversations" class="panel hidden">
+      <h2>Conversations</h2>
+      <ul id="conversation-list" class="list"></ul>
+    </section>
+
+    <section id="conversation-view" class="panel hidden">
+      <div class="row between">
+        <h2 id="conv-title">Conversation</h2>
+        <button type="button" id="btn-back" class="secondary">Back</button>
+      </div>
+      <p id="conv-meta" class="muted"></p>
+      <div id="unlinked-artifacts" class="unlinked-artifacts hidden"></div>
+      <div id="turns" class="turns"></div>
+    </section>
+
+    <dialog id="image-dialog">
+      <form method="dialog" class="image-dialog-inner">
+        <div class="row between">
+          <strong id="image-dialog-title">Image</strong>
+          <button type="submit" class="secondary">Close</button>
+        </div>
+        <img id="image-dialog-img" alt="Captured artifact" />
+        <a id="image-dialog-download" href="#" download>Download</a>
+      </form>
+    </dialog>
+
+    <script type="module" src="/recall/app.js?v=recall-2026-08-06e"></script>
+  </body>
+</html>

@@ -4,6 +4,11 @@ main = "src/index.ts"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Desktop Recall v1 static UI (served under /recall/ by the Worker).
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "newellai"

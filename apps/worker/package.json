@@ -4,6 +4,7 @@
   "private": true,
   "description": "NewellAI Worker — authenticated ingest, validation, D1 persistence",
   "scripts": {
+    "dev:fs-bridge": "node ./scripts/artifact-fs-bridge.mjs",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "build": "echo \"worker build uses wrangler\"",
