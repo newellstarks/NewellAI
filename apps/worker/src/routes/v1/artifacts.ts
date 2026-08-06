@@ -2,7 +2,7 @@ import type {
   ArtifactAcceptResponse,
   ConversationArtifactsResponse,
 } from "@newellai/contracts";
-import { requireCaptureApiToken } from "../../auth";
+import { requireCaptureApiToken, requireRecallRead } from "../../auth";
 import {
   conversationExists,
   createOrGetArtifact,
@@ -192,7 +192,7 @@ export async function handleGetArtifact(
   if (request.method !== "GET") {
     throw new HttpError("METHOD_NOT_ALLOWED", "Use GET for /v1/artifacts/:id");
   }
-  await requireCaptureApiToken(request, env.CAPTURE_API_TOKEN);
+  await requireRecallRead(request, env.CAPTURE_API_TOKEN);
   const record = await getArtifactById(env.DB, artifactId);
   if (record === null) {
     throw new HttpError("NOT_FOUND", "Artifact not found");
@@ -211,7 +211,7 @@ export async function handleGetArtifactContent(
       "Use GET for /v1/artifacts/:id/content",
     );
   }
-  await requireCaptureApiToken(request, env.CAPTURE_API_TOKEN);
+  await requireRecallRead(request, env.CAPTURE_API_TOKEN);
 
   const record = await getArtifactById(env.DB, artifactId);
   if (record === null || record.capture_status !== "stored") {
@@ -254,7 +254,7 @@ export async function handleListConversationArtifacts(
       "Use GET for /v1/conversations/:id/artifacts",
     );
   }
-  await requireCaptureApiToken(request, env.CAPTURE_API_TOKEN);
+  await requireRecallRead(request, env.CAPTURE_API_TOKEN);
 
   const exists = await conversationExists(env.DB, conversationId);
   if (!exists) {

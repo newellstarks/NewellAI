@@ -3,6 +3,7 @@ import { errorResponse, HttpError } from "./errors";
 import { createRequestId, withRequestId } from "./requestId";
 import { handleHealth } from "./routes/health";
 import { handleDevPair } from "./routes/v1/devPair";
+import { handleRecallSession } from "./routes/v1/recallSession";
 import {
   handleConversationTurns,
   handleListConversations,
@@ -24,7 +25,8 @@ const ARTIFACT_ONE_RE = /^\/v1\/artifacts\/([^/]+)$/;
 
 /**
  * Worker entry — ingest + authentication + D1 persistence + read slices
- * + local-only POST /v1/dev/pair (Slice 2.1) + Artifact v1 image routes.
+ * + local-only POST /v1/dev/pair (Slice 2.1) + Artifact v1 image routes
+ * + local-only Recall session mint/revoke.
  */
 async function routeV1(
   request: Request,
@@ -33,6 +35,9 @@ async function routeV1(
 ): Promise<Response> {
   const pair = await handleDevPair(request, env, pathname);
   if (pair !== null) return pair;
+
+  const recallSession = await handleRecallSession(request, env, pathname);
+  if (recallSession !== null) return recallSession;
 
   if (pathname === "/v1/turns") {
     return handleIngestTurns(request, env);

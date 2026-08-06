@@ -1,4 +1,15 @@
 import { HttpError } from "./errors";
+import {
+  RECALL_SESSION_COOKIE,
+  recallSessionValid,
+} from "./recall/sessionState";
+
+/**
+ * Auth scopes:
+ * - capture_full: Bearer CAPTURE_API_TOKEN (ingest + artifact writes + reads)
+ * - recall_read: Recall session cookie (GET Recall read APIs only)
+ */
+export type AuthScope = "capture_full" | "recall_read";
 
 /**
  * Parse `Authorization` for a single Bearer token.
@@ -33,6 +44,24 @@ export function parseBearerToken(authorizationHeader: string): string | null {
   return token;
 }
 
+/** Read a single cookie value by name (first match). */
+export function parseCookieValue(
+  cookieHeader: string | null,
+  name: string,
+): string | null {
+  if (cookieHeader === null || cookieHeader.length === 0) return null;
+  const parts = cookieHeader.split(";");
+  for (const part of parts) {
+    const trimmed = part.trim();
+    const eq = trimmed.indexOf("=");
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    if (key !== name) continue;
+    return trimmed.slice(eq + 1).trim();
+  }
+  return null;
+}
+
 /** Constant-time compare of equal-length byte arrays (no early exit on mismatch). */
 function timingSafeEqualBytes(a: Uint8Array, b: Uint8Array): boolean {
   const len = Math.max(a.byteLength, b.byteLength);
@@ -57,32 +86,66 @@ async function timingSafeEqualString(a: string, b: string): Promise<boolean> {
   return timingSafeEqualBytes(new Uint8Array(aDigest), new Uint8Array(bDigest));
 }
 
+async function bearerIsCaptureToken(
+  request: Request,
+  captureApiToken: string,
+): Promise<boolean> {
+  const header = request.headers.get("Authorization");
+  if (header === null) return false;
+  const presented = parseBearerToken(header);
+  if (presented === null) return false;
+  return timingSafeEqualString(presented, captureApiToken);
+}
+
+async function cookieIsRecallSession(request: Request): Promise<boolean> {
+  const raw = parseCookieValue(
+    request.headers.get("Cookie"),
+    RECALL_SESSION_COOKIE,
+  );
+  if (raw === null) return false;
+  return recallSessionValid(raw);
+}
+
 /**
- * Require `Authorization: Bearer <CAPTURE_API_TOKEN>`.
- * Sanitized failures: callers must map to 401 + WWW-Authenticate without leaking why.
- * Missing server token: fail closed before body parse; log only `AUTH_CONFIGURATION_MISSING`.
+ * Authenticate with the required minimum scope.
+ * Returns the granted scope (`capture_full` preferred when both present).
  */
-export async function requireCaptureApiToken(
+export async function requireAuth(
   request: Request,
   captureApiToken: string | undefined,
-): Promise<void> {
+  required: AuthScope,
+): Promise<AuthScope> {
   if (captureApiToken === undefined || captureApiToken.length === 0) {
     console.error("AUTH_CONFIGURATION_MISSING");
     throw new HttpError("INTERNAL_ERROR", "Unexpected server error");
   }
 
-  const header = request.headers.get("Authorization");
-  if (header === null) {
-    throw new HttpError("UNAUTHORIZED", "Unauthorized");
+  if (await bearerIsCaptureToken(request, captureApiToken)) {
+    return "capture_full";
   }
 
-  const presented = parseBearerToken(header);
-  if (presented === null) {
-    throw new HttpError("UNAUTHORIZED", "Unauthorized");
+  if (required === "recall_read" && (await cookieIsRecallSession(request))) {
+    return "recall_read";
   }
 
-  const ok = await timingSafeEqualString(presented, captureApiToken);
-  if (!ok) {
-    throw new HttpError("UNAUTHORIZED", "Unauthorized");
-  }
+  throw new HttpError("UNAUTHORIZED", "Unauthorized");
+}
+
+/**
+ * Require `Authorization: Bearer <CAPTURE_API_TOKEN>` (capture_full).
+ * Sanitized failures: callers must map to 401 + WWW-Authenticate without leaking why.
+ */
+export async function requireCaptureApiToken(
+  request: Request,
+  captureApiToken: string | undefined,
+): Promise<void> {
+  await requireAuth(request, captureApiToken, "capture_full");
+}
+
+/** Require capture_full or recall_read for GET Recall/read APIs. */
+export async function requireRecallRead(
+  request: Request,
+  captureApiToken: string | undefined,
+): Promise<AuthScope> {
+  return requireAuth(request, captureApiToken, "recall_read");
 }

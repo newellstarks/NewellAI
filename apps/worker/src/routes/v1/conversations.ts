@@ -2,7 +2,7 @@ import type {
   ConversationsResponse,
   ConversationTurnsResponse,
 } from "@newellai/contracts";
-import { requireCaptureApiToken } from "../../auth";
+import { requireRecallRead } from "../../auth";
 import { listConversations, listConversationTurns } from "../../db/reads";
 import type { Env } from "../../env";
 import { HttpError, jsonResponse } from "../../errors";
@@ -24,7 +24,7 @@ export async function handleListConversations(
     throw new HttpError("METHOD_NOT_ALLOWED", "Use GET for /v1/conversations");
   }
 
-  await requireCaptureApiToken(request, env.CAPTURE_API_TOKEN);
+  await requireRecallRead(request, env.CAPTURE_API_TOKEN);
 
   const conversations = await listConversations(env.DB);
   const response: ConversationsResponse = {
@@ -46,7 +46,7 @@ export async function handleConversationTurns(
     );
   }
 
-  await requireCaptureApiToken(request, env.CAPTURE_API_TOKEN);
+  await requireRecallRead(request, env.CAPTURE_API_TOKEN);
 
   const turns = await listConversationTurns(env.DB, conversationId);
   const response: ConversationTurnsResponse = {
