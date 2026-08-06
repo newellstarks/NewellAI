@@ -113,6 +113,74 @@ Each source should preserve provenance such as:
 
 > **NewellAI is envisioned as a device-independent, source-backed personal memory platform, with ChatGPT conversation capture as its first working input channel.**
 
+## Possible Pricing Strategy
+
+**Early commercial hypothesis only.** This section sketches a possible go-to-market path. It is **not** a finalized pricing commitment, not a public offer, and does **not** expand current engineering scope (including Artifact v1 or near-term Roadmap milestones).
+
+NewellAI may initially be sold through an installation-led annual license model rather than as a low-cost, self-service consumer subscription.
+
+### Installation-led model
+
+The first-year package would be prepaid and could include:
+
+- professional installation
+- configuration
+- twelve months of licensed use
+- onboarding and training
+- local storage and backup setup
+- support and maintenance
+- compatibility updates
+- continuous standard product upgrades released during the license term
+- an initial system-health and capture-verification review
+
+The installation is part of the product value, not a free add-on. Early customers may need assistance configuring capture, organizing prior material, verifying backups, and learning how to retrieve source-backed information.
+
+### Why installations may produce the earliest revenue
+
+New installations may be the most direct source of early cash because they:
+
+- provide a concrete deliverable customers can understand
+- combine software with valuable professional service
+- do not require fully automated self-service onboarding
+- expose customer needs quickly
+- permit higher pricing than a generic consumer subscription
+- naturally lead to annual renewals, additional devices, training, imports, customization, and managed support
+
+The early objective is not necessarily to maximize subscriber count. It is to install a dependable system for a manageable number of customers who derive substantial value from preserving and retrieving their AI work.
+
+### Illustrative economics
+
+The figures below are **provisional illustrations only**, not quotes or commitments.
+
+- A first-year installation and license package might fall in the range of $4,000 to $7,500, depending on configuration, training, support, imports, and customization.
+- Annual renewal might include continued licensed use, support, maintenance, and continuous standard upgrades.
+- Additional revenue may come from extra computers, historical imports, Word/Excel library setup, project organization, backup and recovery, additional training, migration, or premium managed services.
+
+At an illustrative $5,000 first-year package:
+
+- one new installation per month produces $5,000 in monthly cash receipts
+- two new installations per month produces $10,000
+- three new installations per month produces $15,000
+
+Over time, annual renewals and add-on services may reduce the number of new installations required to reach a monthly income target.
+
+### Product-development implication
+
+The first salable version does not need to be self-installed by an unknown consumer.
+
+It needs to be reliable enough that Newell can:
+
+- install it
+- configure it
+- validate capture
+- train the customer
+- support it
+- preserve and retrieve the customer’s information dependably
+
+Self-service onboarding, smartphone expansion, wearables, and mass-market consumer distribution can remain future phases until installation revenue proves demand.
+
+> **Build the smallest dependable system that can be professionally installed, trained, supported, and sold.**
+
 ## Related
 
 - [Roadmap](./Roadmap.md)
