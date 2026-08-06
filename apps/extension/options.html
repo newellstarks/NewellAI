@@ -135,6 +135,25 @@
       </div>
     </fieldset>
 
+    <fieldset>
+      <legend>Artifact queue</legend>
+      <p class="hint">Sibling queue for images (PNG/JPEG/WebP). Conflict dismiss does not replace identity.</p>
+      <dl>
+        <dt>Pending</dt><dd id="art-pending">–</dd>
+        <dt>Auth-blocked</dt><dd id="art-auth">–</dd>
+        <dt>In flight</dt><dd id="art-inflight">–</dd>
+        <dt>Dead letters</dt><dd id="art-dead">–</dd>
+        <dt>Conflicts</dt><dd id="art-conflicts">–</dd>
+        <dt>Last error</dt><dd id="art-error">–</dd>
+        <dt>Last success</dt><dd id="art-success">–</dd>
+      </dl>
+      <div id="art-conflict-list" class="hint"></div>
+      <div>
+        <button id="clear-art-dead" class="danger" type="button">Clear artifact dead letters</button>
+        <span id="art-action-note"></span>
+      </div>
+    </fieldset>
+
     <script type="module" src="dist/options.js"></script>
   </body>
 </html>

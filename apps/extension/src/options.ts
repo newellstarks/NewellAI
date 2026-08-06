@@ -16,6 +16,10 @@ import {
   saveConfig,
 } from "./config";
 import type { QueueStatus } from "./queue/types";
+import type {
+  ArtifactConflictNotice,
+  ArtifactQueueStatus,
+} from "./artifacts/types";
 
 /**
  * Options page — capture enablement, export/import, local pairing, status
@@ -43,6 +47,8 @@ async function refreshStatus(): Promise<void> {
   const reply = await send<{
     ok: boolean;
     status?: QueueStatus;
+    artifactStatus?: ArtifactQueueStatus;
+    artifactConflicts?: ArtifactConflictNotice[];
     capture?: { enabled: boolean; userId: string };
   }>({ type: "getStatus" });
   if (!reply.ok || reply.status === undefined) return;
@@ -57,6 +63,55 @@ async function refreshStatus(): Promise<void> {
     s.last_success_at === null
       ? "never"
       : new Date(s.last_success_at).toLocaleString();
+
+  if (reply.artifactStatus) {
+    const a = reply.artifactStatus;
+    el("art-pending").textContent = String(a.pending);
+    el("art-auth").textContent = String(a.auth_blocked);
+    el("art-inflight").textContent = String(a.in_flight);
+    el("art-dead").textContent = String(a.dead);
+    el("art-conflicts").textContent = String(a.conflicts);
+    el("art-error").textContent = a.last_error ?? "none";
+    el("art-error").className = a.last_error === null ? "" : "error";
+    el("art-success").textContent =
+      a.last_success_at === null
+        ? "never"
+        : new Date(a.last_success_at).toLocaleString();
+  }
+
+  const conflictBox = el("art-conflict-list");
+  conflictBox.replaceChildren();
+  for (const c of reply.artifactConflicts ?? []) {
+    if (c.dismissed) continue;
+    const row = document.createElement("div");
+    row.style.marginTop = "0.5rem";
+    const label = document.createElement("span");
+    label.textContent = [
+      c.artifact_type,
+      c.original_filename ?? "(no filename)",
+      c.conversation_id,
+      c.reason,
+      c.checksum_fingerprint ?? "",
+    ]
+      .filter((p) => p.length > 0)
+      .join(" · ");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "secondary";
+    btn.textContent = "Dismiss";
+    btn.addEventListener("click", () => {
+      void (async () => {
+        await send({
+          type: "dismissArtifactConflict",
+          client_artifact_id: c.client_artifact_id,
+        });
+        await refreshStatus();
+      })();
+    });
+    row.append(label, document.createTextNode(" "), btn);
+    conflictBox.append(row);
+  }
+
   if (reply.capture) {
     renderCaptureStatus(reply.capture.enabled);
     el<HTMLInputElement>("user-id").value = reply.capture.userId;
@@ -321,6 +376,19 @@ async function init(): Promise<void> {
         type: "clearDeadLetters",
       });
       note("action-note", `Cleared ${reply.cleared ?? 0} dead letter(s)`);
+      await refreshStatus();
+    })();
+  });
+
+  el("clear-art-dead").addEventListener("click", () => {
+    void (async () => {
+      const reply = await send<{ ok: boolean; cleared?: number }>({
+        type: "clearArtifactDeadLetters",
+      });
+      note(
+        "art-action-note",
+        `Cleared ${reply.cleared ?? 0} artifact dead letter(s)`,
+      );
       await refreshStatus();
     })();
   });
