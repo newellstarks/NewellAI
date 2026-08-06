@@ -90,6 +90,7 @@ ChatGPT DOM (approved origins only)
 
 - Use **static** `manifest.json` `content_scripts`. Do **not** add the `scripting` permission unless implementation evidence proves it is required.
 - ChatGPT-specific selectors and completion probes live **only** in the capture adapter module.
+- Message roots include author-role nodes, `section[data-turn]` / `[data-turn]`, and (when hosting an image) `[data-conversation-screenshot-content]`. Speaker resolution prefers author-role, then `data-turn`, then screenshot image hosts — tool-only text cards stay excluded. This is required for assistant-generated images that render under `data-turn` / screenshot hosts without `data-message-author-role="assistant"`.
 
 ### Conversation id
 
@@ -139,9 +140,20 @@ An assistant turn is complete only when **all** of:
 2. No known streaming / incomplete marker is present
 3. Its normalized text has remained unchanged for **at least 1 second**
 
+When the assistant reply has **no extractable text** but the turn contains an image attachment (blob or estuary, via the same helpers used for artifact discovery), completion uses the stable marker `[image attachment]` under the same stability window. Streaming/stop rules are unchanged. Captioned assistants still complete on their real text.
+
 The stability window is supporting evidence alongside affordance/marker checks. A sub-second window (e.g. 400 ms) is too aggressive for rendering and late-arriving citations.
 
-User turns: enqueue when the committed user message node is present with final plain text.
+User turns: enqueue when the committed user message node is present with final plain text (or image-only with the same `[image attachment]` marker).
+
+### Image artifact enqueue (live-proven)
+
+1. Enqueue the completed turn first so durable turn identity exists.
+2. Discover estuary images in that turn’s element; fetch over HTTPS; validate allowlisted `Content-Type`, minimum bytes, and PNG/JPEG/WebP magic signatures.
+3. Artifact enqueue carries the turn `source_key` in `client_turn_id`; the service worker resolves the durable turn id (`lookupClientTurnId`) and rejects with `turn_identity_unknown` when the turn is not yet registered (retry on later rescan).
+4. Desktop Recall shows linked thumbnails with View/Download when bytes are stored; historical unlinked or missing-byte artifacts stay visible as unavailable rather than inventing a new identity.
+
+Diagnostics for capture/artifact transport may log sanitized status tags only — never tokens, source URLs, or image bytes.
 
 ### Content-script → service-worker messaging
 

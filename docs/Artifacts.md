@@ -147,6 +147,20 @@ Same `client_artifact_id` + same checksum ⇒ duplicate. Different checksum ⇒ 
 
 **Configurable** maximum: **25 MB** per artifact (initial default).
 
+Before enqueue, image fetches must succeed over HTTPS, declare an allowlisted `Content-Type`, exceed the minimum image byte floor, and match PNG/JPEG/WebP magic signatures. Declared MIME alone is not trusted; JSON/text/tiny bodies must not become `stored`.
+
+**Live-proven ChatGPT image capture (Artifact v1):**
+
+| Path | Behavior |
+|------|----------|
+| User-uploaded images | Discovered on completed user turns; estuary HTTPS fetch + MIME/signature validation; durable `client_artifact_id` from file id |
+| Assistant-generated images | Same fetch/validate path with `direction=assistant_generated` / `image_provenance=generated` |
+| Image-only assistant turns | Complete with stable `[image attachment]` text marker; artifacts link to that turn’s durable `client_turn_id` |
+| Turn linkage | Content script sends the turn `source_key`; service worker resolves the durable turn identity before artifact enqueue — artifacts do not invent a parallel turn id |
+| Rescan / retry | Failed fetches and `turn_identity_unknown` remain retryable; successful `(conversation, file)` attempts are idempotent |
+
+**Read integrity:** `GET /v1/artifacts/:id/content` for `capture_status=stored` returns `INTEGRITY_ERROR` (HTTP 409) when object bytes are missing or the on-disk checksum does not match metadata. Missing bytes must not masquerade as `404`/`200`. Historical D1 rows are **not** rewritten solely because bytes are missing; Desktop Recall may show unavailable thumbnails while conversations/search remain usable. Local Wrangler persistence uses the host artifact FS bridge (`ARTIFACT_STORAGE_MODE=bridge`); when the bridge is down, `/v1/status` reports `storage.available=false` without failing Recall reads of turn text.
+
 **Not in first slice:** macro-enabled Excel (e.g. `.xlsm`), arbitrary archives, executables, password-protected workbooks, unrestricted document types (PDF/doc/pptx wait for a later allowlist expansion).
 
 ### 5. Concurrency
