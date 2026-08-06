@@ -14,4 +14,17 @@ export interface Env {
    * No wildcards.
    */
   PAIRING_EXTENSION_ORIGIN?: string;
+  /**
+   * Max artifact bytes (decimal string). Default 26214400 (25 MiB).
+   */
+  ARTIFACT_MAX_BYTES?: string;
+  /**
+   * Filesystem root for local object storage (ADR-0007).
+   * Default: apps/worker/.data/artifacts relative to process cwd when unset.
+   */
+  ARTIFACT_DATA_ROOT?: string;
+  /**
+   * When `"memory"`, use in-process object store (tests). Never set in deploy.
+   */
+  ARTIFACT_STORAGE_MODE?: string;
 }

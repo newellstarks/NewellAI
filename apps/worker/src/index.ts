@@ -7,13 +7,24 @@ import {
   handleConversationTurns,
   handleListConversations,
 } from "./routes/v1/conversations";
+import {
+  handleCreateArtifact,
+  handleGetArtifact,
+  handleGetArtifactContent,
+  handleListConversationArtifacts,
+  handlePutArtifactContent,
+} from "./routes/v1/artifacts";
 import { handleIngestTurns } from "./routes/v1/turns";
 
 const CONVERSATION_TURNS_RE = /^\/v1\/conversations\/([^/]+)\/turns$/;
+const CONVERSATION_ARTIFACTS_RE =
+  /^\/v1\/conversations\/([^/]+)\/artifacts$/;
+const ARTIFACT_CONTENT_RE = /^\/v1\/artifacts\/([^/]+)\/content$/;
+const ARTIFACT_ONE_RE = /^\/v1\/artifacts\/([^/]+)$/;
 
 /**
  * Worker entry — ingest + authentication + D1 persistence + read slices
- * + local-only POST /v1/dev/pair (Slice 2.1).
+ * + local-only POST /v1/dev/pair (Slice 2.1) + Artifact v1 image routes.
  */
 async function routeV1(
   request: Request,
@@ -28,6 +39,39 @@ async function routeV1(
   }
   if (pathname === "/v1/conversations") {
     return handleListConversations(request, env);
+  }
+  if (pathname === "/v1/artifacts") {
+    return handleCreateArtifact(request, env);
+  }
+  const contentMatch = ARTIFACT_CONTENT_RE.exec(pathname);
+  if (contentMatch !== null) {
+    const id = decodeURIComponent(contentMatch[1]!);
+    if (request.method === "PUT") {
+      return handlePutArtifactContent(request, env, id);
+    }
+    if (request.method === "GET") {
+      return handleGetArtifactContent(request, env, id);
+    }
+    throw new HttpError(
+      "METHOD_NOT_ALLOWED",
+      "Use GET or PUT for /v1/artifacts/:id/content",
+    );
+  }
+  const artifactMatch = ARTIFACT_ONE_RE.exec(pathname);
+  if (artifactMatch !== null) {
+    const id = decodeURIComponent(artifactMatch[1]!);
+    if (request.method === "GET") {
+      return handleGetArtifact(request, env, id);
+    }
+    throw new HttpError("METHOD_NOT_ALLOWED", "Use GET for /v1/artifacts/:id");
+  }
+  const artifactsListMatch = CONVERSATION_ARTIFACTS_RE.exec(pathname);
+  if (artifactsListMatch !== null) {
+    return handleListConversationArtifacts(
+      request,
+      env,
+      decodeURIComponent(artifactsListMatch[1]!),
+    );
   }
   const turnsMatch = CONVERSATION_TURNS_RE.exec(pathname);
   if (turnsMatch !== null) {

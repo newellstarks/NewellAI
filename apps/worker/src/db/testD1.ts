@@ -8,10 +8,8 @@ import Database from "better-sqlite3";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-const MIGRATION_PATH = path.resolve(
-  __dirname,
-  "../../../../migrations/0001_init.sql",
-);
+const MIGRATIONS_DIR = path.resolve(__dirname, "../../../../migrations");
+const MIGRATION_FILES = ["0001_init.sql", "0002_artifacts.sql"];
 
 class TestD1Statement {
   constructor(
@@ -47,7 +45,11 @@ export class TestD1Database {
     this.sqlite = new Database(":memory:");
     // D1 enforces foreign keys by default; better-sqlite3 does not.
     this.sqlite.pragma("foreign_keys = ON");
-    this.sqlite.exec(readFileSync(MIGRATION_PATH, "utf-8"));
+    for (const file of MIGRATION_FILES) {
+      this.sqlite.exec(
+        readFileSync(path.join(MIGRATIONS_DIR, file), "utf-8"),
+      );
+    }
   }
 
   prepare(sql: string): TestD1Statement {
