@@ -8,6 +8,7 @@ import {
   buildAuthorizationHeader,
   normalizeToken,
 } from "./token.js?v=recall-2026-08-06e";
+import { loadThumbnail as loadThumbnailInto } from "./thumbnail.js?v=recall-2026-08-08a";
 
 /** Recovery Bearer only (sessionStorage). Normal path uses HttpOnly cookie. */
 const RECOVERY_TOKEN_KEY = "newellai_recall_recovery_token";
@@ -363,24 +364,11 @@ async function downloadImage(artifactId, filename) {
 }
 
 async function loadThumbnail(imgEl, artifactId) {
-  try {
-    const blob = await fetchArtifactBlob(artifactId);
-    const url = trackObjectUrl(URL.createObjectURL(blob));
-    if (!imgEl.isConnected) {
-      revokeObjectUrl(url);
-      return;
-    }
-    imgEl.src = url;
-    imgEl.hidden = false;
-  } catch {
-    if (imgEl.isConnected) {
-      imgEl.hidden = true;
-      const err = document.createElement("span");
-      err.className = "artifact-status failed";
-      err.textContent = "Thumbnail unavailable";
-      imgEl.replaceWith(err);
-    }
-  }
+  await loadThumbnailInto(imgEl, artifactId, {
+    fetchBlob: fetchArtifactBlob,
+    trackObjectUrl,
+    revokeObjectUrl,
+  });
 }
 
 /**
