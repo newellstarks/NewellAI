@@ -183,6 +183,34 @@ export const FIXTURE_ASSISTANT_TEXT_AND_IMAGE = `
 </main>
 `;
 
+/** Chrome-only assistant text + generated image (must not persist chrome). */
+export const FIXTURE_ASSISTANT_IMAGE_CHATGPT_SAID_CHROME = `
+<main>
+  <article data-testid="conversation-turn-asst-chrome">
+    <div data-message-author-role="assistant" data-message-id="msg-asst-chrome">
+      <div class="markdown"><p>ChatGPT said:Worked for 37s</p></div>
+    </div>
+    <div class="attachment">
+      <img src="https://chatgpt.com/backend-api/estuary/content?id=file_asst_chrome&ts=1&p=2&cid=3&sig=4&v=5" alt="generated" />
+    </div>
+  </article>
+</main>
+`;
+
+/** Caption wrapped in ChatGPT said: chrome + generated image. */
+export const FIXTURE_ASSISTANT_IMAGE_CAPTION_WITH_CHROME = `
+<main>
+  <article data-testid="conversation-turn-asst-caption-chrome">
+    <div data-message-author-role="assistant" data-message-id="msg-asst-caption-chrome">
+      <div class="markdown"><p>ChatGPT said:</p><p>Here is a red apple</p></div>
+    </div>
+    <div class="attachment">
+      <img src="https://chatgpt.com/backend-api/estuary/content?id=file_asst_cap_chrome&ts=1&p=2&cid=3&sig=4&v=5" alt="generated" />
+    </div>
+  </article>
+</main>
+`;
+
 /** Streaming assistant with image must not complete. */
 export const FIXTURE_ASSISTANT_IMAGE_STREAMING = `
 <main>

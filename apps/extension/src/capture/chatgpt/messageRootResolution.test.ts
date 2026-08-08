@@ -7,7 +7,7 @@ import {
   selectCompletedCandidates,
 } from "./adapter";
 import type { StabilityTracker } from "./completion";
-import { IMAGE_ATTACHMENT_TEXT } from "./completion";
+import { GENERATED_IMAGE_TEXT, IMAGE_ATTACHMENT_TEXT } from "./completion";
 import {
   FIXTURE_ASSISTANT_DATA_TURN_CAPTION_IMAGE,
   FIXTURE_ASSISTANT_DATA_TURN_IMAGE_NO_ROLE,
@@ -75,7 +75,7 @@ describe("message-root / role resolution for generated images", () => {
       CAPTURE_STABILITY_MS,
     );
     expect(done).toHaveLength(1);
-    expect(done[0]!.text).toBe(IMAGE_ATTACHMENT_TEXT);
+    expect(done[0]!.text).toBe(GENERATED_IMAGE_TEXT);
     expect(done[0]!.element?.tagName).toBe("SECTION");
   });
 
@@ -141,7 +141,7 @@ describe("message-root / role resolution for generated images", () => {
     expect(assistants.length).toBe(2);
     for (const a of assistants) {
       expect(a.text.length).toBeGreaterThan(0);
-      expect(a.text).not.toBe(IMAGE_ATTACHMENT_TEXT);
+      expect(a.text).not.toBe(GENERATED_IMAGE_TEXT);
     }
   });
 
@@ -210,7 +210,7 @@ describe("data-turn generated image artifact identity", () => {
 
     const asst = turns.find((t) => t.speaker === "assistant");
     expect(asst).toBeDefined();
-    expect(asst!.text).toBe(IMAGE_ATTACHMENT_TEXT);
+    expect(asst!.text).toBe(GENERATED_IMAGE_TEXT);
     expect(artifacts.length).toBeGreaterThanOrEqual(1);
     for (const art of artifacts) {
       expect(art.direction).toBe("assistant_generated");

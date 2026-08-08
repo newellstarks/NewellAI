@@ -155,7 +155,7 @@ Before enqueue, image fetches must succeed over HTTPS, declare an allowlisted `C
 |------|----------|
 | User-uploaded images | Discovered on completed user turns; estuary HTTPS fetch + MIME/signature validation; durable `client_artifact_id` from file id |
 | Assistant-generated images | Same fetch/validate path with `direction=assistant_generated` / `image_provenance=generated` |
-| Image-only assistant turns | Complete with stable `[image attachment]` text marker; artifacts link to that turn’s durable `client_turn_id` |
+| Image-only assistant turns | Complete with stable `[generated image]` text marker (never `ChatGPT said:` / timing chrome); artifacts link to that turn’s durable `client_turn_id` |
 | Turn linkage | Content script sends the turn `source_key`; service worker resolves the durable turn identity before artifact enqueue — artifacts do not invent a parallel turn id |
 | Rescan / retry | Failed fetches and `turn_identity_unknown` remain retryable; successful `(conversation, file)` attempts are idempotent |
 

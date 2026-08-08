@@ -3,12 +3,15 @@
  * Complete only when: no stop/generating affordance, no streaming marker,
  * and normalized text unchanged for >= CAPTURE_STABILITY_MS.
  *
- * Image-only assistants (empty text + image attachment) use the same
- * stability window against the IMAGE_ATTACHMENT_TEXT marker.
+ * Image-only assistants (empty / chrome-only text + image attachment) use
+ * the same stability window against GENERATED_IMAGE_TEXT.
  */
 
-/** Stable enqueue text when a turn has an image and no caption/body text. */
+/** Stable enqueue text for user image-only uploads (no caption). */
 export const IMAGE_ATTACHMENT_TEXT = "[image attachment]";
+
+/** Stable enqueue text for assistant generated-image turns with no useful caption. */
+export const GENERATED_IMAGE_TEXT = "[generated image]";
 
 export interface CompletionFlags {
   hasStopAffordance: boolean;
@@ -26,6 +29,7 @@ export type StabilityTracker = Map<string, StabilityEntry>;
  * Assistant completion with optional image-only support.
  * Streaming/stop still hard-block. Empty text completes only when
  * `hasImageAttachment` is true (after the usual stability window).
+ * Callers must pass chrome-stripped text (not raw "ChatGPT said:" labels).
  */
 export function evaluateAssistantCompletion(
   trackKey: string,
@@ -44,7 +48,7 @@ export function evaluateAssistantCompletion(
     normalizedText.length > 0
       ? normalizedText
       : hasImageAttachment
-        ? IMAGE_ATTACHMENT_TEXT
+        ? GENERATED_IMAGE_TEXT
         : "";
   if (effectiveText.length === 0) {
     tracker.delete(trackKey);

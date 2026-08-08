@@ -140,18 +140,20 @@ An assistant turn is complete only when **all** of:
 2. No known streaming / incomplete marker is present
 3. Its normalized text has remained unchanged for **at least 1 second**
 
-When the assistant reply has **no extractable text** but the turn contains an image attachment (blob or estuary, via the same helpers used for artifact discovery), completion uses the stable marker `[image attachment]` under the same stability window. Streaming/stop rules are unchanged. Captioned assistants still complete on their real text.
+When the assistant reply has **no useful extractable text** but the turn contains an image attachment (blob or estuary, via the same helpers used for artifact discovery), completion uses the stable marker `[generated image]` under the same stability window. Streaming/stop rules are unchanged. Captioned assistants still complete on their real caption/body text after ChatGPT UI chrome is stripped.
+
+Strip (do not store as semantic turn text): labels such as `ChatGPT said:` and transient timing chrome such as `Worked for 37s` / `Thinking for Ns`. After stripping, if nothing meaningful remains and an image is present, use `[generated image]` — never persist chrome-only strings.
 
 The stability window is supporting evidence alongside affordance/marker checks. A sub-second window (e.g. 400 ms) is too aggressive for rendering and late-arriving citations.
 
-User turns: enqueue when the committed user message node is present with final plain text (or image-only with the same `[image attachment]` marker).
+User turns: enqueue when the committed user message node is present with final plain text (or image-only with the stable marker `[image attachment]`).
 
 ### Image artifact enqueue (live-proven)
 
 1. Enqueue the completed turn first so durable turn identity exists.
 2. Discover estuary images in that turn’s element; fetch over HTTPS; validate allowlisted `Content-Type`, minimum bytes, and PNG/JPEG/WebP magic signatures.
 3. Artifact enqueue carries the turn `source_key` in `client_turn_id`; the service worker resolves the durable turn id (`lookupClientTurnId`) and rejects with `turn_identity_unknown` when the turn is not yet registered (retry on later rescan).
-4. Desktop Recall shows linked thumbnails with View/Download when bytes are stored; historical unlinked or missing-byte artifacts stay visible as unavailable rather than inventing a new identity.
+4. Desktop Recall shows linked thumbnails with View/Download when bytes are stored; historical unlinked or missing-byte artifacts stay visible as unavailable rather than inventing a new identity. Artifact-bearing turns are labeled in the turn header and listed in a conversation jump nav so they are findable without blind scrolling.
 
 Diagnostics for capture/artifact transport may log sanitized status tags only — never tokens, source URLs, or image bytes.
 

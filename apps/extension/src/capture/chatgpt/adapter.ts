@@ -1,7 +1,9 @@
 import type { Speaker } from "@newellai/contracts";
+import { stripAssistantChromeText } from "./chromeText";
 import {
   evaluateAssistantCompletion,
   evaluateUserCompletionWithAttachment,
+  GENERATED_IMAGE_TEXT,
   IMAGE_ATTACHMENT_TEXT,
   type StabilityTracker,
 } from "./completion";
@@ -274,9 +276,11 @@ export function selectCompletedCandidates(
     }
     const hasImage =
       msg.element !== undefined && turnHasImageAttachment(msg.element);
+    // Never stabilize/enqueue ChatGPT chrome as semantic turn text.
+    const cleaned = stripAssistantChromeText(msg.text);
     const done = evaluateAssistantCompletion(
       msg.trackKey,
-      msg.text,
+      cleaned,
       msg.flags,
       tracker,
       nowMs,
@@ -285,7 +289,11 @@ export function selectCompletedCandidates(
     );
     if (!done) continue;
     const text =
-      msg.text.length > 0 ? msg.text : IMAGE_ATTACHMENT_TEXT;
+      cleaned.length > 0
+        ? cleaned
+        : hasImage
+          ? GENERATED_IMAGE_TEXT
+          : IMAGE_ATTACHMENT_TEXT;
     completed.push({
       speaker: msg.speaker,
       text,

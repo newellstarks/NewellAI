@@ -32,6 +32,7 @@ const els = {
   conversationView: document.getElementById("conversation-view"),
   convTitle: document.getElementById("conv-title"),
   convMeta: document.getElementById("conv-meta"),
+  artifactNav: document.getElementById("artifact-nav"),
   unlinkedArtifacts: document.getElementById("unlinked-artifacts"),
   turns: document.getElementById("turns"),
   btnBack: document.getElementById("btn-back"),
@@ -165,6 +166,10 @@ function showHomeLists() {
   if (els.unlinkedArtifacts) {
     els.unlinkedArtifacts.innerHTML = "";
     els.unlinkedArtifacts.classList.add("hidden");
+  }
+  if (els.artifactNav) {
+    els.artifactNav.innerHTML = "";
+    els.artifactNav.classList.add("hidden");
   }
   els.turns.innerHTML = "";
 }
@@ -486,20 +491,31 @@ async function loadConversation(conversationId, highlightTurnId) {
 
   const { rows, unlinked } = associateArtifacts(turnsBody.turns, artifacts);
   renderUnlinkedArtifacts(unlinked);
+  renderArtifactNav(rows);
 
   els.turns.innerHTML = "";
   for (const { turn, artifacts: linked } of rows) {
     const article = document.createElement("article");
     article.className = `turn ${turn.speaker}`;
     article.id = `turn-${turn.turn_id}`;
+    if (linked.length > 0) {
+      article.classList.add("turn-has-artifacts");
+    }
     if (highlightTurnId && turn.turn_id === highlightTurnId) {
       article.classList.add("highlight");
     }
 
     const meta = document.createElement("div");
     meta.className = "turn-meta";
+    const artifactLabel =
+      linked.length === 0
+        ? ""
+        : linked.length === 1
+          ? `<span class="turn-artifact-label">Image artifact</span>`
+          : `<span class="turn-artifact-label">${linked.length} image artifacts</span>`;
     meta.innerHTML = `
       <span>${turn.speaker}</span>
+      ${artifactLabel}
       <span>captured ${fmt(turn.captured_at ?? turn.created_at)}</span>
       <span>${turn.capture_client}${turn.surface ? ` | ${turn.surface}` : ""}</span>
       <span>turn ${turn.turn_id.slice(0, 8)}...</span>
@@ -528,6 +544,44 @@ async function loadConversation(conversationId, highlightTurnId) {
       block: "center",
     });
   }
+}
+
+/**
+ * Jump links for artifact-bearing turns so operators need not scroll blindly.
+ * @param {Array<{ turn: { turn_id: string, speaker: string, text: string }, artifacts: unknown[] }>} rows
+ */
+function renderArtifactNav(rows) {
+  if (!els.artifactNav) return;
+  els.artifactNav.innerHTML = "";
+  const withArts = rows.filter((r) => r.artifacts.length > 0);
+  if (withArts.length === 0) {
+    els.artifactNav.classList.add("hidden");
+    return;
+  }
+  els.artifactNav.classList.remove("hidden");
+  const title = document.createElement("div");
+  title.className = "artifact-nav-title";
+  title.textContent = `Image artifacts in this conversation (${withArts.length})`;
+  const list = document.createElement("ul");
+  list.className = "artifact-nav-list";
+  for (const { turn, artifacts: linked } of withArts) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = `#turn-${turn.turn_id}`;
+    a.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      document.getElementById(`turn-${turn.turn_id}`)?.scrollIntoView({
+        block: "center",
+      });
+    });
+    const preview = (turn.text || "").trim().slice(0, 48) || "(no text)";
+    const count =
+      linked.length === 1 ? "1 image" : `${linked.length} images`;
+    a.textContent = `${turn.speaker}: ${preview}${turn.text.length > 48 ? "…" : ""} — ${count}`;
+    li.appendChild(a);
+    list.appendChild(li);
+  }
+  els.artifactNav.append(title, list);
 }
 
 async function runSearch(q) {

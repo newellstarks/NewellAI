@@ -6,8 +6,10 @@ import {
   selectCompletedCandidates,
 } from "./adapter";
 import type { StabilityTracker } from "./completion";
-import { IMAGE_ATTACHMENT_TEXT } from "./completion";
+import { GENERATED_IMAGE_TEXT, IMAGE_ATTACHMENT_TEXT } from "./completion";
 import {
+  FIXTURE_ASSISTANT_IMAGE_CAPTION_WITH_CHROME,
+  FIXTURE_ASSISTANT_IMAGE_CHATGPT_SAID_CHROME,
   FIXTURE_ASSISTANT_IMAGE_ONLY,
   FIXTURE_ASSISTANT_IMAGE_STREAMING,
   FIXTURE_ASSISTANT_TEXT_AND_IMAGE,
@@ -73,7 +75,7 @@ describe("assistant image-only completion", () => {
     );
     expect(done).toHaveLength(1);
     expect(done[0]!.speaker).toBe("assistant");
-    expect(done[0]!.text).toBe(IMAGE_ATTACHMENT_TEXT);
+    expect(done[0]!.text).toBe(GENERATED_IMAGE_TEXT);
     expect(done[0]!.sourceProvidedId).toBe("msg-asst-img-only");
   });
 
@@ -91,7 +93,7 @@ describe("assistant image-only completion", () => {
     );
     expect(done).toHaveLength(1);
     expect(done[0]!.text).toBe("Here is your duck");
-    expect(done[0]!.text).not.toBe(IMAGE_ATTACHMENT_TEXT);
+    expect(done[0]!.text).not.toBe(GENERATED_IMAGE_TEXT);
   });
 
   it("does not complete streaming assistant image turn early", () => {
@@ -123,7 +125,7 @@ describe("assistant image-only completion", () => {
     expect(assistants.length).toBeGreaterThanOrEqual(1);
     for (const a of assistants) {
       expect(a.text.length).toBeGreaterThan(0);
-      expect(a.text).not.toBe(IMAGE_ATTACHMENT_TEXT);
+      expect(a.text).not.toBe(GENERATED_IMAGE_TEXT);
     }
   });
 
@@ -140,6 +142,39 @@ describe("assistant image-only completion", () => {
     expect(completed).toHaveLength(1);
     expect(completed[0]!.speaker).toBe("user");
     expect(completed[0]!.text).toBe(IMAGE_ATTACHMENT_TEXT);
+  });
+
+  it("maps chrome-only assistant image text to [generated image]", () => {
+    const document = loadFixture(FIXTURE_ASSISTANT_IMAGE_CHATGPT_SAID_CHROME);
+    const raw = extractRawMessages(document);
+    expect(raw[0]!.text).toMatch(/ChatGPT said:/i);
+    const tracker: StabilityTracker = new Map();
+    selectCompletedCandidates(raw, tracker, 0, CAPTURE_STABILITY_MS);
+    const done = selectCompletedCandidates(
+      raw,
+      tracker,
+      CAPTURE_STABILITY_MS,
+      CAPTURE_STABILITY_MS,
+    );
+    expect(done).toHaveLength(1);
+    expect(done[0]!.text).toBe(GENERATED_IMAGE_TEXT);
+    expect(done[0]!.text).not.toMatch(/ChatGPT said:/i);
+    expect(done[0]!.text).not.toMatch(/Worked for/i);
+  });
+
+  it("keeps real caption after stripping ChatGPT said: chrome", () => {
+    const document = loadFixture(FIXTURE_ASSISTANT_IMAGE_CAPTION_WITH_CHROME);
+    const raw = extractRawMessages(document);
+    const tracker: StabilityTracker = new Map();
+    selectCompletedCandidates(raw, tracker, 0, CAPTURE_STABILITY_MS);
+    const done = selectCompletedCandidates(
+      raw,
+      tracker,
+      CAPTURE_STABILITY_MS,
+      CAPTURE_STABILITY_MS,
+    );
+    expect(done).toHaveLength(1);
+    expect(done[0]!.text).toBe("Here is a red apple");
   });
 });
 
@@ -175,7 +210,7 @@ describe("assistant generated image artifact identity", () => {
 
     const asst = turns.find((t) => t.speaker === "assistant");
     expect(asst).toBeDefined();
-    expect(asst!.text).toBe(IMAGE_ATTACHMENT_TEXT);
+    expect(asst!.text).toBe(GENERATED_IMAGE_TEXT);
     expect(asst!.source_key).toBe("msg-asst-img-only");
     expect(artifacts.length).toBeGreaterThanOrEqual(1);
     for (const art of artifacts) {

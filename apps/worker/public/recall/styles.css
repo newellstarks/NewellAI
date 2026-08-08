@@ -190,6 +190,52 @@ button.secondary {
   outline: 2px solid var(--accent);
 }
 
+.turn.turn-has-artifacts {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.turn-artifact-label {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.artifact-nav {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #f0f7f8;
+}
+
+.artifact-nav-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
+}
+
+.artifact-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.artifact-nav-list a {
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.artifact-nav-list a:hover {
+  color: var(--accent);
+}
+
 .turn-meta {
   display: flex;
   flex-wrap: wrap;
